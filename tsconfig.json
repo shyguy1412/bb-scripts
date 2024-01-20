@@ -5,6 +5,8 @@
     "module": "ESNext",
     "moduleResolution": "node",
     "esModuleInterop": true,
+    "emitDeclarationOnly": true,
+    "declaration": true,
     "lib": [
       "esnext",
       "dom",
@@ -17,10 +19,14 @@
       "@/*": [
         "src/*"
       ],
-      "NetscriptDefinitions" : ["NetscriptDefinitions.d.ts"]
+      "NetscriptDefinitions": [
+        "NetscriptDefinitions.d.ts"
+      ]
     }
   },
   "include": [
-    "servers/**/*", "global.d.ts", "mirror/**/*"
+    "src/**/*",
+    "global.d.ts",
+    "mirror/**/*"
   ]
 }

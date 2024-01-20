@@ -135,3 +135,5 @@ NetscriptDefinitions.d.ts
 # Location of the files mirrored from the game
 
 mirror/
+.vscode
+build
