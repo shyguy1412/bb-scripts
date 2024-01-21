@@ -1,0 +1,3 @@
+[submodule "src/bb-plasma"]
+	path = src/bb-plasma
+	url = git@github.com:shyguy1412/bb-plasma.git
