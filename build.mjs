@@ -36,11 +36,11 @@ const CSSSpoofPlugin = {
   name: 'CSSSpoofPlugin',
   setup(pluginBuild) {
     pluginBuild.onLoad({ filter: /.*?\.css$/ }, async opts => {
-      const file = await fs.readFile(opts.path);
+      const file = await fs.readFile(opts.path, { encoding: 'utf8' });
       return {
         loader: 'jsx',
         contents: `\
-        import React from "react";
+        import React from 'react';
 
         export default function () {
           return <style>{\`${file}\`}</style>;
@@ -51,6 +51,29 @@ const CSSSpoofPlugin = {
   }
 };
 
+/**
+ * @type {import('esbuild').Plugin}
+ */
+const SVGSpoofPlugin = {
+  name: 'SVGSpoofPlugin',
+  setup(pluginBuild) {
+    pluginBuild.onLoad({ filter: /.*?\.svg$/ }, async opts => {
+      const file = await fs.readFile(opts.path, { encoding: 'utf8' });
+      return {
+        loader: 'jsx',
+        contents: `\
+        import React from 'react';
+
+        export default function () {
+          return <div dangerouslySetInnerHTML={{__html: \`${file}\`}}></div>;
+        }\
+        `
+      };
+    });
+  }
+};
+
+
 const createContext = async () => await context({
   entryPoints: [
     'src/servers/**/*.js',
@@ -58,10 +81,11 @@ const createContext = async () => await context({
     'src/servers/**/*.ts',
     'src/servers/**/*.tsx',
   ],
-  outbase: "./src/servers",
-  outdir: "./build",
+  outbase: './src/servers',
+  outdir: './build',
   plugins: [
     CSSSpoofPlugin,
+    SVGSpoofPlugin,
     BitburnerPlugin({
       port: 12525,
       types: 'NetscriptDefinitions.d.ts',

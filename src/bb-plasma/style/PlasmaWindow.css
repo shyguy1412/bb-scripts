@@ -1,0 +1,44 @@
+.plasma-window > *{
+  background-color: var(--backgroundprimary);
+}
+
+.plasma-window>.plasma-window-titlebar {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5em;
+  cursor: move;
+  height: 30px;
+}
+
+.plasma-window-titlebar svg{
+  margin-right: 10px;
+}
+
+.plasma-window>.plasma-window-titlebar>span:first-child {
+  display: flex;
+  justify-content: left;
+  align-items: center;
+  padding-left: 5px;
+}
+
+.plasma-window>.plasma-window-titlebar>span:last-child {
+  display: flex;
+  justify-content: right;
+  align-items: center;
+  gap: 0.2em;
+}
+
+.plasma-window>.plasma-window-titlebar>span:last-child>div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2px;
+}
+
+.plasma-window>.plasma-window-titlebar>span:last-child>div>svg {
+  aspect-ratio: 1/1;
+}
+
+.plasma-window .plasma-window-content{
+  padding: 5px;
+}

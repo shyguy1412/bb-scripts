@@ -1,0 +1,20 @@
+
+.desktop-enviroment {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-rows: auto 45px;
+  background-color: var(--backgroundprimary);
+  font-family: "Lucida Console", "Lucida Sans Unicode", "Fira Mono", Consolas, "Courier New", Courier, monospace, "Times New Roman";
+}
+
+.desktop-enviroment * {
+  box-sizing: border-box;
+  color: var(--primarylight);
+  font-size: 1.05em;
+  user-select: none;
+}
+
+.plasma-desktop{
+  overflow: hidden;
+}

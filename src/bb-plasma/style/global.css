@@ -1,0 +1,59 @@
+/*Hide normal game*/
+div#root {
+  display: none !important;
+}
+
+.plasma-box-glow {
+  box-shadow: 0px 0px 10px 2px var(--primary)
+}
+
+.plasma-fill {
+  width: 100%;
+  height: 100%;
+}
+
+.plasma-square {
+  aspect-ratio: 1/1;
+}
+
+.plasma-box {
+  border: 1px solid var(--welllight);
+}
+
+.plasma-box-inline {
+  border-inline: 1px solid var(--welllight);
+}
+
+.plasma-box-block {
+  border-block: 1px solid var(--welllight);
+}
+
+.plasma-box-top {
+  border-top: 1px solid var(--welllight);
+}
+
+.plasma-box-bottom {
+  border-bottom: 1px solid var(--welllight);
+}
+
+.plasma-box-right {
+  border-right: 1px solid var(--welllight);
+}
+
+.plasma-button {
+  cursor: pointer;
+}
+
+.plasma-button:hover {
+  background-color: var(--well);
+}
+
+.plasma-button:active {
+  background-color: var(--welllight);
+}
+
+.plasma-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

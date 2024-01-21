@@ -17,6 +17,8 @@
   },
   "homepage": "https://github.com/NilsRamstoeck/bb-external-editor#readme",
   "dependencies": {
+    "@fortawesome/free-solid-svg-icons": "^6.5.1",
+    "@fortawesome/react-fontawesome": "^0.2.0",
     "@types/node": "^20.11.5",
     "@types/p5": "^1.7.6",
     "@types/react": "^18.2.48",
