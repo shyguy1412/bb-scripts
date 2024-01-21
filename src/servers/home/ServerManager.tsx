@@ -1,8 +1,8 @@
-import Style from '@/lib/ServerManager/ServerManager.css';
-import { ServerEntry } from '@/lib/ServerManager/components/ServerEntry';
+import Style from '@/ServerManager/ServerManager.css';
+import { ServerEntry } from '@/ServerManager/components/ServerEntry';
 import { createWindowApp } from '@/lib/WindowApp';
 import { List } from '@/lib/components/List';
-import { getPurchasedServers } from '@/lib/util';
+import { getPurchasedServers } from '@/lib/util/Network';
 import { Server } from 'NetscriptDefinitions';
 import React, { useRef, useState } from 'react';
 

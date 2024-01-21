@@ -38,17 +38,6 @@ export function createWindowApp(ns: NS) {
         ns.closeTail();
       });
 
-      ns.sleep(500).then(() => {
-        ns.print(8);
-        ns.print(7);
-        ns.print(6);
-        ns.print(5);
-        ns.print(4);
-        ns.print(3);
-        ns.print(2);
-        ns.print(1);
-      });
-
       return new Promise<void>(resolve => {
         watchElForDeletion(root, () => resolve());
       });

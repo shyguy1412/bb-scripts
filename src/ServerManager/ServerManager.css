@@ -14,6 +14,7 @@
   display: flex;
   justify-content: space-between;
   padding: .5em;
+  border-bottom: 1px solid var(--welllight);
 }
 
 .server-manager-purchase-server input {

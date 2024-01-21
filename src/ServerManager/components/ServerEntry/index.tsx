@@ -1,4 +1,4 @@
-import { doublePurchasedServerRam, maxoutPurchasedServerRam } from '@/lib/util';
+import { doublePurchasedServerRam, maxoutPurchasedServerRam } from '@/lib/util/Network';
 import Style from './ServerEntry.css';
 import { Server } from 'NetscriptDefinitions';
 import React, { useState } from 'react';
