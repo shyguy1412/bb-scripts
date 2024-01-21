@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { createContext } from 'react';
 import ReactDOM from 'react-dom';
+
+export const NetscriptContext = createContext<NS>(undefined);
 
 export function createWindowApp(ns: NS) {
   return {
@@ -31,7 +33,9 @@ export function createWindowApp(ns: NS) {
         </div>;
       };
 
-      ReactDOM.render(<WindowWrapper></WindowWrapper>, root);
+      ReactDOM.render(<NetscriptContext.Provider value={ns}>
+        <WindowWrapper></WindowWrapper>
+      </NetscriptContext.Provider>, root);
 
       ns.atExit(() => {
         ns.tprint('Terminated');
