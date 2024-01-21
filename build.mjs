@@ -13,19 +13,41 @@ const customExtension = {
   //       .forEach(file => writeFile(`logs/${file.filename}`, file.content));
   //   }, 500);
   // }
-  async afterBuild(remoteApi) {
+  async afterBuild() {
     const dodge = [
       'ServerManager.js'
     ];
     const output = await fs.readdir('./build', { recursive: true, withFileTypes: true })
       .then(f => f.filter(f => f.isFile() && dodge.includes(f.name)));
 
-    const a = await Promise.all(
+    await Promise.all(
       output.map(async file => fs.writeFile(
         `${file.path}/${file.name}`,
         RamDodger3000(await fs.readFile(`${file.path}/${file.name}`, { encoding: 'utf8' }))
       ))
     ).catch(_ => console.log(_));
+  }
+};
+
+/**
+ * @type {import('esbuild').Plugin}
+ */
+const CSSSpoofPlugin = {
+  name: 'CSSSpoofPlugin',
+  setup(pluginBuild) {
+    pluginBuild.onLoad({ filter: /.*?\.css$/ }, async opts => {
+      const file = await fs.readFile(opts.path);
+      return {
+        loader: 'jsx',
+        contents: `\
+        import React from "react";
+
+        export default function () {
+          return <style>{\`${file}\`}</style>;
+        }\
+        `
+      };
+    });
   }
 };
 
@@ -39,6 +61,7 @@ const createContext = async () => await context({
   outbase: "./src/servers",
   outdir: "./build",
   plugins: [
+    CSSSpoofPlugin,
     BitburnerPlugin({
       port: 12525,
       types: 'NetscriptDefinitions.d.ts',

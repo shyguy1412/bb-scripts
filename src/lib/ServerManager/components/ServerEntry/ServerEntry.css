@@ -1,0 +1,33 @@
+.server-entry {
+  min-width: fit-content;
+  border: 1px solid var(--welllight);
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  gap: 5px;
+}
+
+.server-entry-button-wrapper {
+  display: flex;
+  gap: 0.5em;
+}
+
+.server-entry-button {
+  cursor: pointer;
+
+  user-select: none;
+
+  border: 1px solid var(--welllight);
+  background-color: var(--backgroundprimary);
+  
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
+  padding-inline: 0.5em;
+  height: 1.5em;
+}
+
+.server-entry-button:hover {
+  filter: brightness(150%);
+}

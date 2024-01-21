@@ -1,0 +1,44 @@
+.server-manager {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(206px, 1fr));
+  overflow-y: auto;
+}
+
+.server-manager-layout {
+  display: grid;
+  height: 100%;
+  grid-auto-columns: auto;
+}
+
+.server-manager-purchase-server {
+  display: flex;
+  justify-content: space-between;
+  padding: .5em;
+}
+
+.server-manager-purchase-server input {
+  background-color: var(--well);
+  color: var(--primarylight);
+  font-size: 1.05em;
+  width: 100px;
+}
+
+.server-manager-purchase-server-button {
+  cursor: pointer;
+
+  user-select: none;
+
+  border: 1px solid var(--welllight);
+  background-color: var(--backgroundprimary);
+
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+
+  width: 2.5em;
+  height: 1.5em;
+}
+
+.server-manager-purchase-server-button:hover {
+  filter: brightness(150%);
+}

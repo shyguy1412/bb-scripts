@@ -19,8 +19,12 @@ export function createWindowApp(ns: NS) {
           root.style.setProperty(`--${key}`, value);
         });
 
+        root.style.flexDirection = 'unset';
+
         return <div style={{
           color: 'var(--primarylight)',
+          width: '100%',
+          height: '100%',
           fontFamily: '"Lucida Console", "Lucida Sans Unicode", "Fira Mono", Consolas, "Courier New", Courier, monospace, "Times New Roman"'
         }}>
           {component}
