@@ -46,7 +46,6 @@ export function ServerManager({ ns }: Props) {
         >OK</span>
       </div>
       <div className='server-manager'>
-        {React.createElement(List,)}
         <List li={ServerEntry} data={servers.map(s => ({
           ns,
           server: s,
