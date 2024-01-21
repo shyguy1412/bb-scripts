@@ -7,6 +7,6 @@ type Props<T extends React.FunctionComponent> = {
 
 export function List<T extends React.FunctionComponent>({ data, li }: Props<T>) {
   return <>
-    {data?.map(c => React.createElement(li, c))}
+    {data?.map(c => React.createElement(li, { ...c, key: JSON.stringify(c) }))}
   </>;
 }
