@@ -49,8 +49,8 @@ export function PlasmaWindow(props: PropsWithChildren<Props>) {
   //effect to center the window if no start position was specified
   useEffect(() => {
     if (!draggableRef.current) return;
-    draggableRef.current.style.left = x + '' ?? document.body.clientWidth / 2 - draggableRef.current.clientWidth / 2 + 'px';
-    draggableRef.current.style.top = y + '' ?? document.body.clientHeight / 2 - draggableRef.current.clientHeight / 2 + 'px';
+    draggableRef.current.style.left = (x ?? document.body.clientWidth / 2 - draggableRef.current.clientWidth / 2 + 'px') + '';
+    draggableRef.current.style.top = (y ?? document.body.clientHeight / 2 - draggableRef.current.clientHeight / 2 + 'px') + '';
   }, []);
 
   return <>

@@ -51,7 +51,7 @@ export async function bbplasma(ns: NS) {
     });
 
     document.body.prepend(overlay);
-    render(<DesktopEnviroment ns={ns} terminate={() => resolve()} reboot={reboot}></DesktopEnviroment>, overlay);
+    render(<DesktopEnviroment ns={ns} terminate={resolve} reboot={reboot}></DesktopEnviroment>, overlay);
   });
 
 }
