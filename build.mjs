@@ -15,7 +15,9 @@ const customExtension = {
   // }
   async afterBuild() {
     const dodge = [
-      'ServerManager.js'
+      'ServerManager.js',
+      'bb-plasma.js',
+      'test.js',
     ];
     const output = await fs.readdir('./build', { recursive: true, withFileTypes: true })
       .then(f => f.filter(f => f.isFile() && dodge.includes(f.name)));
@@ -91,7 +93,7 @@ const createContext = async () => await context({
       types: 'NetscriptDefinitions.d.ts',
       extensions: [customExtension],
       mirror: {
-        'mirror': ['home']
+        'mirror': ['home', 'grindr-1', 'grindr-2', 'grindr-3']
       },
       distribute: {
         'dist': ['grindr-1', 'grindr-2', 'grindr-3']

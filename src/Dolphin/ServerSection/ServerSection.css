@@ -1,0 +1,32 @@
+.dolphin-server-section:first-child{
+  border-bottom: 1px solid var(--welllight);
+}
+
+.dolphin-server-section>summary {
+  list-style: none;
+  display: flex;
+  padding: 0.5em;
+  gap: 0.5em;
+  border-bottom: 1px solid var(--welllight);
+}
+
+.dolphin-server-section>summary::before {
+  display: inline-block;
+  content: '>';
+}
+
+details.dolphin-server-section[open]>summary::before {
+  transform: rotate(90deg);
+}
+
+.dolphin-server-section>* {
+  user-select: none;
+}
+
+.dolphin-server-section-list{
+  margin-top: 0.5em;
+  margin-left: 1em;
+
+  display: flex;
+  flex-direction: column;
+}

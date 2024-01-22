@@ -1,0 +1,37 @@
+.dolphin-layout {
+  display: grid;
+  grid-template-columns: 150px auto;
+  grid-template-rows: auto;
+
+  width: 100%;
+  height: 100%;
+
+  overflow: hidden;
+}
+
+.dolphin-explorer {
+  display: flex;
+  flex-direction: column;
+
+  padding: 0.5em;
+
+  border-right: 1px solid var(--welllight);
+  overflow-y: auto;
+}
+
+.dolphin-explorer-button{
+  cursor: pointer;
+  background-color: var(--backgroundprimary);
+  padding: 0.5em;
+}
+
+.dolphin-explorer-button:hover{
+  filter: brightness(150%);
+}
+
+.dolphin-content{
+  display: grid;
+  grid-template-rows: 35px auto;
+  max-height: 100%;
+  overflow: hidden;
+}

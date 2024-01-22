@@ -1,0 +1,22 @@
+.dolphin-file-tile {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+
+  height: 50px;
+
+  padding: 0.5em;
+  background-color: var(--backgroundprimary);
+
+  user-select: none;
+
+}
+
+
+.dolphin-file-tile:hover {
+  filter: brightness(150%);
+}
+
+.dolphin-file-tile>svg {
+  font-size: 2em;
+}

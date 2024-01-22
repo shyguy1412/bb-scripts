@@ -1,6 +1,7 @@
 export function readDir(ns: NS, path: string) {
   'use ls';
   const [server, ...directory] = path.split('/');
+
   const fs = ns.ls(server)
     .reduce((prev, cur) => {
       const path = cur.split('/');
@@ -20,19 +21,15 @@ export function readFile(ns: NS, path: string) {
   'use getHostname';
   'use scp';
   'use rm';
-  const [server, file] = path.split('/', 2);
+  const [server, file] = path.split(/\/(.*)/, 2);
 
   if (server == ns.getHostname()) {
     return ns.read(file);
   }
 
-  const tempFile = `temp/${file}-${Date.now()}`;
-
-  ns.scp(file, tempFile, server);
-
-  const content = ns.read(tempFile);
-
-  ns.rm(tempFile);
+  ns.scp(file, ns.getHostname(), server);
+  const content = ns.read(file);
+  ns.rm(file);
   return content;
 }
 
@@ -41,8 +38,19 @@ export function moveFile(ns: NS, source: string, destination: string) {
   if (sourceExtension != 'js' && sourceExtension != 'txt') {
     throw new Error('only scripts and textfiles can be moved');
   }
-  const [sourceServer, sourceFile] = source.split('/', 2);
-  const [destinationServer, destinationFile] = destination.split('/', 2);
+  const [sourceServer, sourceFile] = source.split(/\/(.*)/, 2);
+  const [destinationServer, destinationFile] = destination.split(/\/(.*)/, 2);
+
+  console.log({
+    source,
+    sourceServer,
+    sourceFile,
+
+    destination,
+    destinationServer,
+    destinationFile,
+  });
+
   if (sourceServer == destinationServer) ns.mv(sourceServer, sourceFile, destinationFile);
   else {
     copyFile(ns, source, destination);
@@ -58,8 +66,8 @@ export function copyFile(ns: NS, source: string, destination: string) {
     throw new Error('only scripts and textfiles can be moved');
   }
 
-  const [sourceServer, sourceFile] = source.split('/', 2);
-  const [destinationServer, destinationFile] = destination.split('/', 2);
+  const [sourceServer, sourceFile] = source.split(/\/(.*)/, 2);
+  const [destinationServer, destinationFile] = destination.split(/\/(.*)/, 2);
 
   if (!sourceFile) {
     throw new Error('source is not a file');
@@ -78,6 +86,11 @@ export function copyFile(ns: NS, source: string, destination: string) {
 
 export function deleteFile(ns: NS, file: string) {
   'use rm';
-  const [server, path] = file.split('/', 2);
+  const [server, path] = file.split(/\/(.*)/, 2);
   ns.rm(path, server);
+}
+
+export function transferFile(ns: NS, source: string, destination: string, copy?: boolean) {
+  if (copy) copyFile(ns, source, destination);
+  else moveFile(ns, source, destination);
 }

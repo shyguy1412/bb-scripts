@@ -1,0 +1,15 @@
+.dolphin-bread-crumbs {
+  display: flex;
+  align-items: center;
+  padding-inline: 0.5em;
+  border-bottom: 1px solid var(--welllight);
+}
+
+.dolphin-bread-crumb-clickable{
+  display: inline;
+}
+
+.dolphin-bread-crumb-clickable:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
