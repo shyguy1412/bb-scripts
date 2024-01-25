@@ -1,6 +1,19 @@
 /*Hide normal game*/
-div#root {
+/* div#root {
   display: none !important;
+} */
+
+html,
+body {
+  overflow: hidden;
+}
+
+#root {
+  height: 100%;
+}
+
+#root>div>div:has(#terminal) {
+  display: none;
 }
 
 .plasma-box-glow {

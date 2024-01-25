@@ -1,5 +1,4 @@
-import { PlasmaWindow } from '@/bb-plasma/components/PlasmaWindow';
-import { WindowManagerContext } from '@/bb-plasma/DesktopEnviroment';
+import { FileGrid } from '@/bb-plasma/components/FileGrid';
 import React, { useContext } from 'react';
 
 type Props = {
@@ -8,9 +7,7 @@ type Props = {
 
 export function Desktop({ }: Props) {
 
-  const [{ windows }] = useContext(WindowManagerContext);
-
   return <div className='plasma-desktop'>
-    {windows.map((props) => <PlasmaWindow key={props.id} {...props}></PlasmaWindow>)}
+    <FileGrid></FileGrid>
   </div>;
 }

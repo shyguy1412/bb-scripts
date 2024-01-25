@@ -1,7 +1,8 @@
-import { render, unmountComponentAtNode } from 'react-dom';
+import Style from './style/global.css';
+import { createPortal, render, unmountComponentAtNode } from 'react-dom';
 import { DesktopEnviroment } from './DesktopEnviroment';
-import { sleep } from '@/bb-plasma/lib/Sleep';
-import React from 'react';
+import { sleep } from '@/lib/Sleep';
+import React, { useEffect, useState } from 'react';
 
 
 
@@ -14,13 +15,7 @@ export async function bbplasma(ns: NS) {
 
   // await sleep(100);
 
-  const overlay = document.createElement('div');
-  overlay.style.width = '100vw';
-  overlay.style.height = '100vh';
-  overlay.style.zIndex = '9999';
-  overlay.style.position = 'absolute';
-  overlay.style.overflow = 'hidden';
-  overlay.style.background = 'black';
+
 
   return new Promise<void>(resolve => {
     const reboot = () => {
@@ -30,11 +25,11 @@ export async function bbplasma(ns: NS) {
     };
 
     const devTerm = (e: KeyboardEvent) => {
-      
+
       if (e.key == '5') {
         reboot();
       };
-      
+
       if (e.key == 'Escape') {
         resolve();
       }
@@ -45,13 +40,37 @@ export async function bbplasma(ns: NS) {
     ns.atExit(() => {
       ns.tprint('Terminated');
       removeEventListener('keydown', devTerm);
-      unmountComponentAtNode(overlay);
-      overlay.remove();
+      'use clearTerminal';
+      ns.ui.clearTerminal();
       resolve();
     });
 
-    document.body.prepend(overlay);
-    render(<DesktopEnviroment ns={ns} terminate={resolve} reboot={reboot}></DesktopEnviroment>, overlay);
+    const el = [...document.querySelector('#root').children]
+      .filter(el => !el.classList.contains('react-draggable') && el.id != '#unclickable')[0];
+
+    ns.tprintRaw(<>
+      <Style></Style>
+      {createPortal(
+        <DesktopEnviroment ns={ns} terminate={() => resolve()} reboot={() => reboot()}></DesktopEnviroment>,
+        el)}
+    </>
+    );
+
+    // ns.tprintRaw(<div
+    //   className='plasma-wrapper'
+    //   id={`plasma-${ns.pid}`}
+    //   style={{
+    //     width: '100%',
+    //     height: '100%',
+    //     position: 'absolute',
+    //     overflow: 'hidden',
+    //     background: 'black',
+    //   }}>
+    //   <DesktopEnviroment ns={ns} terminate={resolve} reboot={reboot}></DesktopEnviroment>
+    // </div>);
+
+    // document.body.prepend(overlay);
+    // render(, overlay);
   });
 
 }
