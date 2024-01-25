@@ -2,10 +2,10 @@ import { FileGrid } from '@/Dolphin/FileGrid';
 import Style from './Dolphin.css';
 import { ServerSection } from '@/Dolphin/ServerSection';
 import { List } from '@/lib/components/List';
-import { getAllServers } from '@/lib/util/Network';
+import { getAllServers } from '@/lib/Network';
 import React, { createContext, useReducer, useState } from 'react';
 import { BreadCrumbs } from '@/Dolphin/BreadCrumbs';
-import { moveFile, copyFile } from '@/lib/util/FileSystem';
+import { moveFile, copyFile } from '@/lib/FileSystem';
 
 type Props = {
   ns: NS;
@@ -17,8 +17,7 @@ export const ReloadContext = createContext<() => void>(null);
 export function Dolphin({ ns }: Props) {
 
   'use getHostname';
-  const [path, setPath] = useState<string>(ns.getHostname());
-  // const [path, setPath] = useState<string>(`${ns.getHostname()}${ns.args[0]?`/${ns.args[0]}`:''}`);
+  const [path, setPath] = useState<string>(ns.args[0] as string ?? ns.getHostname());
   const [, reload] = useReducer(() => ({}), {});
 
   const servers = getAllServers(ns);

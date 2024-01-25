@@ -1,7 +1,7 @@
 import Style from './ServerManager.css';
 import { ServerEntry } from './ServerEntry';
 import { List } from '@/lib/components/List';
-import { getPurchasedServers } from '@/lib/util/Network';
+import { getPurchasedServers } from '@/lib/Network';
 import { Server } from 'NetscriptDefinitions';
 import React, { useState, useRef } from 'react';
 

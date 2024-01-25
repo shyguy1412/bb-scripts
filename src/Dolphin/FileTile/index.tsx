@@ -4,7 +4,7 @@ import { faFileCode, faFileLines, faFolderClosed } from '@fortawesome/free-solid
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useContext } from 'react';
 import { NetscriptContext } from '@/lib/WindowApp';
-import { copyFile, moveFile, readFile, transferFile } from '@/lib/util/FileSystem';
+import { copyFile, moveFile, readFile, transferFile } from '@/lib/FileSystem';
 import { DragTarget } from '@/lib/components/DragTarget';
 import { DropTarget } from '@/lib/components/DropTarget';
 

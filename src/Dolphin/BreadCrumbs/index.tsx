@@ -3,7 +3,7 @@ import Style from './BreadCrumbs.css';
 import React, { useContext } from "react";
 import { List } from '@/lib/components/List';
 import { DropTarget } from '@/lib/components/DropTarget';
-import { transferFile } from '@/lib/util/FileSystem';
+import { transferFile } from '@/lib/FileSystem';
 import { NetscriptContext } from '@/lib/WindowApp';
 
 export function BreadCrumbs() {

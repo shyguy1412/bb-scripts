@@ -1,10 +1,20 @@
+import { findRoot, watchElForDeletion } from '@/lib/BitburnerDOM';
 import React, { createContext } from 'react';
 import ReactDOM from 'react-dom';
 
 export const NetscriptContext = createContext<NS>(undefined);
+export const CleanupContext = createContext(null);
 
 export function createWindowApp(ns: NS) {
+  const cleanupCallbacks: (() => void)[] = [];
   return {
+    cleanup: () => {
+      console.log('CLEANING');
+      
+      cleanupCallbacks.forEach(c => c());
+      ns.tprint('Terminated');
+      ns.closeTail();
+    },
     async mount(component: React.JSX.Element) {
       ns.tail();
       ns.disableLog('ALL');
@@ -34,13 +44,10 @@ export function createWindowApp(ns: NS) {
       };
 
       ReactDOM.render(<NetscriptContext.Provider value={ns}>
-        <WindowWrapper></WindowWrapper>
+        <CleanupContext.Provider value={(f: () => void) => cleanupCallbacks.push(f)}>
+          <WindowWrapper></WindowWrapper>
+        </CleanupContext.Provider>
       </NetscriptContext.Provider>, root);
-
-      ns.atExit(() => {
-        ns.tprint('Terminated');
-        ns.closeTail();
-      });
 
       return new Promise<void>(resolve => {
         watchElForDeletion(root, () => resolve());
@@ -49,30 +56,3 @@ export function createWindowApp(ns: NS) {
   };
 }
 
-function findRoot(span: HTMLElement) {
-  let el = span;
-  while (!el.parentElement.classList.contains('react-resizable'))
-    el = el.parentElement;
-  return el;
-}
-
-function watchElForDeletion(elToWatch: Element, callback: () => void) {
-  const parent = document.body;
-  const observer = new MutationObserver(function (mutations) {
-
-    // loop through all mutations
-    mutations.forEach(function (mutation) {
-      // check for changes to the child list
-      if (mutation.type === 'childList') {
-        mutation.removedNodes.forEach(node => !containsRecursive(node, elToWatch) || callback());
-      }
-    });
-  });
-  // start observing the parent - defaults to document body
-  observer.observe(parent, { childList: true, subtree: true });
-};
-
-function containsRecursive(container: Node | Element, child: Element) {
-  if (!('children' in container)) return;
-  return [...container.children].reduce((prev, cur) => prev || cur == child || containsRecursive(cur, child), false);
-}
