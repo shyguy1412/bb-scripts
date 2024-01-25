@@ -1,4 +1,4 @@
-import { findRoot, watchElForDeletion } from '@/lib/BitburnerDOM';
+import { findTailRoot, watchElForDeletion } from '@/lib/BitburnerDOM';
 import React, { createContext } from 'react';
 import ReactDOM from 'react-dom';
 
@@ -22,7 +22,7 @@ export function createWindowApp(ns: NS) {
 
       await ns.sleep(0); // give up control so DOM can update
 
-      const root = findRoot(document.querySelector(`span[data-pid="${ns.pid}"]`));
+      const root = findTailRoot(document.querySelector(`span[data-pid="${ns.pid}"]`));
 
       const WindowWrapper = () => {
 
