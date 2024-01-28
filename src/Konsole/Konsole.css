@@ -1,0 +1,46 @@
+.konsole-terminal {
+  display: grid;
+  grid-template-rows: auto 30px;
+
+  width: 100%;
+  height: 100%;
+
+  overflow: hidden;
+}
+
+.konsole-terminal-content {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+}
+
+.konsole-input {
+  width: 100%;
+
+  background-color: var(--backgroundprimary);
+  color: var(--primarylight);
+
+  border: none;
+  outline: 0px;
+}
+
+.konsole-suggestion-tooltip {
+  position: absolute;
+  background: var(--backgroundprimary);
+  padding: 0.5em;
+  border: 1px solid var(--welllight);
+  top: 0;
+  transform: translateY(calc(-100% - 5px));
+}
+
+.konsole-input-wrapper {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+
+  border-bottom: 1px solid var(--primarylight);
+  margin-bottom: 0.5em;
+}
