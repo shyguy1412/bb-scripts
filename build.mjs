@@ -16,11 +16,14 @@ const customExtension = {
   async afterBuild() {
     const dodge = [
       'ServerManager.js',
+      'Dolphin.js',
+      'Konsole.js',
       'bb-plasma.js',
       'test.js',
+      'allocatorTest.js',
     ];
     const output = await fs.readdir('./build', { recursive: true, withFileTypes: true })
-      .then(f => f.filter(f => f.isFile() && dodge.includes(f.name)));
+      .then(f => f.filter(f => f.isFile()));
 
     await Promise.all(
       output.map(async file => fs.writeFile(

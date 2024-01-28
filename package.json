@@ -27,6 +27,6 @@
     "esbuild-bitburner-plugin": "file:../../TypeScript/esbuild-bitburner-plugin",
     "escodegen": "^2.1.0",
     "p5": "^1.9.0",
-    "ramdodger3000": "^1.0.2"
+    "ramdodger3000": "file:../../JavaScript/ramdodger3000"
   }
 }
