@@ -41,7 +41,7 @@ export function ServerEntry({ server: { hostname }, ns, remove }: Props) {
         <span className='server-entry-button'
           onClick={() => {
             maxoutPurchasedServerRam(ns, server.hostname);
-            if (server.maxRam == ns.getServerMaxRam(hostname))
+            if (ns.getPurchasedServerMaxRam() == ns.getServerMaxRam(hostname))
               ns.toast('Server is already maxed out', 'info');
             else
               ns.toast('Server upgraded to max affordable RAM', 'success');
