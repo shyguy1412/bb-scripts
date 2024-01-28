@@ -9,8 +9,6 @@ export function createWindowApp(ns: NS) {
   const cleanupCallbacks: (() => void)[] = [];
   return {
     cleanup: () => {
-      console.log('CLEANING');
-      
       cleanupCallbacks.forEach(c => c());
       ns.tprint('Terminated');
       ns.closeTail();
