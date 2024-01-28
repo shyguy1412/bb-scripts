@@ -4,7 +4,7 @@ import fs from 'fs/promises';
 import RamDodger3000 from 'ramdodger3000';
 
 /** @type import('esbuild-bitburner-plugin').PluginExtension*/
-const customExtension = {
+const RamDodgerExtension = {
   // afterConnect(remoteApi) {
   //   setInterval(async () => {
   //     const { result: files } = await remoteApi.getAllFiles('home');
@@ -94,12 +94,12 @@ const createContext = async () => await context({
     BitburnerPlugin({
       port: 12525,
       types: 'NetscriptDefinitions.d.ts',
-      extensions: [customExtension],
+      extensions: [RamDodgerExtension],
       mirror: {
         'mirror': ['home', 'grindr-1', 'grindr-2', 'grindr-3']
       },
       distribute: {
-        'dist': ['grindr-1', 'grindr-2', 'grindr-3']
+        'build/servers/all': ['grindr-1', 'grindr-2', 'grindr-3']
       },
       usePolling: true,
       pollingInterval: 100,
