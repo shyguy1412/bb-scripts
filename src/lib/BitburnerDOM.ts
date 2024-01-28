@@ -29,17 +29,19 @@ export function watchElForDeletion(elToWatch: Element, callback: () => void) {
   };
 };
 
-export function watchSelectorForCreation(selector: string, callback: () => void) {
+export function watchSelectorForCreation(selector: string, callback: (el: HTMLElement) => void) {
   const observer = new MutationObserver(function (mutations) {
 
     // loop through all mutations
     mutations.forEach(function (mutation) {
-      const selectorWasAdded = [...mutation.addedNodes].some(node =>
-        node.nodeType == node.ELEMENT_NODE && (node as HTMLElement).querySelector(selector) != null
-      );
+      const element = [...mutation.addedNodes].reduce((prev, cur) => {
+        if (cur.nodeType != cur.ELEMENT_NODE) return prev;
+        const added = (cur as HTMLElement).matches(selector) ? cur : (cur as HTMLElement).querySelector(selector);
+        return prev ?? added;
+      }, null) as HTMLElement;
 
-      if (selectorWasAdded) {
-        callback();
+      if (element) {
+        callback(element);
         observer.disconnect();
       }
     });
@@ -54,7 +56,7 @@ export function watchSelectorForCreation(selector: string, callback: () => void)
 };
 
 
-export function containsRecursive(container: Node | Element, child: Element) {
-  if (!('children' in container)) return;
+export function containsRecursive(container: Node | Element, child: Element): boolean {
+  if (!('children' in container)) return false;
   return [...container.children].reduce((prev, cur) => prev || cur == child || containsRecursive(cur, child), false);
 }

@@ -41,16 +41,6 @@ export function moveFile(ns: NS, source: string, destination: string) {
   const [sourceServer, sourceFile] = source.split(/\/(.*)/, 2);
   const [destinationServer, destinationFile] = destination.split(/\/(.*)/, 2);
 
-  console.log({
-    source,
-    sourceServer,
-    sourceFile,
-
-    destination,
-    destinationServer,
-    destinationFile,
-  });
-
   if (sourceServer == destinationServer) ns.mv(sourceServer, sourceFile, destinationFile);
   else {
     copyFile(ns, source, destination);

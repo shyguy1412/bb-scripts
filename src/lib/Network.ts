@@ -6,6 +6,10 @@ export function getPurchasedServers(ns: NS) {
 
 export function getAllServers(ns: NS) {
   'use scan';
+  return getAllServersUnsafe(ns);
+}
+
+export function getAllServersUnsafe(ns: NS) {
   const servers = ns.scan('home');
   for (const server of servers) {
     servers.push(...ns.scan(server).filter(s => !servers.includes(s)));
