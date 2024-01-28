@@ -1,7 +1,7 @@
 import Style from './style/global.css';
 import { createPortal, render, unmountComponentAtNode } from 'react-dom';
 import { DesktopEnviroment } from './DesktopEnviroment';
-import { sleep } from '@/lib/Sleep';
+import { sleep } from '@/lib/System';
 import React, { useEffect, useState } from 'react';
 
 
@@ -24,22 +24,22 @@ export async function bbplasma(ns: NS) {
       resolve();
     };
 
-    const devTerm = (e: KeyboardEvent) => {
+    // const devTerm = (e: KeyboardEvent) => {
 
-      if (e.key == '5') {
-        reboot();
-      };
+    //   if (e.key == '5') {
+    //     reboot();
+    //   };
 
-      if (e.key == 'Escape') {
-        resolve();
-      }
-    };
+    //   if (e.key == 'Escape') {
+    //     resolve();
+    //   }
+    // };
 
-    window.addEventListener('keydown', devTerm);
+    // window.addEventListener('keydown', devTerm);
 
     ns.atExit(() => {
       ns.tprint('Terminated');
-      removeEventListener('keydown', devTerm);
+      // removeEventListener('keydown', devTerm);
       'use clearTerminal';
       ns.ui.clearTerminal();
       resolve();
