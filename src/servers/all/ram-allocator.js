@@ -1,10 +1,9 @@
 /**
- * @param {NS} ns
+ * 
+ * @param {ns} ns 
  */
 export async function main(ns) {
-  globalThis[`ns-${ns.pid}`] = ns;
-  ns.writePort(ns.pid, "");
-  ns.clearPort(ns.pid);
-  await ns.getPortHandle(ns.pid).nextWrite();
-  ns.exit();
+  return new Promise((r) => {
+    globalThis['ns-' + ns.pid] = [ns, r];
+  });
 }

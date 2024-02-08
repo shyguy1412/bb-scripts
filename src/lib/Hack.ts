@@ -166,7 +166,7 @@ export async function fullyGrowServer(ns: NS, target: string) {
   }
 }
 
-export async function hackServer(ns: NS, target: string, hack_percent) {
+export async function hackServer(ns: NS, target: string, hack_percent: number) {
   while (true) {
     const { server, hackThreads } = await allocateRam(ns, {
       ram: getRamCost(ns, [

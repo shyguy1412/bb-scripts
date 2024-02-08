@@ -1,17 +1,5 @@
 import { Server } from "NetscriptDefinitions";
 
-export const RAM_ALLOCATOR_SCRIPT = /*javascript */`
-/**
- * @param {NS} ns
- */
-export async function main(ns) {
-  globalThis['ns-' + ns.pid] = ns;
-  ns.writePort(ns.pid, "");
-  ns.clearPort(ns.pid);
-  await ns.getPortHandle(ns.pid).nextWrite();
-}
-`;
-
 export async function sleep(ms: number) {
   await new Promise<void>(resolve => setTimeout(() => resolve(), ms));
 }
@@ -25,7 +13,8 @@ type AllocateOptions = {
   threads?: number;
   host?: string;
 };
-export async function allocateRam<T = any>(ns: NS, options: AllocateOptions, callback: (ns: NS) => T): Promise<T> {
+
+export async function allocateRam<T = any>(ns: NS, options: AllocateOptions, callback: (ns: NS) => T): Promise<T> | undefined {
   'use exec';
   'use getHostname';
   'use getServerMaxRam';
@@ -44,32 +33,14 @@ export async function allocateRam<T = any>(ns: NS, options: AllocateOptions, cal
   const pid = ns.exec('ram-allocator.js', host, { ramOverride: ram, threads });
   if (!pid) throw new Error('RAM could not be allocated');
 
-  await sleep(0); //await script execution
-  await sleep(0); //await script execution again to account for potential compile
+  while (!globalThis[`ns-${pid}`]) await sleep(0);
 
-  const alloc = globalThis[`ns-${pid}`] as NS;
-  ns.atExit(() => {
-    ns.writePort(pid, ''); //free ram
-    ns.clearPort(pid);
-  });
+  const [alloc, exit] = globalThis[`ns-${pid}`] as [NS, () => void];
+  delete globalThis[`ns-${pid}`];
 
-  try {
-    const result = await callback(alloc);
-
-    ns.writePort(pid, ''); //free ram
-    ns.clearPort(pid);
-
-    await sleep(0); //wait for cleanup
-
-    return result;
-
-  } catch (e) {
-    ns.writePort(pid, ''); //free ram
-    ns.clearPort(pid);
-    console.log(e);
-
-    return undefined;
-  }
+  return await Promise.resolve(callback(alloc))
+    .catch(e => console.log(e) as undefined)
+    .finally(exit);
 }
 
 export function getMaxThreads(server: Server, ram: number) {

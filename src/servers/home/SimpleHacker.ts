@@ -1,13 +1,14 @@
-import { fullyGrowServer, fullyWeakenServer, getHackTarget, hackServer } from '@/lib/Hack';
+import { fullyGrowServer, fullyWeakenServer, hackServer } from '@/lib/Hack';
 
-const HACK_PERCENT = 0.8;
+const HACK_PERCENT = 0.9;
 
 export async function main(ns: NS) {
-  const server = await getHackTarget(ns);
+  // const {hostname} = await getHackTarget(ns);
+  const hostname = ns.args[0] as string ?? 'joesguns';
 
   while (true) {
-    await hackServer(ns, server.hostname, HACK_PERCENT);
-    await fullyGrowServer(ns, server.hostname);
-    await fullyWeakenServer(ns, server.hostname);
+    await hackServer(ns, hostname, HACK_PERCENT);
+    await fullyGrowServer(ns, hostname);
+    await fullyWeakenServer(ns, hostname);
   }
 }

@@ -3,14 +3,12 @@ import { ServerEntry } from './ServerEntry';
 import { List } from '@/lib/components/List';
 import { getPurchasedServers } from '@/lib/Network';
 import { Server } from 'NetscriptDefinitions';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useContext } from 'react';
+import { NetscriptContext } from '@/lib/WindowApp';
 
-type Props = {
-  ns: NS;
-};
+export function ServerManager() {
 
-export function ServerManager({ ns }: Props) {
-
+  const ns = useContext(NetscriptContext);
   const [servers, setServers] = useState<Server[]>(getPurchasedServers(ns));
   const inputRef = useRef<HTMLInputElement>(null);
   const defaultNewServerName = `grindr-${+(servers.at(-1)?.hostname?.split('-')?.[1] ?? 0) + 1}`;

@@ -17,14 +17,16 @@ export async function main(ns: NS) {
     const host = ns.getHostname();
     const servers = getAllServersUnsafe(ns)
       .map(s => ns.getServer(s))
-      .filter(s => s.hasAdminRights && s.hackDifficulty < ns.getHackingLevel() && !s.purchasedByPlayer)
+      .filter(s => s.hasAdminRights && s.hackDifficulty < ns.getHackingLevel() && !s.purchasedByPlayer);
     return { servers, host };
   });
 
-  await Promise.all(servers.map(async s => {
-    await fullyWeakenServer(ns, s.hostname);
-    await fullyGrowServer(ns, s.hostname);
-    await fullyWeakenServer(ns, s.hostname);
-  }));
+  try {
+    await Promise.all(servers.map(async s => {
+      await fullyWeakenServer(ns, s.hostname);
+      await fullyGrowServer(ns, s.hostname);
+      await fullyWeakenServer(ns, s.hostname);
+    }));
+  } catch (e) { console.log(e); }
 
 }

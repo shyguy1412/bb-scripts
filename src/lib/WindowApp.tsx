@@ -2,7 +2,7 @@ import { findTailRoot, watchElForDeletion } from '@/lib/BitburnerDOM';
 import React, { createContext } from 'react';
 import ReactDOM from 'react-dom';
 
-export const NetscriptContext = createContext<NS>(undefined);
+export const NetscriptContext = createContext<NS>(null);
 export const CleanupContext = createContext(null);
 
 export function createWindowApp(ns: NS) {
@@ -32,6 +32,7 @@ export function createWindowApp(ns: NS) {
         root.style.flexDirection = 'unset';
 
         return <div style={{
+          position: 'relative',
           color: 'var(--primarylight)',
           width: '100%',
           height: '100%',

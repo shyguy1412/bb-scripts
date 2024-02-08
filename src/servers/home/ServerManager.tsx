@@ -7,5 +7,5 @@ export async function main(ns: NS) {
 
   ns.atExit(() => WindowApp.cleanup());
 
-  return WindowApp.mount(<ServerManager ns={ns}></ServerManager>);
+  return WindowApp.mount(<ServerManager></ServerManager>);
 }
