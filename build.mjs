@@ -99,7 +99,7 @@ const createContext = async () => await context({
         'mirror': ['home', 'grindr-1', 'grindr-2', 'grindr-3']
       },
       distribute: {
-        'build/servers/all': ['grindr-1', 'grindr-2', 'grindr-3']
+        'build/all': ['home', 'grindr-1', 'grindr-2', 'grindr-3']
       },
       usePolling: true,
       pollingInterval: 100,
