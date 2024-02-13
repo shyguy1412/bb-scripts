@@ -20,7 +20,7 @@ export async function main(ns: NS) {
       .filter(s => s.hasAdminRights && s.hackDifficulty < ns.getHackingLevel() && !s.purchasedByPlayer);
     return { servers, host };
   });
-
+  
   try {
     await Promise.all(servers.map(async s => {
       await fullyWeakenServer(ns, s.hostname);
