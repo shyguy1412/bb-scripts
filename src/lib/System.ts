@@ -30,7 +30,7 @@ export async function allocateRam<T = any>(ns: NS, options: AllocateOptions, cal
     await sleep(100);
   }
 
-  const pid = ns.exec('ram-allocator.js', host, { ramOverride: ram, threads });
+  const pid = ns.exec('ram-allocator.js', host, { ramOverride: ram, threads, temporary: true });
   if (!pid) throw new Error('RAM could not be allocated');
 
   while (!globalThis[`ns-${pid}`]) await sleep(0);
