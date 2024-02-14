@@ -5,6 +5,7 @@ import { DoubleClickFileContext } from '@/lib/components/FileTile';
 import React, { useContext, useEffect, useState } from 'react';
 
 export function Desktop() {
+  'use run';
 
   const ns = useContext(NetscriptContext);
 
@@ -18,12 +19,10 @@ export function Desktop() {
     <DoubleClickFileContext.Provider value={(e, { type, name }) => {
       switch (type) {
         case 'js':
-          'use exec';
-          const [server, script] = `home/${name}`.split(/\/(.*)/, 2);
-          ns.exec(script, server);
+          ns.run(name);
           break;
         case 'folder':
-          ns.exec('Dolphin.js', 'home', 1, `home/${name}`);
+          ns.run('Dolphin.js');
           break;
         case 'txt':
           ns.alert(readFile(ns, `home/${name}`));
