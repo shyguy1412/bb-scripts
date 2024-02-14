@@ -1,5 +1,5 @@
 import { gainRoot } from "@/lib/Hack";
-import { getAllServersUnsafe } from "@/lib/Network";
+import { getAllServers } from "@/lib/Network" with {type: 'unsafe'};
 import { allocateRam, getRamCost, sleep } from "@/lib/System";
 
 export async function main(ns: NS) {
@@ -8,7 +8,7 @@ export async function main(ns: NS) {
   const { servers } = await allocateRam(ns, {
     ram: getRamCost(ns, ['getServer', 'scan'])
   }, (ns) => {
-    const servers = getAllServersUnsafe(ns).map(s => ns.getServer(s)).filter(s => !s.hasAdminRights);
+    const servers = getAllServers(ns).map(s => ns.getServer(s)).filter(s => !s.hasAdminRights);
     return { servers };
   });
 

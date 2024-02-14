@@ -1,27 +1,14 @@
-import { context } from 'esbuild';
+import { generate } from 'astring';
+import { parse } from 'acorn';
+import { ancestor } from 'acorn-walk';
+import { context, transform } from 'esbuild';
 import { BitburnerPlugin } from 'esbuild-bitburner-plugin';
 import fs from 'fs/promises';
 import RamDodger3000 from 'ramdodger3000';
 
 /** @type import('esbuild-bitburner-plugin').PluginExtension*/
 const RamDodgerExtension = {
-  // afterConnect(remoteApi) {
-  //   setInterval(async () => {
-  //     const { result: files } = await remoteApi.getAllFiles('home');
-  //     files
-  //       .filter(file => file.filename.endsWith('.txt'))
-  //       .forEach(file => writeFile(`logs/${file.filename}`, file.content));
-  //   }, 500);
-  // }
   async afterBuild() {
-    const dodge = [
-      'ServerManager.js',
-      'Dolphin.js',
-      'Konsole.js',
-      'bb-plasma.js',
-      'test.js',
-      'allocatorTest.js',
-    ];
     const output = await fs.readdir('./build', { recursive: true, withFileTypes: true })
       .then(f => f.filter(f => f.isFile()));
 
@@ -78,6 +65,37 @@ const SVGSpoofPlugin = {
   }
 };
 
+/**
+ * @type {import('esbuild').Plugin}
+ */
+const UnsafePlugin = {
+  name: 'UnsafePlugin',
+  setup(pluginBuild) {
+
+    pluginBuild.onLoad({ filter: /.*/ }, async (opts) => {
+      if (opts.with.type == 'unsafe') {
+        const file = await fs.readFile(opts.path, { encoding: 'utf8' });
+        const { code } = await transform(file, { loader: 'tsx' });
+        const ast = parse(code, { ecmaVersion: 'latest', sourceType: 'module' });
+
+        ancestor(ast, {
+          ExpressionStatement(node, state) {
+            if (node.directive) {
+              const parent = state.at(-2);
+              parent.body = parent.body.filter(node => !node.directive);
+            }
+          }
+        });
+
+        return {
+          contents: generate(ast)
+        };
+      }
+
+    });
+  }
+};
+
 
 const createContext = async () => await context({
   entryPoints: [
@@ -91,15 +109,16 @@ const createContext = async () => await context({
   plugins: [
     CSSSpoofPlugin,
     SVGSpoofPlugin,
+    UnsafePlugin,
     BitburnerPlugin({
       port: 12525,
       types: 'NetscriptDefinitions.d.ts',
       extensions: [RamDodgerExtension],
       mirror: {
-        'mirror': ['home', 'grindr-1', 'grindr-2', 'grindr-3']
+        'mirror': 'all'
       },
       distribute: {
-        'build/all': ['home', 'grindr-1', 'grindr-2', 'grindr-3']
+        'build/all': 'all'
       },
       usePolling: true,
       pollingInterval: 100,
@@ -112,6 +131,5 @@ const createContext = async () => await context({
   logLevel: 'debug',
 });
 
-let ctx = await createContext();
+const ctx = await createContext();
 ctx.watch();
-

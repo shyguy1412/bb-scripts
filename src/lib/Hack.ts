@@ -1,4 +1,4 @@
-import { getAllServersUnsafe } from "@/lib/Network";
+import { getAllServers } from "@/lib/Network" with {type: 'unsafe'};
 import { allocateRam, getMaxThreads, getRamCost } from "@/lib/System";
 import { Server } from "NetscriptDefinitions";
 
@@ -34,10 +34,6 @@ export function gainRoot(ns: NS, host: string) {
 export function getServerStats(ns: NS, server: Server, host: Server) {
   'use weakenAnalyze';
   'use growthAnalyze';
-  return getServerStatsUnsafe(ns, server, host);
-}
-
-export function getServerStatsUnsafe(ns: NS, server: Server, host: Server) {
   const serverSecurity = server.hackDifficulty - server.minDifficulty;
   const weakenThreads = serverSecurity / ns.weakenAnalyze(1, host.cpuCores);
   const weakenRamCost = getRamCost(ns, ['weaken'], weakenThreads);
@@ -69,7 +65,7 @@ export async function getHackTarget(ns: NS) {
     ])
   }, (ns) => {
 
-    const server = getAllServersUnsafe(ns)
+    const server = getAllServers(ns)
       .map(s => ns.getServer(s))
       .filter(s => s.hasAdminRights && !s.purchasedByPlayer)
       .filter(s => s.requiredHackingSkill < ns.getHackingLevel())
@@ -106,7 +102,7 @@ export async function fullyWeakenServer(ns: NS, target: string) {
     }, (ns) => {
       const server = ns.getServer(target);
       const host = ns.getServer(ns.getHostname());
-      const { weakenThreads } = getServerStatsUnsafe(ns, server, host);
+      const { weakenThreads } = getServerStats(ns, server, host);
       return {
         server,
         weakenThreads: Math.min(weakenThreads, getMaxThreads(host, getRamCost(ns, ['weaken'])))
@@ -146,7 +142,7 @@ export async function fullyGrowServer(ns: NS, target: string) {
     }, (ns) => {
       const server = ns.getServer(target);
       const host = ns.getServer(ns.getHostname());
-      const { growThreads } = getServerStatsUnsafe(ns, server, host);
+      const { growThreads } = getServerStats(ns, server, host);
 
       return {
         server,

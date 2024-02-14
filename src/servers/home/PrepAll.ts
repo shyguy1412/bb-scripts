@@ -1,5 +1,5 @@
 import { fullyGrowServer, fullyWeakenServer } from "@/lib/Hack";
-import { getAllServersUnsafe } from "@/lib/Network";
+import { getAllServers } from "@/lib/Network" with {type: 'unsafe'};
 import { allocateRam, getRamCost, sleep } from "@/lib/System";
 
 export async function main(ns: NS) {
@@ -15,7 +15,7 @@ export async function main(ns: NS) {
     ])
   }, (ns) => {
     const host = ns.getHostname();
-    const servers = getAllServersUnsafe(ns)
+    const servers = getAllServers(ns)
       .map(s => ns.getServer(s))
       .filter(s => s.hasAdminRights && s.hackDifficulty < ns.getHackingLevel() && !s.purchasedByPlayer);
     return { servers, host };
