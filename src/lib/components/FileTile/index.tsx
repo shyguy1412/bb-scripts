@@ -11,6 +11,7 @@ type Props = {
     name: string,
     type: 'file' | 'folder';
   };
+  path:string;
 };
 const FileIcons = {
   'js': () => <FontAwesomeIcon icon={faFileCode}></FontAwesomeIcon>,
@@ -20,16 +21,15 @@ const FileIcons = {
   'folder': () => <FontAwesomeIcon icon={faFolderClosed}></FontAwesomeIcon>
 } as const;
 
-export function FileTile({ file }: Props) {
+export function FileTile({ file, path }: Props) {
 
   const ns = useContext(NetscriptContext);
-  const path = 'home';
   const type = (file.type == 'file' ? file.name.split('.').at(-1) : 'folder') as keyof typeof FileIcons;
   const Icon = FileIcons[type] ?? FileIcons['txt'];
 
   return <DragTarget
-    className='plasma-file-tile'
-    group={`dolphin-${type != 'folder' ? 'file' : 'folder'}`}
+    className='file-tile'
+    group={`${type != 'folder' ? 'file' : 'folder'}`}
     data={`${path}/${file.name}`}
     onDoubleClick={() => {
       switch (type) {
@@ -45,19 +45,19 @@ export function FileTile({ file }: Props) {
           ns.alert(readFile(ns, `${path}/${file.name}`));
           break;
         case 'exe':
-          ns.toast('.exe files can not be run from the desktop', 'error');
+          ns.toast('.exe files can only be run from the terminal', 'error');
           break;
         default:
           // ns.
-          ns.toast('Plasma does not support this filetype', 'error');
+          ns.toast(`This filetype is not supported (${type})`, 'error');
           break;
       }
     }}
     onDragEnter={(e) => {
-      if (e.dataTransfer.types.includes('dolphin-file') && type == 'folder') e.preventDefault();
+      if (e.dataTransfer.types.includes('file') && type == 'folder') e.preventDefault();
     }}
     onDragOver={(e) => {
-      if (e.dataTransfer.types.includes('dolphin-file') && type == 'folder') e.preventDefault();
+      if (e.dataTransfer.types.includes('file') && type == 'folder') e.preventDefault();
     }}
     // onDragEnd={() => reload()}
     onDrop={(e) => {

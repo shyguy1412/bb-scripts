@@ -1,24 +1,22 @@
-import { FileGrid } from '@/Dolphin/FileGrid';
+import { FileGrid } from '@/lib/components/FileGrid';
 import Style from './Dolphin.css';
 import { ServerSection } from '@/Dolphin/ServerSection';
 import { List } from '@/lib/components/List';
 import { getAllServers } from '@/lib/Network';
-import React, { createContext, useReducer, useState } from 'react';
+import React, { createContext, useEffect, useReducer, useState } from 'react';
 import { BreadCrumbs } from '@/Dolphin/BreadCrumbs';
-import { moveFile, copyFile } from '@/lib/FileSystem';
+import { moveFile, copyFile, readDir } from '@/lib/FileSystem';
 
 type Props = {
   ns: NS;
 };
 
 export const PathContext = createContext<ReturnType<typeof useState<string>>>(null);
-export const ReloadContext = createContext<() => void>(null);
 
 export function Dolphin({ ns }: Props) {
 
   'use getHostname';
   const [path, setPath] = useState<string>(ns.args[0] as string ?? ns.getHostname());
-  const [, reload] = useReducer(() => ({}), {});
 
   const servers = getAllServers(ns);
   const sections = servers.reduce((prev, cur) => {
@@ -57,21 +55,23 @@ export function Dolphin({ ns }: Props) {
 
   ns.setTitle(`Dolphin - ${path.replace(/([^\/]*)(\/?)/, '$1://')}`);
 
+  const [_, reload] = useState(true); //this is just used to poll the fs since BB doesnt have fs events
+  useEffect(() => {
+    setTimeout(() => reload(!_), 500); //just swapping between true/false
+  });
+
   return <>
     <Style></Style>
     <PathContext.Provider value={[path, setPath]}>
-      <ReloadContext.Provider value={reload}>
-
-        <div className='dolphin-layout'>
-          <div className='dolphin-explorer'>
-            <List data={sections.map(s => ({ ...s }))} li={ServerSection} ></List>
-          </div>
-          <div className='dolphin-content'>
-            <BreadCrumbs></BreadCrumbs>
-            <FileGrid></FileGrid>
-          </div>
+      <div className='dolphin-layout'>
+        <div className='dolphin-explorer'>
+          <List data={sections.map(s => ({ ...s }))} li={ServerSection} ></List>
         </div>
-      </ReloadContext.Provider>
+        <div className='dolphin-content'>
+          <BreadCrumbs></BreadCrumbs>
+          <FileGrid files={readDir(ns, path)} path={path}></FileGrid>
+        </div>
+      </div>
     </PathContext.Provider>
   </>;
 }

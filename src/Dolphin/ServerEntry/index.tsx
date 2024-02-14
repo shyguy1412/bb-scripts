@@ -1,4 +1,4 @@
-import { PathContext, ReloadContext } from '@/Dolphin';
+import { PathContext } from '@/Dolphin';
 import { DropTarget } from '@/lib/components/DropTarget';
 import { NetscriptContext } from '@/lib/Context';
 import { transferFile } from '@/lib/FileSystem';
@@ -12,10 +12,9 @@ type Props = {
 export function ServerEntry({ server }: Props) {
   const ns = useContext(NetscriptContext);
   const [, setPath] = useContext(PathContext) ?? [];
-  const reload = useContext(ReloadContext);
 
   return <DropTarget
-    accept='dolphin-file'
+    accept='file'
     className='dolphin-explorer-button'
     onClick={() => setPath(server.hostname)}
     onDrop={(e) => {
@@ -25,7 +24,7 @@ export function ServerEntry({ server }: Props) {
         `${sourceServer}/${sourceFile}`,
         `${server.hostname}/${sourceFile.split('/').at(-1)}`,
         sourceServer != server.hostname
-      ); reload();
+      );
     }}
   >{server.hostname}</DropTarget>;
 }

@@ -1,4 +1,4 @@
-.dolphin-file-tile {
+.file-tile {
   display: flex;
   align-items: center;
   gap: 0.5em;
@@ -9,14 +9,14 @@
   background-color: var(--backgroundprimary);
 
   user-select: none;
-
+  font-size: 0.85em;
 }
 
 
-.dolphin-file-tile:hover {
+.file-tile:hover {
   filter: brightness(150%);
 }
 
-.dolphin-file-tile>svg {
-  font-size: 2em;
+.file-tile>svg {
+  font-size: 2.5em;
 }

@@ -1,4 +1,4 @@
-import { PathContext, ReloadContext } from '@/Dolphin';
+import { PathContext } from '@/Dolphin';
 import Style from './BreadCrumbs.css';
 import React, { useContext } from "react";
 import { List } from '@/lib/components/List';
@@ -18,12 +18,11 @@ export function BreadCrumbs() {
 function Crumb({ crumb, path }: { crumb: string; path: string; }) {
   const [, setPath] = useContext(PathContext);
   const ns = useContext(NetscriptContext);
-  const reload = useContext(ReloadContext);
 
   return <span>
     <DropTarget
       className='dolphin-bread-crumb-clickable'
-      accept='dolphin-file'
+      accept='file'
       onDrop={(e) => {
         const [sourceServer, sourceFile] = e.dataTransfer.getData('data').split(/\/(.*)/, 2);
         const [targetServer] = path.split('/');
@@ -32,7 +31,7 @@ function Crumb({ crumb, path }: { crumb: string; path: string; }) {
           `${sourceServer}/${sourceFile}`,
           `${path}/${sourceFile.split('/').at(-1)}`,
           sourceServer != targetServer
-        ); reload();
+        );
       }}
       onClick={() => {
         setPath(path);

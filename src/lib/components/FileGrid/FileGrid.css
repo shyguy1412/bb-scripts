@@ -1,4 +1,4 @@
-.plasma-file-grid {
+.file-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 
@@ -11,7 +11,7 @@
   overflow-y: auto;
 }
 
-.plasma-file-grid-drop-target {
+.file-grid-drop-target {
   max-height: 100%;
   overflow: hidden;
 }

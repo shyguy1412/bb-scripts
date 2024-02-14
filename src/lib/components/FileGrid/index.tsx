@@ -4,19 +4,22 @@ import React from 'react';
 import { readDir, transferFile } from '@/lib/FileSystem';
 import { List } from '@/lib/components/List';
 import { DropTarget } from '@/lib/components/DropTarget';
-import { FileTile } from '@/bb-plasma/components/FileTile';
+import { FileTile } from '@/lib/components/FileTile';
 import { NetscriptContext } from '@/lib/Context';
 
-export function FileGrid() {
+type Props = {
+  files: ReturnType<typeof readDir>;
+  path: string;
+};
+
+export function FileGrid({ path, files }, Props) {
   const ns = useContext(NetscriptContext);
-  const path = ns.getHostname();
-  const files = readDir(ns, path);
 
   return <>
     <Style></Style>
     <DropTarget
-      accept='dolphin-file'
-      className='plasma-file-grid-drop-target'
+      accept='file'
+      className='file-grid-drop-target'
       onDrop={(e) => {
         const [sourceServer, sourceFile] = e.dataTransfer.getData('data').split(/\/(.*)/, 2);
         const [targetServer] = path.split('/');
@@ -28,8 +31,8 @@ export function FileGrid() {
         );
       }}
     >
-      <div className='plasma-file-grid'>
-        <List data={files.map(file => ({ file }))} li={FileTile}></List>
+      <div className='file-grid'>
+        <List data={files.map(file => ({ file, path }))} li={FileTile}></List>
       </div>
     </DropTarget>
   </>;
