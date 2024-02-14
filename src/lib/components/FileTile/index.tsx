@@ -1,7 +1,7 @@
 import Style from './FileTile.css';
 import { faFileCode, faFileLines, faFolderClosed } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useContext } from 'react';
+import React, { MouseEvent, createContext, useContext } from 'react';
 import { readFile, transferFile } from '@/lib/FileSystem';
 import { DragTarget } from '@/lib/components/DragTarget';
 import { NetscriptContext } from '@/lib/Context';
@@ -13,6 +13,9 @@ type Props = {
   };
   path: string;
 };
+
+export const DoubleClickFileContext = createContext<(e: MouseEvent<HTMLDivElement>, file: { path: string; name: string; type: keyof typeof FileIcons; }) => void>(() => { });
+
 const FileIcons = {
   'js': () => <FontAwesomeIcon icon={faFileCode}></FontAwesomeIcon>,
   'exe': () => <FontAwesomeIcon icon={faFileCode}></FontAwesomeIcon>,
@@ -22,36 +25,18 @@ const FileIcons = {
 } as const;
 
 export function FileTile({ file, path }: Props) {
+  'use exec';
 
   const ns = useContext(NetscriptContext);
   const type = (file.type == 'file' ? file.name.split('.').at(-1) : 'folder') as keyof typeof FileIcons;
   const Icon = FileIcons[type] ?? FileIcons['txt'];
+  const onDoubleClick = useContext(DoubleClickFileContext);
 
   return <DragTarget
     className='file-tile'
     group={`${type != 'folder' ? 'file' : 'folder'}`}
     data={`${path}/${file.name}`}
-    onDoubleClick={() => {
-      switch (type) {
-        case 'js':
-          'use exec';
-          const [server, script] = `${path}/${file.name}`.split(/\/(.*)/, 2);
-          ns.exec(script, server);
-          break;
-        case 'folder':
-          ns.exec('Dolphin.js', path, 1, `${path}/${file.name}`);
-          break;
-        case 'txt':
-          ns.alert(readFile(ns, `${path}/${file.name}`));
-          break;
-        case 'exe':
-          ns.toast('.exe files can only be run from the terminal', 'error');
-          break;
-        default:
-          ns.toast(`This filetype is not supported (${type})`, 'error');
-          break;
-      }
-    }}
+    onDoubleClick={(e) => onDoubleClick(e, { name: file.name, path, type })}
     onDragEnter={(e) => {
       if (e.dataTransfer.types.includes('file') && type == 'folder') e.preventDefault();
     }}

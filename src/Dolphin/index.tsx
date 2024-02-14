@@ -5,7 +5,8 @@ import { List } from '@/lib/components/List';
 import { getAllServers } from '@/lib/Network';
 import React, { createContext, useEffect, useReducer, useState } from 'react';
 import { BreadCrumbs } from '@/Dolphin/BreadCrumbs';
-import { moveFile, copyFile, readDir } from '@/lib/FileSystem';
+import { moveFile, copyFile, readDir, readFile } from '@/lib/FileSystem';
+import { DoubleClickFileContext } from '@/lib/components/FileTile';
 
 type Props = {
   ns: NS;
@@ -61,18 +62,46 @@ export function Dolphin({ ns }: Props) {
     return () => clearTimeout(timeout);
   });
 
-  return <>
-    <Style></Style>
-    <PathContext.Provider value={[path, setPath]}>
-      <div className='dolphin-layout'>
-        <div className='dolphin-explorer'>
-          <List data={sections.map(s => ({ ...s }))} li={ServerSection} ></List>
+  try {
+    return <>
+      <Style></Style>
+      <PathContext.Provider value={[path, setPath]}>
+        <div className='dolphin-layout'>
+          <div className='dolphin-explorer'>
+            <List data={sections.map(s => ({ ...s }))} li={ServerSection} ></List>
+          </div>
+          <div className='dolphin-content'>
+            <BreadCrumbs></BreadCrumbs>
+            <DoubleClickFileContext.Provider value={(e, { type, name }) => {
+              switch (type) {
+                case 'js':
+                  'use exec';
+                  const [server, script] = `${path}/${name}`.split(/\/(.*)/, 2);
+                  ns.exec(script, server);
+                  break;
+                case 'folder':
+                  setPath(`${path}/${name}`);
+                  break;
+                case 'txt':
+                  ns.alert(readFile(ns, `${path}/${name}`));
+                  break;
+                case 'exe':
+                  ns.toast('.exe files can only be run from the terminal', 'error');
+                  break;
+                default:
+                  ns.toast(`This filetype is not supported (${type})`, 'error');
+                  break;
+              }
+            }}
+            >
+              <FileGrid files={readDir(ns, path)} path={path}></FileGrid>
+            </DoubleClickFileContext.Provider>
+          </div>
         </div>
-        <div className='dolphin-content'>
-          <BreadCrumbs></BreadCrumbs>
-          <FileGrid files={readDir(ns, path)} path={path}></FileGrid>
-        </div>
-      </div>
-    </PathContext.Provider>
-  </>;
+      </PathContext.Provider>
+    </>;
+  } catch {
+    setPath(ns.getHostname());
+  }
+
 }

@@ -12,7 +12,7 @@ type Props = {
   path: string;
 };
 
-export function FileGrid({ path, files }, Props) {
+export function FileGrid({ path, files }: Props) {
   const ns = useContext(NetscriptContext);
 
   return <>
