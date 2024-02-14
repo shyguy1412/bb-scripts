@@ -2,7 +2,7 @@ export function readDir(ns: NS, path: string) {
   'use ls';
   const [server, ...directory] = path.split('/');
 
-  const fs = ns.ls(server)
+  const filesystemTree = ns.ls(server)
     .reduce((prev, cur) => {
       const path = cur.split('/');
       let node = prev;
@@ -14,7 +14,13 @@ export function readDir(ns: NS, path: string) {
       return prev;
     }, {});
 
-  return Object.keys(directory.reduce((prev, cur) => prev[cur], fs));
+  const folder = directory.reduce((prev, cur) => prev[cur], filesystemTree);
+  const filesWithType = Object.keys(folder).map(key => ({
+    name: key,
+    type: Object.keys(folder[key]).length ? 'folder' : 'file' as 'file' | 'folder'
+  }));
+
+  return filesWithType;
 };
 
 export function readFile(ns: NS, path: string) {

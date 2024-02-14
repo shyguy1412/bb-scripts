@@ -10,7 +10,7 @@ import { NetscriptContext } from '@/lib/Context';
 
 export function FileGrid() {
   const ns = useContext(NetscriptContext);
-  const [path, setPath] = useContext(PathContext);
+  const [path] = useContext(PathContext);
   const reload = useContext(ReloadContext);
   const files = readDir(ns, path);
 

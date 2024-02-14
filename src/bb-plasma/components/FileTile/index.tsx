@@ -7,9 +7,11 @@ import { DragTarget } from '@/lib/components/DragTarget';
 import { NetscriptContext } from '@/lib/Context';
 
 type Props = {
-  file: string;
+  file: {
+    name: string,
+    type: 'file' | 'folder';
+  };
 };
-
 const FileIcons = {
   'js': () => <FontAwesomeIcon icon={faFileCode}></FontAwesomeIcon>,
   'exe': () => <FontAwesomeIcon icon={faFileCode}></FontAwesomeIcon>,
@@ -22,25 +24,25 @@ export function FileTile({ file }: Props) {
 
   const ns = useContext(NetscriptContext);
   const path = 'home';
-  const type = (file.includes('.') ? file.split('.').at(-1) : 'folder') as keyof typeof FileIcons;
+  const type = (file.type == 'file' ? file.name.split('.').at(-1) : 'folder') as keyof typeof FileIcons;
   const Icon = FileIcons[type] ?? FileIcons['txt'];
 
   return <DragTarget
     className='plasma-file-tile'
     group={`dolphin-${type != 'folder' ? 'file' : 'folder'}`}
-    data={`${path}/${file}`}
+    data={`${path}/${file.name}`}
     onDoubleClick={() => {
       switch (type) {
         case 'js':
           'use exec';
-          const [server, script] = `${path}/${file}`.split(/\/(.*)/, 2);
+          const [server, script] = `${path}/${file.name}`.split(/\/(.*)/, 2);
           ns.exec(script, server);
           break;
         case 'folder':
-          ns.exec('Dolphin.js', path, 1, `${path}/${file}`)
+          ns.exec('Dolphin.js', path, 1, `${path}/${file.name}`)
           break;
         case 'txt':
-          ns.alert(readFile(ns, `${path}/${file}`));
+          ns.alert(readFile(ns, `${path}/${file.name}`));
           break;
         case 'exe':
           ns.toast('.exe files can not be run from the desktop', 'error');
@@ -65,13 +67,13 @@ export function FileTile({ file }: Props) {
       transferFile(
         ns,
         `${sourceServer}/${sourceFile}`,
-        `${path}/${file}/${sourceFile.split('/').at(-1)}`,
+        `${path}/${file.name}/${sourceFile.split('/').at(-1)}`,
         sourceServer != targetServer
       );
     }}
   >
     <Style></Style>
     <Icon></Icon>
-    <div>{file}</div>
+    <div>{file.name}</div>
   </DragTarget>;
 };
