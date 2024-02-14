@@ -11,7 +11,7 @@ type Props = {
     name: string,
     type: 'file' | 'folder';
   };
-  path:string;
+  path: string;
 };
 const FileIcons = {
   'js': () => <FontAwesomeIcon icon={faFileCode}></FontAwesomeIcon>,
@@ -39,7 +39,7 @@ export function FileTile({ file, path }: Props) {
           ns.exec(script, server);
           break;
         case 'folder':
-          ns.exec('Dolphin.js', path, 1, `${path}/${file.name}`)
+          ns.exec('Dolphin.js', path, 1, `${path}/${file.name}`);
           break;
         case 'txt':
           ns.alert(readFile(ns, `${path}/${file.name}`));
@@ -48,7 +48,6 @@ export function FileTile({ file, path }: Props) {
           ns.toast('.exe files can only be run from the terminal', 'error');
           break;
         default:
-          // ns.
           ns.toast(`This filetype is not supported (${type})`, 'error');
           break;
       }

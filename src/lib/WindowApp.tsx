@@ -56,6 +56,8 @@ export function createWindowApp(ns: NS) {
           }
         ];
 
+        cleanupCallbacks.push(() => ReactDOM.unmountComponentAtNode(root)); //this ensures the app is properly dismounted before NS is invalid
+
         ReactDOM.render(
           <ContextCollection contexts={contexts}>
             <WindowWrapper></WindowWrapper>

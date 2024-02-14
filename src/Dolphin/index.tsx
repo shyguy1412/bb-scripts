@@ -57,7 +57,8 @@ export function Dolphin({ ns }: Props) {
 
   const [_, reload] = useState(true); //this is just used to poll the fs since BB doesnt have fs events
   useEffect(() => {
-    setTimeout(() => reload(!_), 500); //just swapping between true/false
+    const timeout = setTimeout(() => reload(!_), 500); //just swapping between true/false
+    return () => clearTimeout(timeout);
   });
 
   return <>
