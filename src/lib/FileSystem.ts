@@ -1,26 +1,32 @@
-export function readDir(ns: NS, path: string) {
+export function readDir(ns: NS, path: string, all = false) {
   'use ls';
-  const [server, ...directory] = path.split('/');
+  try {
 
-  const filesystemTree = ns.ls(server)
-    .reduce((prev, cur) => {
-      const path = cur.split('/');
-      let node = prev;
-      while (path.length) {
-        const curNode = path.shift();
-        node[curNode] ??= {};
-        node = node[curNode];
-      };
-      return prev;
-    }, {});
+    const [server, ...directory] = path.split('/');
 
-  const folder = directory.reduce((prev, cur) => prev[cur], filesystemTree);
-  const filesWithType = Object.keys(folder).map(key => ({
-    name: key,
-    type: Object.keys(folder[key]).length ? 'folder' : 'file' as 'file' | 'folder'
-  }));
+    const filesystemTree = ns.ls(server)
+      .reduce((prev, cur) => {
+        const path = cur.split('/');
+        let node = prev;
+        while (path.length) {
+          const curNode = path.shift();
+          if (!all && curNode[0] == '.') continue;
+          node[curNode] ??= {};
+          node = node[curNode];
+        };
+        return prev;
+      }, {});
 
-  return filesWithType;
+    const folder = directory.reduce((prev, cur) => prev[cur], filesystemTree);
+    const filesWithType = Object.keys(folder).map(key => ({
+      name: key,
+      type: Object.keys(folder[key]).length ? 'folder' : 'file' as 'file' | 'folder'
+    }));
+
+    return filesWithType;
+  } catch {
+    return null;
+  }
 };
 
 export function readFile(ns: NS, path: string) {
