@@ -3,10 +3,10 @@ import Style from './FileTile.css';
 import { faFileCode, faFileLines, faFolderClosed } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useContext } from 'react';
-import { NetscriptContext } from '@/lib/WindowApp';
 import { copyFile, moveFile, readFile, transferFile } from '@/lib/FileSystem';
 import { DragTarget } from '@/lib/components/DragTarget';
 import { DropTarget } from '@/lib/components/DropTarget';
+import { NetscriptContext } from '@/lib/Context';
 
 type Props = {
   file: string;

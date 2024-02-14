@@ -4,7 +4,7 @@ import { List } from '@/lib/components/List';
 import { getPurchasedServers } from '@/lib/Network';
 import { Server } from 'NetscriptDefinitions';
 import React, { useState, useRef, useContext } from 'react';
-import { NetscriptContext } from '@/lib/WindowApp';
+import { NetscriptContext } from '@/lib/Context';
 
 export function ServerManager() {
 

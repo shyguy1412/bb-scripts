@@ -1,8 +1,8 @@
 import { sleep } from '@/lib/System';
 import Style from './Konsole.css';
 import { Terminal } from '@/lib/Terminal';
-import { CleanupContext } from '@/lib/WindowApp';
 import React, { useContext, useEffect, useRef, useState } from 'react';
+import { CleanupContext } from '@/lib/Context';
 
 type Props = {
   ns: NS;

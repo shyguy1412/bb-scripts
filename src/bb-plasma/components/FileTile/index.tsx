@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useContext } from 'react';
 import { readFile, transferFile } from '@/lib/FileSystem';
 import { DragTarget } from '@/lib/components/DragTarget';
-import { NetscriptContext } from '@/bb-plasma/DesktopEnviroment';
+import { NetscriptContext } from '@/lib/Context';
 
 type Props = {
   file: string;

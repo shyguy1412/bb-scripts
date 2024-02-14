@@ -1,7 +1,7 @@
 import { PathContext, ReloadContext } from '@/Dolphin';
-import { NetscriptContext } from '@/lib/WindowApp';
 import { DropTarget } from '@/lib/components/DropTarget';
-import { copyFile, moveFile, transferFile } from '@/lib/FileSystem';
+import { NetscriptContext } from '@/lib/Context';
+import { transferFile } from '@/lib/FileSystem';
 import { Server } from 'NetscriptDefinitions';
 import React, { useContext } from 'react';
 

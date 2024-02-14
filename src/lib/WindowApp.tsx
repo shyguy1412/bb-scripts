@@ -1,9 +1,7 @@
 import { findTailRoot, watchElForDeletion } from '@/lib/BitburnerDOM';
-import React, { createContext } from 'react';
+import { NetscriptContext, CleanupContext, TerminateContext, ContextCollection } from '@/lib/Context';
+import React from 'react';
 import ReactDOM from 'react-dom';
-
-export const NetscriptContext = createContext<NS>(null);
-export const CleanupContext = createContext(null);
 
 export function createWindowApp(ns: NS) {
   const cleanupCallbacks: (() => void)[] = [];
@@ -14,41 +12,56 @@ export function createWindowApp(ns: NS) {
       ns.closeTail();
     },
     async mount(component: React.JSX.Element) {
-      ns.tail();
-      ns.disableLog('ALL');
-      ns.printRaw(<span data-pid={ns.pid}></span>);
+      return new Promise<void>(async resolve => {
+        ns.tail();
+        ns.disableLog('ALL');
+        ns.printRaw(<span data-pid={ns.pid}></span>);
 
-      await ns.sleep(0); // give up control so DOM can update
+        await ns.sleep(0); // give up control so DOM can update
 
-      const root = findTailRoot(document.querySelector(`span[data-pid="${ns.pid}"]`));
+        const root = findTailRoot(document.querySelector(`span[data-pid="${ns.pid}"]`));
 
-      const WindowWrapper = () => {
+        const WindowWrapper = () => {
 
-        const theme = ns.ui.getTheme();
-        Object.entries(theme).forEach(([key, value]) => {
-          root.style.setProperty(`--${key}`, value);
-        });
+          const theme = ns.ui.getTheme();
+          Object.entries(theme).forEach(([key, value]) => {
+            root.style.setProperty(`--${key}`, value);
+          });
 
-        root.style.flexDirection = 'unset';
+          root.style.flexDirection = 'unset';
 
-        return <div style={{
-          position: 'relative',
-          color: 'var(--primarylight)',
-          width: '100%',
-          height: '100%',
-          fontFamily: '"Lucida Console", "Lucida Sans Unicode", "Fira Mono", Consolas, "Courier New", Courier, monospace, "Times New Roman"'
-        }}>
-          {component}
-        </div>;
-      };
+          return <div style={{
+            position: 'relative',
+            color: 'var(--primarylight)',
+            width: '100%',
+            height: '100%',
+            fontFamily: '"Lucida Console", "Lucida Sans Unicode", "Fira Mono", Consolas, "Courier New", Courier, monospace, "Times New Roman"'
+          }}>
+            {component}
+          </div>;
+        };
 
-      ReactDOM.render(<NetscriptContext.Provider value={ns}>
-        <CleanupContext.Provider value={(f: () => void) => cleanupCallbacks.push(f)}>
-          <WindowWrapper></WindowWrapper>
-        </CleanupContext.Provider>
-      </NetscriptContext.Provider>, root);
+        const contexts = [
+          {
+            context: NetscriptContext,
+            value: ns
+          },
+          {
+            context: TerminateContext,
+            value: resolve
+          },
+          {
+            context: CleanupContext,
+            value: (f: () => void) => cleanupCallbacks.push(f)
+          }
+        ];
 
-      return new Promise<void>(resolve => {
+        ReactDOM.render(
+          <ContextCollection contexts={contexts}>
+            <WindowWrapper></WindowWrapper>
+          </ContextCollection>
+          , root);
+
         watchElForDeletion(root, () => resolve());
       });
     }

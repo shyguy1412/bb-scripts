@@ -4,8 +4,8 @@ import React from 'react';
 import { readDir, transferFile } from '@/lib/FileSystem';
 import { List } from '@/lib/components/List';
 import { DropTarget } from '@/lib/components/DropTarget';
-import { NetscriptContext } from '@/bb-plasma/DesktopEnviroment';
 import { FileTile } from '@/bb-plasma/components/FileTile';
+import { NetscriptContext } from '@/lib/Context';
 
 export function FileGrid() {
   const ns = useContext(NetscriptContext);

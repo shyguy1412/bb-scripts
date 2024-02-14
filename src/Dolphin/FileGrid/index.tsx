@@ -1,12 +1,12 @@
 import Style from './FileGrid.css';
 import { useContext } from 'react';
-import { NetscriptContext } from '@/lib/WindowApp';
 import { PathContext, ReloadContext } from '@/Dolphin';
 import React from 'react';
 import { readDir, transferFile } from '@/lib/FileSystem';
 import { List } from '@/lib/components/List';
 import { FileTile } from '@/Dolphin/FileTile';
 import { DropTarget } from '@/lib/components/DropTarget';
+import { NetscriptContext } from '@/lib/Context';
 
 export function FileGrid() {
   const ns = useContext(NetscriptContext);

@@ -1,9 +1,14 @@
 import Style from './style/global.css';
-import { createPortal, render, unmountComponentAtNode } from 'react-dom';
+import { createPortal } from 'react-dom';
 import { DesktopEnviroment } from './DesktopEnviroment';
-import { sleep } from '@/lib/System';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
+import { CleanupContext, ContextCollection, NetscriptContext, TerminateContext } from '@/lib/Context';
 
+export const CONFIG = '.plasmaconf.txt';
+
+type BBConfig = Partial<{
+  homeapps: string[];
+}>;
 
 
 export async function bbplasma(ns: NS) {
@@ -13,64 +18,48 @@ export async function bbplasma(ns: NS) {
     throw new Error('bb-plasma can not run on servers');
   }
 
-  // await sleep(100);
+  if (!ns.fileExists('.plasmaconf.txt')) {
+    ns.write('.plasmaconf.txt', JSON.stringify({}));
+  }
 
-
-
+  const cleanupCallbacks: (() => void)[] = [];
   return new Promise<void>(resolve => {
-    const reboot = () => {
-      'use run';
-      ns.run(ns.getScriptName());
-      resolve();
-    };
-
-    // const devTerm = (e: KeyboardEvent) => {
-
-    //   if (e.key == '5') {
-    //     reboot();
-    //   };
-
-    //   if (e.key == 'Escape') {
-    //     resolve();
-    //   }
-    // };
-
-    // window.addEventListener('keydown', devTerm);
 
     ns.atExit(() => {
       ns.tprint('Terminated');
-      // removeEventListener('keydown', devTerm);
       'use clearTerminal';
       ns.ui.clearTerminal();
+      cleanupCallbacks.forEach(c => c());
       resolve();
     });
 
     const el = [...document.querySelector('#root').children]
       .filter(el => !el.classList.contains('react-draggable') && el.id != '#unclickable')[0];
 
+    const contexts = [
+      {
+        context: NetscriptContext,
+        value: ns
+      },
+      {
+        context: TerminateContext,
+        value: resolve
+      },
+      {
+        context: CleanupContext,
+        value: (f: () => void) => cleanupCallbacks.push(f)
+      }
+    ];
+
     ns.tprintRaw(<>
       <Style></Style>
       {createPortal(
-        <DesktopEnviroment ns={ns} terminate={() => resolve()} reboot={() => reboot()}></DesktopEnviroment>,
-        el)}
+        <ContextCollection contexts={contexts}>
+          <DesktopEnviroment></DesktopEnviroment>
+        </ContextCollection>
+        , el)}
     </>
     );
-
-    // ns.tprintRaw(<div
-    //   className='plasma-wrapper'
-    //   id={`plasma-${ns.pid}`}
-    //   style={{
-    //     width: '100%',
-    //     height: '100%',
-    //     position: 'absolute',
-    //     overflow: 'hidden',
-    //     background: 'black',
-    //   }}>
-    //   <DesktopEnviroment ns={ns} terminate={resolve} reboot={reboot}></DesktopEnviroment>
-    // </div>);
-
-    // document.body.prepend(overlay);
-    // render(, overlay);
   });
 
 }
