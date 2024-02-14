@@ -10,6 +10,7 @@ type Props = {
 };
 
 export function HomeMenu({ }: Props) {
+  'use run';
   const terminate = useContext(TerminateContext);
   const config = useContext(ConfigContext);
   const ns = useContext(NetscriptContext);
