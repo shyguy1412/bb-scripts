@@ -1,7 +1,7 @@
 import Style from './style/global.css';
 import { createPortal } from 'react-dom';
 import { DesktopEnviroment } from './DesktopEnviroment';
-import React, { createContext, useContext } from 'react';
+import React, { createContext } from 'react';
 import { CleanupContext, ContextCollection, NetscriptContext, TerminateContext } from '@/lib/Context';
 
 export const CONFIG = '.plasmaconf.txt';

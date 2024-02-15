@@ -3,9 +3,9 @@ import Style from './Dolphin.css';
 import { ServerSection } from '@/Dolphin/ServerSection';
 import { List } from '@/lib/components/List';
 import { getAllServers } from '@/lib/Network';
-import React, { createContext, useEffect, useReducer, useState } from 'react';
+import React, { createContext, useEffect, useState } from 'react';
 import { BreadCrumbs } from '@/Dolphin/BreadCrumbs';
-import { moveFile, copyFile, readDir, readFile } from '@/lib/FileSystem';
+import { readDir, readFile } from '@/lib/FileSystem';
 import { DoubleClickFileContext } from '@/lib/components/FileTile';
 
 type Props = {

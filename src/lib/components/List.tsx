@@ -1,4 +1,4 @@
-import React, { PropsWithoutRef } from 'react';
+import React from 'react';
 
 type Props<T extends React.FunctionComponent> = {
   data: Parameters<T>[0][];

@@ -1,6 +1,6 @@
 
 import Style from '@/bb-plasma/style/Taskbar.css';
-import { useContext, type PropsWithChildren } from 'react';
+import { type PropsWithChildren } from 'react';
 import React from 'react';
 
 type Props = {

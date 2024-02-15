@@ -2,7 +2,7 @@ import Style from './FileTile.css';
 import { faFileCode, faFileLines, faFolderClosed } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { MouseEvent, createContext, useContext } from 'react';
-import { readFile, transferFile } from '@/lib/FileSystem';
+import { transferFile } from '@/lib/FileSystem';
 import { DragTarget } from '@/lib/components/DragTarget';
 import { NetscriptContext } from '@/lib/Context';
 
@@ -43,7 +43,6 @@ export function FileTile({ file, path }: Props) {
     onDragOver={(e) => {
       if (e.dataTransfer.types.includes('file') && type == 'folder') e.preventDefault();
     }}
-    // onDragEnd={() => reload()}
     onDrop={(e) => {
       if (type != 'folder') return;
       const [sourceServer, sourceFile] = e.dataTransfer.getData('data').split(/\/(.*)/, 2);
