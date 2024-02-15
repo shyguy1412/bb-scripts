@@ -15,7 +15,7 @@ const RamDodgerExtension = {
     await Promise.all(
       output.map(async file => fs.writeFile(
         `${file.path}/${file.name}`,
-        RamDodger3000(await fs.readFile(`${file.path}/${file.name}`, { encoding: 'utf8' }))
+        RamDodger3000(await fs.readFile(`${file.path}/${file.name}`, { encoding: 'utf8' }), { indent: '', lineEnd: '\n' })
       ))
     ).catch(_ => console.log(_));
   }
@@ -128,6 +128,7 @@ const createContext = async () => await context({
   bundle: true,
   format: 'esm',
   platform: 'browser',
+  minify: true,
   logLevel: 'debug',
 });
 
