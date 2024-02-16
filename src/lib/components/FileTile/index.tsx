@@ -1,10 +1,13 @@
 import Style from './FileTile.css';
-import { faFileCode, faFileLines, faFolderClosed, faTrash, faTrashCan } from '@fortawesome/free-solid-svg-icons';
+import { faFileCode, faFileLines, faFolderClosed, faPen, faTrash, faTrashCan } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { MouseEvent, createContext, useContext } from 'react';
 import { deleteFile, deleteFolder, moveFile, moveFolder, transferFile } from '@/lib/FileSystem';
 import { DragTarget } from '@/lib/components/DragTarget';
 import { NetscriptContext } from '@/lib/Context';
+import { Terminal } from '@/lib/Terminal';
+import { NS } from 'NetscriptDefinitions';
+import { getConnectionPath } from '@/lib/Network';
 
 type Props = {
   file: {
@@ -87,17 +90,29 @@ export function FileTile({ file, path }: Props) {
           el.removeEventListener('keydown', keydownHandler);
         }, { once: true });
       }}>{file.name}</div>
-    {['js', 'txt', 'folder'].includes(type) ?
-      <FontAwesomeIcon
-        icon={faTrashCan}
-        style={{ cursor: 'pointer', fontSize: '0.9em' }}
-        onClick={async () => {
-          if (! await ns.prompt(`Are you sure you want to delete ${path}/${file.name}?`, { type: 'boolean' })) return;
-          if (type == 'folder')
-            deleteFolder(ns, `${path}/${file.name}`);
-          else
-            deleteFile(ns, `${path}/${file.name}`);
-
-        }}></FontAwesomeIcon> : undefined}
+    <div className='file-action-buttons'>
+      {['js', 'txt'].includes(type) ?
+        <FontAwesomeIcon
+          icon={faPen}
+          style={{ cursor: 'pointer', fontSize: '0.9em' }}
+          onClick={async () => {
+            const term = new Terminal(ns);
+            const [server, filepath] = `${path}/${file.name}`.split(/\/(.*)/, 2);
+            if (!term.terminalInput) return ns.toast('Editing can only be triggered when the terminal tab is selected', 'warning');
+            term.exec(getConnectionPath(ns, server).reduce((prev, cur) => prev + `connect ${cur};`, ''));
+            term.exec(`nano ${filepath}`);
+          }}></FontAwesomeIcon> : undefined}
+      {['js', 'txt', 'folder'].includes(type) ?
+        <FontAwesomeIcon
+          icon={faTrashCan}
+          style={{ cursor: 'pointer', fontSize: '0.9em' }}
+          onClick={async () => {
+            if (! await ns.prompt(`Are you sure you want to delete ${path}/${file.name}?`, { type: 'boolean' })) return;
+            if (type == 'folder')
+              deleteFolder(ns, `${path}/${file.name}`);
+            else
+              deleteFile(ns, `${path}/${file.name}`);
+          }}></FontAwesomeIcon> : undefined}
+    </div>
   </DragTarget>;
 };

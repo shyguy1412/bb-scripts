@@ -13,6 +13,13 @@ export function getAllServers(ns: NS) {
   return servers;
 }
 
+export function getConnectionPath(ns: NS, server: string) {
+  const path = [server, ns.scan(server)[0]];
+
+  while (path.at(-1) != 'home') path.push(ns.scan(path.at(-1))[0]);
+  return path.toReversed();
+}
+
 export function doublePurchasedServerRam(ns: NS, hostname: string) {
   'use getServer';
   'use upgradePurchasedServer';

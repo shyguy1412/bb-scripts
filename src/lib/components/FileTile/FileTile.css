@@ -1,6 +1,6 @@
 .file-tile {
   display: grid;
-  grid-template-columns: 50px 1fr 20px;
+  grid-template-columns: 50px 1fr 40px;
 
   align-items: center;
   justify-items: center;
@@ -15,7 +15,18 @@
   overflow: hidden;
 }
 
-.file-tile > svg{
+.file-action-buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  width: 100%;
+  height: 100%;
+
+  margin-right: 0.5em;
+}
+
+.file-tile>svg {
   font-size: 2.5em;
 }
 
@@ -30,7 +41,7 @@
   filter: brightness(150%);
 }
 
-  .file-name:focus {
+.file-name:focus {
   outline-offset: 0.2em;
   outline: 1px solid var(--primary);
 }
