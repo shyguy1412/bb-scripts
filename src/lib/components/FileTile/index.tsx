@@ -1,8 +1,8 @@
 import Style from './FileTile.css';
-import { faFileCode, faFileLines, faFolderClosed } from '@fortawesome/free-solid-svg-icons';
+import { faFileCode, faFileLines, faFolderClosed, faTrash, faTrashCan } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { MouseEvent, createContext, useContext } from 'react';
-import { moveFile, moveFolder, transferFile } from '@/lib/FileSystem';
+import { deleteFile, deleteFolder, moveFile, moveFolder, transferFile } from '@/lib/FileSystem';
 import { DragTarget } from '@/lib/components/DragTarget';
 import { NetscriptContext } from '@/lib/Context';
 
@@ -95,5 +95,17 @@ export function FileTile({ file, path }: Props) {
         }, { once: true });
 
       }}>{file.name}</div>
+    {['js', 'txt', 'folder'].includes(type) ?
+      <FontAwesomeIcon
+        icon={faTrashCan}
+        style={{ cursor: 'pointer', fontSize: '0.8em' }}
+        onClick={async () => {
+          if (! await ns.prompt(`Are you sure you want to delete ${path}/${file.name}?`, { type: 'boolean' })) return;
+          if (type == 'folder')
+            deleteFolder(ns, `${path}/${file.name}`);
+          else
+            deleteFile(ns, `${path}/${file.name}`);
+
+        }}></FontAwesomeIcon> : undefined}
   </DragTarget>;
 };

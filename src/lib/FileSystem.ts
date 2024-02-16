@@ -29,6 +29,14 @@ export function readDir(ns: NS, path: string) {
   }
 };
 
+export function readDirRecursive(ns: NS, path: string): (ReturnType<typeof readDir>[number] & { path: string; })[] {
+  const content = readDir(ns, path);
+  return content
+    .map(file => file.type == 'folder' ? readDirRecursive(ns, `${path}/${file.name}`).flat() : file as (ReturnType<typeof readDir>[number] & { path?: string; }))
+    .flat()
+    .map(f => ({ ...f, path: f.path ?? path }));
+};
+
 export function mkdir(ns: NS, path: string) {
   writeFile(ns, '', `${path}/.keepdir.txt`);
 }
@@ -85,14 +93,7 @@ export function moveFile(ns: NS, source: string, destination: string) {
 
 
 export function moveFolder(ns: NS, source: string, destination: string) {
-  const readDirRecursive = (path: string): (ReturnType<typeof readDir>[number] & { path: string; })[] => {
-    const content = readDir(ns, path);
-    return content
-      .map(file => file.type == 'folder' ? readDirRecursive(`${path}/${file.name}`).flat() : file as (ReturnType<typeof readDir>[number] & { path?: string; }))
-      .flat()
-      .map(f => ({ ...f, path: f.path ?? path }));
-  };
-  const folder = readDirRecursive(source);
+  const folder = readDirRecursive(ns, source);
 
   for (const file of folder) {
     moveFile(ns, `${file.path}/${file.name}`, `${file.path.replace(source, destination)}/${file.name}`);
@@ -129,6 +130,14 @@ export function deleteFile(ns: NS, file: string) {
   'use rm';
   const [server, path] = file.split(/\/(.*)/, 2);
   ns.rm(path, server);
+}
+
+export function deleteFolder(ns: NS, path: string) {
+  const folder = readDirRecursive(ns, path);
+
+  for (const file of folder) {
+    deleteFile(ns, `${file.path}/${file.name}`);
+  }
 }
 
 export function transferFile(ns: NS, source: string, destination: string, copy?: boolean) {
