@@ -30,7 +30,7 @@ export function readDir(ns: NS, path: string, all = false) {
 };
 
 export function mkdir(ns: NS, path: string) {
-  writeFile(ns, '', `${path}/.keepdir`);
+  writeFile(ns, '', `${path}/.keepdir.txt`);
 }
 
 export function readFile(ns: NS, path: string) {
