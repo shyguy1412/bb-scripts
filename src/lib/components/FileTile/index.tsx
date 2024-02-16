@@ -2,7 +2,7 @@ import Style from './FileTile.css';
 import { faFileCode, faFileLines, faFolderClosed } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { MouseEvent, createContext, useContext } from 'react';
-import { transferFile } from '@/lib/FileSystem';
+import { moveFile, transferFile } from '@/lib/FileSystem';
 import { DragTarget } from '@/lib/components/DragTarget';
 import { NetscriptContext } from '@/lib/Context';
 
@@ -57,6 +57,38 @@ export function FileTile({ file, path }: Props) {
   >
     <Style></Style>
     <Icon></Icon>
-    <div>{file.name}</div>
+    <div
+      onDoubleClick={(e) => {
+        console.log(e.currentTarget);
+        e.stopPropagation();
+        e.currentTarget.contentEditable = 'true';
+        e.currentTarget.focus();
+
+        const keydownHandler = (e) => {
+          if (e.key == 'Enter') {
+            (e.currentTarget as HTMLDivElement).contentEditable = 'false';
+            window.focus();
+          }
+        };
+
+        (e.currentTarget as HTMLDivElement).addEventListener('keydown', keydownHandler);
+
+        e.currentTarget.addEventListener('focusout', ({ currentTarget }) => {
+          const newName = (currentTarget as HTMLDivElement).textContent;
+          if (newName == file.name) return;
+
+          try {
+            moveFile(ns, `${path}/${file.name}`, `${path}/${newName}`);
+          } catch (e) {
+            console.log({ e });
+
+            ns.toast((e as Error).name, 'error');
+          }
+
+          currentTarget.removeEventListener('keydown', keydownHandler);
+
+        }, { once: true });
+
+      }}>{file.name}</div>
   </DragTarget>;
 };
