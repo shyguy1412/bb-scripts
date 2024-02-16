@@ -2,7 +2,7 @@ import Style from './FileTile.css';
 import { faFileCode, faFileLines, faFolderClosed } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { MouseEvent, createContext, useContext } from 'react';
-import { moveFile, transferFile } from '@/lib/FileSystem';
+import { moveFile, moveFolder, transferFile } from '@/lib/FileSystem';
 import { DragTarget } from '@/lib/components/DragTarget';
 import { NetscriptContext } from '@/lib/Context';
 
@@ -60,7 +60,6 @@ export function FileTile({ file, path }: Props) {
     <div
       spellCheck={false}
       onDoubleClick={(e) => {
-        if (type == 'folder') return;
         e.stopPropagation();
 
         const el = e.currentTarget as HTMLDivElement;
@@ -81,7 +80,10 @@ export function FileTile({ file, path }: Props) {
           if (newName == file.name) return;
 
           try {
-            moveFile(ns, `${path}/${file.name}`, `${path}/${newName}`);
+            if (type == 'folder')
+              moveFolder(ns, `${path}/${file.name}`, `${path}/${newName}`);
+            else
+              moveFile(ns, `${path}/${file.name}`, `${path}/${newName}`);
           } catch (e) {
             console.log({ e });
 

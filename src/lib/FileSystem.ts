@@ -1,4 +1,4 @@
-export function readDir(ns: NS, path: string, all = false) {
+export function readDir(ns: NS, path: string) {
   'use ls';
   try {
 
@@ -18,7 +18,6 @@ export function readDir(ns: NS, path: string, all = false) {
 
     const folder = directory.reduce((prev, cur) => prev[cur], filesystemTree);
     const filesWithType = Object.keys(folder)
-      .filter(key => all || !key.startsWith('.'))
       .map(key => ({
         name: key,
         type: Object.keys(folder[key]).length ? 'folder' : 'file' as 'file' | 'folder'
@@ -81,6 +80,22 @@ export function moveFile(ns: NS, source: string, destination: string) {
   else {
     copyFile(ns, source, destination);
     deleteFile(ns, source);
+  }
+}
+
+
+export function moveFolder(ns: NS, source: string, destination: string) {
+  const readDirRecursive = (path: string): (ReturnType<typeof readDir>[number] & { path: string; })[] => {
+    const content = readDir(ns, path);
+    return content
+      .map(file => file.type == 'folder' ? readDirRecursive(`${path}/${file.name}`).flat() : file as (ReturnType<typeof readDir>[number] & { path?: string; }))
+      .flat()
+      .map(f => ({ ...f, path: f.path ?? path }));
+  };
+  const folder = readDirRecursive(source);
+
+  for (const file of folder) {
+    moveFile(ns, `${file.path}/${file.name}`, `${file.path.replace(source, destination)}/${file.name}`);
   }
 }
 

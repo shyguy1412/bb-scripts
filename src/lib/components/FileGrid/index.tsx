@@ -32,7 +32,7 @@ export function FileGrid({ path, files }: Props) {
       }}
     >
       <div className='file-grid'>
-        <List data={files.map(file => ({ file, path }))} li={FileTile}></List>
+        <List data={files.filter(f => !f.name.startsWith('.')).map(file => ({ file, path }))} li={FileTile}></List>
       </div>
     </DropTarget>
   </>;
