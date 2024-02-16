@@ -21,7 +21,7 @@ type ConfigWrapper = {
 export const ConfigContext = createContext<ConfigWrapper>(null);
 
 
-export async function bbplasma(ns: NS) {
+export async function Plasma(ns: NS) {
 
   'use getHostname';
   if (ns.getHostname() != 'home') {

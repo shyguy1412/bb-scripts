@@ -1,5 +1,5 @@
-import { bbplasma } from '@/bb-plasma/main';
+import { Plasma } from '@/Plasma/main';
 
 export async function main(ns: NS) {
-  return bbplasma(ns);
+  return Plasma(ns);
 }
