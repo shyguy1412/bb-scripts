@@ -29,7 +29,10 @@ export async function bbplasma(ns: NS) {
   }
 
   if (!ns.fileExists('.plasmaconf.txt')) {
-    ns.write('.plasmaconf.txt', JSON.stringify({}));
+    ns.write('.plasmaconf.txt', JSON.stringify({
+      explorer: 'Dolphin.js',
+      terminal: 'Konsole.js'
+    } as PlasmaConfig));
   }
 
   const cleanupCallbacks: (() => void)[] = [];
@@ -56,6 +59,14 @@ export async function bbplasma(ns: NS) {
         ns.write(CONFIG, JSON.stringify(this.__data));
       }
     };
+
+    if (!config.get('terminal') || !ns.fileExists(config.get('terminal'))) {
+      ns.toast("No terminal app was set!", 'error');
+    }
+
+    if (!config.get('explorer') || !ns.fileExists(config.get('explorer'))) {
+      ns.toast("No file explorer app was set!", 'error');
+    }
 
     const contexts = [
       {
