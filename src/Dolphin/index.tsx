@@ -62,7 +62,8 @@ export function Dolphin() {
     return () => clearTimeout(timeout);
   });
 
-  try {
+  const files = readDir(ns, path);
+  if (files)
     return <>
       <Style></Style>
       <PathContext.Provider value={[path, setPath]}>
@@ -94,14 +95,14 @@ export function Dolphin() {
               }
             }}
             >
-              <FileGrid files={readDir(ns, path)} path={path}></FileGrid>
+              <FileGrid files={files} path={path}></FileGrid>
             </DoubleClickFileContext.Provider>
           </div>
         </div>
       </PathContext.Provider>
     </>;
-  } catch {
-    setPath(ns.getHostname());
-  }
 
+  ns.toast("Current folder was deleted, moving to home", "warning");
+
+  return setPath('home') as undefined;
 }
