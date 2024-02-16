@@ -2,13 +2,11 @@ import { sleep } from '@/lib/System';
 import Style from './Konsole.css';
 import { Terminal } from '@/lib/Terminal';
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { CleanupContext } from '@/lib/Context';
+import { CleanupContext, NetscriptContext } from '@/lib/Context';
 
-type Props = {
-  ns: NS;
-};
-export function Konsole({ ns }: Props) {
+export function Konsole() {
 
+  const ns = useContext(NetscriptContext)
   const terminal = new Terminal(ns);
   const addCleanup = useContext(CleanupContext);
   const konsoleRef = useRef<HTMLUListElement>(null);

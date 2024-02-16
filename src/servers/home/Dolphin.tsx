@@ -9,5 +9,5 @@ export async function main(ns: NS) {
     WindowApp.cleanup();
   });
 
-  return WindowApp.mount(<Dolphin ns={ns}></Dolphin>);
+  return WindowApp.mount(<Dolphin></Dolphin>);
 }

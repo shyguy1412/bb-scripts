@@ -3,18 +3,18 @@ import Style from './Dolphin.css';
 import { ServerSection } from '@/Dolphin/ServerSection';
 import { List } from '@/lib/components/List';
 import { getAllServers } from '@/lib/Network';
-import React, { createContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { BreadCrumbs } from '@/Dolphin/BreadCrumbs';
 import { readDir, readFile } from '@/lib/FileSystem';
 import { DoubleClickFileContext } from '@/lib/components/FileTile';
+import { NetscriptContext } from '@/lib/Context';
 
-type Props = {
-  ns: NS;
-};
 
 export const PathContext = createContext<ReturnType<typeof useState<string>>>(null);
 
-export function Dolphin({ ns }: Props) {
+export function Dolphin() {
+
+  const ns = useContext(NetscriptContext);
 
   'use getHostname';
   const [path, setPath] = useState<string>(ns.args[0] as string ?? ns.getHostname());
