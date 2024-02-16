@@ -8,7 +8,6 @@ type Props = {
 export function DragTarget({ group, data, onDragStart, ...attr }: Props) {
   return <div
     draggable={true}
-    id={`drag-target-${Date.now()}`}
     data-drag-group={group}
     data-drag-data={data}
     onDragStart={(e) => {
