@@ -29,6 +29,10 @@ export function readDir(ns: NS, path: string, all = false) {
   }
 };
 
+export function mkdir(ns: NS, path: string) {
+  writeFile(ns, '', `${path}/.keepdir`);
+}
+
 export function readFile(ns: NS, path: string) {
   'use getHostname';
   'use scp';
@@ -44,6 +48,26 @@ export function readFile(ns: NS, path: string) {
   ns.rm(file);
   return content;
 }
+
+export function writeFile(ns: NS, content: string, path: string) {
+  'use scp';
+  const extension = path.split('.').at(-1);
+
+  if (extension != 'js' && extension != 'txt') {
+    throw new Error('only scripts and textfiles can be moved');
+  }
+
+  const [server, file] = path.split(/\/(.*)/, 2);
+
+  if (!file) {
+    throw new Error('path is not a file');
+  }
+
+  const tempname = 'fs_temp_' + Date.now();
+  ns.write(tempname, content);
+
+  moveFile(ns, `${ns.getHostname()}/${tempname}`, path);
+};
 
 export function moveFile(ns: NS, source: string, destination: string) {
   const sourceExtension = source.split('.').at(-1);
