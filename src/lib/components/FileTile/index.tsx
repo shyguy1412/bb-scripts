@@ -58,7 +58,9 @@ export function FileTile({ file, path }: Props) {
     <Style></Style>
     <Icon></Icon>
     <div
+      spellCheck={false}
       onDoubleClick={(e) => {
+        if (type == 'folder') return;
         e.stopPropagation();
 
         const el = e.currentTarget as HTMLDivElement;
