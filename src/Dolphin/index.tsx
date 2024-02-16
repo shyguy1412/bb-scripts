@@ -5,9 +5,11 @@ import { List } from '@/lib/components/List';
 import { getAllServers } from '@/lib/Network';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { BreadCrumbs } from '@/Dolphin/BreadCrumbs';
-import { readDir, readFile } from '@/lib/FileSystem';
+import { mkdir, readDir, readFile } from '@/lib/FileSystem';
 import { DoubleClickFileContext } from '@/lib/components/FileTile';
 import { NetscriptContext } from '@/lib/Context';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
 
 export const PathContext = createContext<ReturnType<typeof useState<string>>>(null);
@@ -68,11 +70,19 @@ export function Dolphin() {
       <Style></Style>
       <PathContext.Provider value={[path, setPath]}>
         <div className='dolphin-layout'>
+          <div className='dolphin-breadcrumbs'>
+            <BreadCrumbs></BreadCrumbs>
+            <FontAwesomeIcon
+              icon={faPlus}
+              style={{ cursor: 'pointer' }}
+              onClick={() => {
+                mkdir(ns, `${path}/new_dir`);
+              }}></FontAwesomeIcon>
+          </div>
           <div className='dolphin-explorer'>
             <List data={sections.map(s => ({ ...s }))} li={ServerSection} ></List>
           </div>
           <div className='dolphin-content'>
-            <BreadCrumbs></BreadCrumbs>
             <DoubleClickFileContext.Provider value={(e, { type, name }) => {
               switch (type) {
                 case 'js':
