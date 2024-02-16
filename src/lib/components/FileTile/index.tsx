@@ -59,21 +59,22 @@ export function FileTile({ file, path }: Props) {
     <Icon></Icon>
     <div
       onDoubleClick={(e) => {
-        console.log(e.currentTarget);
         e.stopPropagation();
-        e.currentTarget.contentEditable = 'true';
-        e.currentTarget.focus();
 
-        const keydownHandler = (e) => {
+        const el = e.currentTarget as HTMLDivElement;
+        el.contentEditable = 'true';
+        el.focus();
+
+        const keydownHandler = (e: KeyboardEvent) => {
           if (e.key == 'Enter') {
-            (e.currentTarget as HTMLDivElement).contentEditable = 'false';
+            el.contentEditable = 'false';
             window.focus();
           }
         };
 
-        (e.currentTarget as HTMLDivElement).addEventListener('keydown', keydownHandler);
+        el.addEventListener('keydown', keydownHandler);
 
-        e.currentTarget.addEventListener('focusout', ({ currentTarget }) => {
+        el.addEventListener('focusout', ({ currentTarget }) => {
           const newName = (currentTarget as HTMLDivElement).textContent;
           if (newName == file.name) return;
 
@@ -85,7 +86,7 @@ export function FileTile({ file, path }: Props) {
             ns.toast((e as Error).name, 'error');
           }
 
-          currentTarget.removeEventListener('keydown', keydownHandler);
+          el.removeEventListener('keydown', keydownHandler);
 
         }, { once: true });
 
