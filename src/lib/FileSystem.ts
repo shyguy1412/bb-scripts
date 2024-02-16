@@ -144,3 +144,11 @@ export function transferFile(ns: NS, source: string, destination: string, copy?:
   if (copy) copyFile(ns, source, destination);
   else moveFile(ns, source, destination);
 }
+
+export function transferFolder(ns: NS, source: string, destination: string, copy?: boolean) {
+  const folder = readDirRecursive(ns, source);
+
+  for (const file of folder) {
+    transferFile(ns, `${file.path}/${file.name}`, `${file.path.replace(source, destination)}/${file.name}`, copy);
+  }
+}
