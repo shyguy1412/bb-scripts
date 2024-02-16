@@ -1,3 +1,4 @@
+import { ConfigContext } from '@/bb-plasma/main';
 import { NetscriptContext } from '@/lib/Context';
 import { readDir, readFile } from '@/lib/FileSystem';
 import { FileGrid } from '@/lib/components/FileGrid';
@@ -8,6 +9,7 @@ export function Desktop() {
   'use run';
 
   const ns = useContext(NetscriptContext);
+  const config = useContext(ConfigContext);
 
   const [_, reload] = useState(true); //this is just used to poll the fs since BB doesnt have fs events
   useEffect(() => {
@@ -22,7 +24,7 @@ export function Desktop() {
           ns.run(name);
           break;
         case 'folder':
-          ns.run('Dolphin.js', undefined, `home/${name}`);
+            ns.run(config.get('explorer'), undefined, `home/${name}`);
           break;
         case 'txt':
           ns.alert(readFile(ns, `home/${name}`));
