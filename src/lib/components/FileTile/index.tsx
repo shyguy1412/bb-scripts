@@ -101,6 +101,7 @@ export function FileTile({ file, path }: Props) {
             if (!term.terminalInput) return ns.toast('Editing can only be triggered when the terminal tab is selected', 'warning');
             term.exec(getConnectionPath(ns, server).reduce((prev, cur) => prev + `connect ${cur};`, ''));
             term.exec(`nano ${filepath}`);
+            term.cleanup();
           }}></FontAwesomeIcon> : undefined}
       {['js', 'txt', 'folder'].includes(type) ?
         <FontAwesomeIcon
