@@ -31,7 +31,8 @@ export async function bbplasma(ns: NS) {
   if (!ns.fileExists('.plasmaconf.txt')) {
     ns.write('.plasmaconf.txt', JSON.stringify({
       explorer: 'Dolphin.js',
-      terminal: 'Konsole.js'
+      terminal: 'Konsole.js',
+      homeapps: [],
     } as PlasmaConfig));
   }
 
