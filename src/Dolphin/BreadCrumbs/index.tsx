@@ -19,7 +19,7 @@ function Crumb({ crumb, path }: { crumb: string; path: string; }) {
   const [, setPath] = useContext(PathContext);
   const ns = useContext(NetscriptContext);
 
-  return <span>
+  return <span style={{userSelect: 'none'}}>
     <DropTarget
       className='dolphin-bread-crumb-clickable'
       accept='file'
