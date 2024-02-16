@@ -11,10 +11,10 @@
 .desktop-enviroment * {
   box-sizing: border-box;
   color: var(--primarylight);
-  font-size: 1.05em;
   user-select: none;
 }
 
 .plasma-desktop{
   overflow: hidden;
+  font-size: 15px;
 }

@@ -1,28 +1,36 @@
 .file-tile {
-  display: flex;
+  display: grid;
+  grid-template-columns: 50px 1fr 20px;
+
   align-items: center;
+  justify-items: center;
+
   gap: 0.5em;
 
+  width: 100%;
   height: 50px;
 
-  padding: 0.5em;
   background-color: var(--backgroundprimary);
 
-  user-select: none;
-  font-size: 0.85em;
+  overflow: hidden;
 }
 
+.file-tile > svg{
+  font-size: 2.5em;
+}
+
+.file-name {
+  width: 100%;
+  overflow: hidden;
+  user-select: none;
+  text-overflow: ellipsis;
+}
 
 .file-tile:hover {
   filter: brightness(150%);
 }
 
-.file-tile>svg {
-  font-size: 2.5em;
-}
-
-
-.file-tile>div:focus {
+  .file-name:focus {
   outline-offset: 0.2em;
   outline: 1px solid var(--primary);
 }
