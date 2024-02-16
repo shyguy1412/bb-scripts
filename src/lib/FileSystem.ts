@@ -10,7 +10,6 @@ export function readDir(ns: NS, path: string, all = false) {
         let node = prev;
         while (path.length) {
           const curNode = path.shift();
-          if (!all && curNode[0] == '.') continue;
           node[curNode] ??= {};
           node = node[curNode];
         };
@@ -18,10 +17,12 @@ export function readDir(ns: NS, path: string, all = false) {
       }, {});
 
     const folder = directory.reduce((prev, cur) => prev[cur], filesystemTree);
-    const filesWithType = Object.keys(folder).map(key => ({
-      name: key,
-      type: Object.keys(folder[key]).length ? 'folder' : 'file' as 'file' | 'folder'
-    }));
+    const filesWithType = Object.keys(folder)
+      .filter(key => all || !key.startsWith('.'))
+      .map(key => ({
+        name: key,
+        type: Object.keys(folder[key]).length ? 'folder' : 'file' as 'file' | 'folder'
+      }));
 
     return filesWithType;
   } catch {
@@ -63,9 +64,8 @@ export function writeFile(ns: NS, content: string, path: string) {
     throw new Error('path is not a file');
   }
 
-  const tempname = 'fs_temp_' + Date.now();
+  const tempname = `fs_temp_${Date.now()}.txt`;
   ns.write(tempname, content);
-
   moveFile(ns, `${ns.getHostname()}/${tempname}`, path);
 };
 
