@@ -102,7 +102,7 @@ export function FileTile({ file, path }: Props) {
             term.exec(getConnectionPath(ns, server).reduce((prev, cur) => prev + `connect ${cur};`, ''));
             term.exec(`nano ${filepath}`);
             term.cleanup();
-          }}></FontAwesomeIcon> : undefined}
+          }}></FontAwesomeIcon> : <span></span>}
       {['js', 'txt', 'folder'].includes(type) ?
         <FontAwesomeIcon
           icon={faTrashCan}
