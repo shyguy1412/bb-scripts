@@ -22,7 +22,7 @@ export function Desktop() {
           ns.run(name);
           break;
         case 'folder':
-          ns.run('Dolphin.js');
+          ns.run('Dolphin.js', undefined, `home/${name}`);
           break;
         case 'txt':
           ns.alert(readFile(ns, `home/${name}`));
