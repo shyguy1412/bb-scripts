@@ -118,7 +118,8 @@ const createContext = async () => await context({
         'mirror': 'all'
       },
       distribute: {
-        'build/all': 'all'
+        'build/all': 'all',
+        'all': 'all',
       },
       usePolling: true,
       pollingInterval: 100,
