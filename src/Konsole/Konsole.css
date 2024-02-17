@@ -17,7 +17,7 @@
 }
 
 .konsole-input {
-  width: 100%;
+  width: calc(100% - 150px);
 
   background-color: var(--backgroundprimary);
   color: var(--primarylight);
