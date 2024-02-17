@@ -1,5 +1,5 @@
-import LogoSVG from '@/bb-plasma/assets/bitburner-logo.svg';
-import { HomeMenu } from '@/bb-plasma/components/HomeMenu';
+import LogoSVG from '@/Plasma/assets/bitburner-logo.svg';
+import { HomeMenu } from '@/Plasma/components/HomeMenu';
 import React, { useState } from 'react';
 
 type Props = {

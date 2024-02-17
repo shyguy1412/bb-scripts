@@ -1,4 +1,4 @@
-import { ConfigContext } from '@/bb-plasma/main';
+import { ConfigContext } from '@/Plasma/main';
 import { CleanupContext, NetscriptContext, TerminateContext } from '@/lib/Context';
 import { sleep } from '@/lib/System';
 import { Terminal } from '@/lib/Terminal';

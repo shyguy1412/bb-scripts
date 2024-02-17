@@ -1,4 +1,4 @@
-import { ConfigContext } from '@/bb-plasma/main';
+import { ConfigContext } from '@/Plasma/main';
 import { NetscriptContext } from '@/lib/Context';
 import { readDir, readFile } from '@/lib/FileSystem';
 import { FileGrid } from '@/lib/components/FileGrid';

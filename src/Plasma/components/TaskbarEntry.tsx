@@ -1,5 +1,5 @@
 
-import Style from '@/bb-plasma/style/Taskbar.css';
+import Style from '@/Plasma/style/Taskbar.css';
 import { type PropsWithChildren } from 'react';
 import React from 'react';
 

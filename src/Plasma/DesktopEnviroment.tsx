@@ -1,7 +1,7 @@
-import { Taskbar } from '@/bb-plasma/components/Taskbar';
-import { mapObject } from '@/bb-plasma/lib/MapObject';
-import { Desktop } from '@/bb-plasma/components/Desktop';
-import Style from '@/bb-plasma/style/DesktopEnviroment.css';
+import { Taskbar } from '@/Plasma/components/Taskbar';
+import { mapObject } from '@/Plasma/lib/MapObject';
+import { Desktop } from '@/Plasma/components/Desktop';
+import Style from '@/Plasma/style/DesktopEnviroment.css';
 import React, { useContext } from 'react';
 import { NetscriptContext } from '@/lib/Context';
 

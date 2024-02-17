@@ -25,7 +25,7 @@ export async function Plasma(ns: NS) {
 
   'use getHostname';
   if (ns.getHostname() != 'home') {
-    throw new Error('bb-plasma can not run on servers');
+    throw new Error('Plasma can not run on servers');
   }
 
   if (!ns.fileExists('.plasmaconf.txt')) {

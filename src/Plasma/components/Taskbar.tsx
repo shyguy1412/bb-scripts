@@ -1,5 +1,5 @@
-import Style from '@/bb-plasma/style/Taskbar.css';
-import { HomeButton } from '@/bb-plasma/components/HomeButton';
+import Style from '@/Plasma/style/Taskbar.css';
+import { HomeButton } from '@/Plasma/components/HomeButton';
 import React, { useState, useEffect } from 'react';
 
 type Props = {
