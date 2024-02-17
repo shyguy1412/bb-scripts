@@ -15,15 +15,16 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons';
 export const PathContext = createContext<ReturnType<typeof useState<string>>>(null);
 
 export function Dolphin() {
+  'use exec';
+  'use getHostname';
+  'use getServer';
 
   const ns = useContext(NetscriptContext);
 
-  'use getHostname';
   const [path, setPath] = useState<string>(ns.args[0] as string ?? ns.getHostname());
 
   const servers = getAllServers(ns);
   const sections = servers.reduce((prev, cur) => {
-    'use getServer';
     const server = ns.getServer(cur);
 
     if (server.hostname == 'home') {
@@ -98,7 +99,6 @@ export function Dolphin() {
             <DoubleClickFileContext.Provider value={(e, { type, name }) => {
               switch (type) {
                 case 'js':
-                  'use exec';
                   const [server, script] = `${path}/${name}`.split(/\/(.*)/, 2);
                   ns.exec(script, server);
                   break;

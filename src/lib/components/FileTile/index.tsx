@@ -28,8 +28,6 @@ const FileIcons = {
 } as const;
 
 export function FileTile({ file, path }: Props) {
-  'use exec';
-
   const ns = useContext(NetscriptContext);
   const type = (file.type == 'file' ? file.name.split('.').at(-1) : 'folder') as keyof typeof FileIcons;
   const Icon = FileIcons[type] ?? FileIcons['txt'];
