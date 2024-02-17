@@ -6,6 +6,9 @@ export async function main(ns: NS) {
   // const {hostname} = await getHackTarget(ns);
   const hostname = ns.args[0] as string ?? 'joesguns';
 
+  await fullyWeakenServer(ns, hostname);
+  await fullyGrowServer(ns, hostname);
+
   while (true) {
     await hackServer(ns, hostname, HACK_PERCENT);
     await fullyGrowServer(ns, hostname);
