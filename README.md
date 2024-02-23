@@ -10,3 +10,4 @@ Transpiled and stand-alone versions of my scripts are available under releases.
 - [Dolphin](./src/Dolphin/README.md) A simple file explorer with drag/drop support
 - [Konsole](./src/Konsole/README.md) Clones the terminal into a tail window (for use with [Plasma](./src/Plasma/README.md))
 - [Plasma](./src/Plasma/README.md) A KDE Plasma inspired Desktop Enviroment
+- [WindowApp](./doc/WindowApp.md) A library for making UI apps with react utilizing the tail windows.
