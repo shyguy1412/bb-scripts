@@ -7,7 +7,6 @@ WindowApp.mount will return a promise that resolves when the tail window is clos
 
 ```jsx
 import { createWindowApp } from 'WindowApp';
-import React from 'react';
 
 export async function main(ns) {
   const WindowApp = createWindowApp(ns);
