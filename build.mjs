@@ -3,6 +3,7 @@ import { parse } from 'acorn';
 import { ancestor } from 'acorn-walk';
 import { context, transform } from 'esbuild';
 import { BitburnerPlugin } from 'esbuild-bitburner-plugin';
+import { OverloadPlugin } from 'esbuild-operator-overload-plugin';
 import fs from 'fs/promises';
 import RamDodger3000 from 'ramdodger3000';
 
@@ -104,12 +105,14 @@ const createContext = async () => await context({
     'src/servers/**/*.ts',
     'src/servers/**/*.tsx',
   ],
+  // entryPoints: ['src/servers/grindr-1/test.ts'],
   outbase: './src/servers',
   outdir: './build',
   plugins: [
     CSSSpoofPlugin,
     SVGSpoofPlugin,
     UnsafePlugin,
+    // OverloadPlugin,
     BitburnerPlugin({
       port: 12525,
       types: 'NetscriptDefinitions.d.ts',
@@ -135,3 +138,5 @@ const createContext = async () => await context({
 
 const ctx = await createContext();
 ctx.watch();
+// await ctx.rebuild();
+// ctx.dispose();

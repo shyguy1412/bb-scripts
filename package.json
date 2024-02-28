@@ -28,6 +28,7 @@
     "astring": "^1.8.6",
     "esbuild": "^0.19.12",
     "esbuild-bitburner-plugin": "file:../../TypeScript/esbuild-bitburner-plugin",
+    "esbuild-operator-overload-plugin": "file:../../JavaScript/esbuild-operator-overload-plugin",
     "ramdodger3000": "file:../../JavaScript/ramdodger3000"
   }
 }
