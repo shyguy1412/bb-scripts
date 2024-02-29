@@ -11,7 +11,7 @@ export function getRamCost(ns: NS, functions: string[], threads = 1) {
 type AllocateOptions = {
   ram: number;
   threads?: number;
-  host?: string;
+  host?: string | string[];
 };
 
 export async function allocateRam<T = any>(ns: NS, options: AllocateOptions, callback: (ns: NS) => T): Promise<T> | undefined {
@@ -21,7 +21,18 @@ export async function allocateRam<T = any>(ns: NS, options: AllocateOptions, cal
   'use getServerUsedRam';
 
   const ram = options.ram;
-  const host = options.host ?? ns.getHostname();
+  const host = typeof options.host == 'string' ?
+    options.host :
+    options.host?.reduce<string | undefined>((prev, cur) => {
+      const freeRam = ns.getServerMaxRam(cur) - ns.getServerUsedRam(cur);
+      if (!prev) {
+        if (freeRam >= ram) return cur;
+        return undefined;
+      }
+      const prevFreeRam = ns.getServerMaxRam(prev) - ns.getServerUsedRam(prev);
+      return prevFreeRam >= ram ? prev : cur;
+    }, undefined)
+    ?? ns.getHostname();
   const threads = options.threads ?? 1;
   if (ns.getServerMaxRam(host) - ns.getServerUsedRam(host) < ram * threads)
     console.log("WAITING FOR RAM");

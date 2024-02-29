@@ -1,0 +1,1 @@
+export type Tree<T = never> = { [key: string]: Tree<T> | T; };
