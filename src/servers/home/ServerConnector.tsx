@@ -6,7 +6,7 @@ import { List } from "@/lib/components/List";
 import React from "react";
 import { useContext } from "react";
 
-export async function main(ns) {
+export async function main(ns: NS) {
   const WindowApp = createWindowApp(ns);
 
   ns.atExit(() => WindowApp.cleanup());
