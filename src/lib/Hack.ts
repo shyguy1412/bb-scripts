@@ -34,11 +34,11 @@ export function gainRoot(ns: NS, host: string) {
 export function getServerStats(ns: NS, server: Server, host: Server) {
   'use weakenAnalyze';
   'use growthAnalyze';
-  const serverSecurity = server.hackDifficulty - server.minDifficulty;
+  const serverSecurity = server.hackDifficulty! - server.minDifficulty!;
   const weakenThreads = serverSecurity / ns.weakenAnalyze(1, host.cpuCores);
   const weakenRamCost = getRamCost(ns, ['weaken'], weakenThreads);
 
-  const growthMultiplier = server.moneyMax / (server.moneyAvailable || 1);
+  const growthMultiplier = server.moneyMax! / (server.moneyAvailable || 1);
   const growThreads = ns.growthAnalyze(server.hostname, growthMultiplier, host.cpuCores);
   const growRamCost = getRamCost(ns, ['grow'], growThreads);
 
@@ -68,11 +68,11 @@ export async function getHackTarget(ns: NS) {
     const server = getAllServers(ns)
       .map(s => ns.getServer(s))
       .filter(s => s.hasAdminRights && !s.purchasedByPlayer)
-      .filter(s => s.requiredHackingSkill < ns.getHackingLevel())
+      .filter(s => s.requiredHackingSkill! < ns.getHackingLevel())
       .reduce((prev, cur) => {
         return cur.moneyMax != 0 &&
-          cur.requiredHackingSkill > prev.requiredHackingSkill &&
-          cur.requiredHackingSkill < ns.getHackingLevel() / 10 ?
+          cur.requiredHackingSkill! > prev.requiredHackingSkill! &&
+          cur.requiredHackingSkill! < ns.getHackingLevel() / 10 ?
           cur : prev;
       });
 
@@ -95,17 +95,17 @@ export async function fullyWeakenServer(ns: NS, target: string) {
     const { weakenThreads, server } = await allocateRam(ns, {
       ram: getRamCost(ns, [
         'getServer',
-        'weakenAnalyze',
-        'growthAnalyze',
-        'getHostname'
+        'getHostname',
+        'weakenAnalyze'
       ])
     }, (ns) => {
       const server = ns.getServer(target);
       const host = ns.getServer(ns.getHostname());
-      const { weakenThreads } = getServerStats(ns, server, host);
+      const serverSecurity = server.hackDifficulty! - server.minDifficulty!;
+      const weakenThreads = Math.floor(serverSecurity / ns.weakenAnalyze(1, host.cpuCores));
       return {
         server,
-        weakenThreads: Math.min(weakenThreads, getMaxThreads(host, getRamCost(ns, ['weaken'])))
+        weakenThreads: Math.floor(Math.min(weakenThreads, getMaxThreads(host, getRamCost(ns, ['weaken'])))) || 1
       };
     });
 
@@ -116,7 +116,7 @@ export async function fullyWeakenServer(ns: NS, target: string) {
       ]),
       threads: weakenThreads
     }, async (ns) => {
-      await ns.weaken(server.hostname, { threads: weakenThreads });
+      await ns.weaken(server.hostname);
     });
   }
 }
@@ -135,18 +135,18 @@ export async function fullyGrowServer(ns: NS, target: string) {
     const { growThreads, server } = await allocateRam(ns, {
       ram: getRamCost(ns, [
         'getServer',
-        'weakenAnalyze',
-        'growthAnalyze',
-        'getHostname'
+        'getHostname',
+        'growthAnalyze'
       ])
     }, (ns) => {
       const server = ns.getServer(target);
       const host = ns.getServer(ns.getHostname());
-      const { growThreads } = getServerStats(ns, server, host);
+      const growthMultiplier = server.moneyMax! / (server.moneyAvailable || 1);
+      const growThreads = ns.growthAnalyze(server.hostname, growthMultiplier, host.cpuCores);
 
       return {
         server,
-        growThreads: Math.min(growThreads, getMaxThreads(host, getRamCost(ns, ['grow'])))
+        growThreads: Math.floor(Math.min(growThreads, getMaxThreads(host, getRamCost(ns, ['grow']))) || 1)
       };
     });
 
@@ -157,7 +157,7 @@ export async function fullyGrowServer(ns: NS, target: string) {
       ]),
       threads: growThreads
     }, async (ns) => {
-      await ns.grow(server.hostname, { threads: growThreads });
+      await ns.grow(server.hostname);
     });
   }
 }
@@ -169,16 +169,15 @@ export async function hackServer(ns: NS, target: string, hack_percent: number) {
         'getServer',
         'getHostname',
         'hackAnalyzeThreads',
-
       ])
     }, (ns) => {
       const server = ns.getServer(target);
       const host = ns.getServer(ns.getHostname());
-      const hackThreads = Math.ceil(ns.hackAnalyzeThreads(server.hostname, server.moneyAvailable * hack_percent));
+      const hackThreads = Math.ceil(ns.hackAnalyzeThreads(server.hostname, server.moneyAvailable! * hack_percent));
 
       return {
         server,
-        hackThreads: Math.min(hackThreads, getMaxThreads(host, getRamCost(ns, ['grow'])))
+        hackThreads: Math.floor(Math.min(hackThreads, getMaxThreads(host, getRamCost(ns, ['grow'])))) || 1
       };
     });
 
@@ -188,7 +187,7 @@ export async function hackServer(ns: NS, target: string, hack_percent: number) {
       ]),
       threads: hackThreads
     }, async (ns) => {
-      await ns.hack(server.hostname, { threads: hackThreads });
+      await ns.hack(server.hostname);
     });
 
     if (await allocateRam(ns, {
