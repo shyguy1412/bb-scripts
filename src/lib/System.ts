@@ -14,44 +14,37 @@ type AllocateOptions = {
   host?: string | string[];
 };
 
-export async function allocateRam<T = any>(ns: NS, options: AllocateOptions, callback: (ns: NS) => T): Promise<T> | undefined {
+export function getWorkerServer(hosts: { hostname: string, freeRam: number; }[], ram: number): typeof hosts[number] | undefined {
+  return hosts.reduce<typeof hosts[number] | undefined>((prev, cur) => {
+    if (prev) return prev.freeRam > ram ? prev : cur;
+
+    if (cur.freeRam > ram) return cur;
+
+    return undefined;
+  }, undefined);
+}
+
+export function allocateRam<T = any>(ns: NS, options: AllocateOptions, callback: (ns: NS) => T): Promise<T> {
   'use exec';
   'use getHostname';
   'use getServerMaxRam';
   'use getServerUsedRam';
 
+  const threads = options.threads || 1;
   const ram = options.ram;
   const host = typeof options.host == 'string' ?
     options.host :
-    options.host?.reduce<string | undefined>((prev, cur) => {
-      const freeRam = ns.getServerMaxRam(cur) - ns.getServerUsedRam(cur);
-      if (!prev) {
-        if (freeRam >= ram) return cur;
-        return undefined;
-      }
-      const prevFreeRam = ns.getServerMaxRam(prev) - ns.getServerUsedRam(prev);
-      return prevFreeRam >= ram ? prev : cur;
-    }, undefined)
-    ?? ns.getHostname();
-  const threads = options.threads ?? 1;
-  if (ns.getServerMaxRam(host) - ns.getServerUsedRam(host) < ram * threads)
-    console.log("WAITING FOR RAM");
+    options.host ? getWorkerServer(options.host.map(hostname => ({
+      hostname, freeRam: ns.getServerMaxRam(hostname) - ns.getServerUsedRam(hostname)
+    })), ram * threads)?.hostname : ns.getHostname();
 
-  while (ns.getServerMaxRam(host) - ns.getServerUsedRam(host) < ram * threads) {
-    await sleep(100);
-  }
-
+  if (!host) throw new Error('RAM could not be allocated, no suitable host');
   const pid = ns.exec('ram-allocator.js', host, { ramOverride: ram, threads, temporary: true });
-  if (!pid) throw new Error('RAM could not be allocated');
+  if (!pid) throw new Error('RAM could not be allocated, script failed to start');
 
-  while (!globalThis[`ns-${pid}`]) await sleep(0);
-
-  const [alloc, exit] = globalThis[`ns-${pid}`] as [NS, () => void];
-  delete globalThis[`ns-${pid}`];
-
-  return await Promise.resolve(callback(alloc))
-    .catch(e => console.log(e) as undefined)
-    .finally(exit);
+  return new Promise((resolve) => {
+    (globalThis as any)[`ns-${pid}`] = [callback, resolve];
+  });
 }
 
 export function getMaxThreads(server: Server, ram: number) {
