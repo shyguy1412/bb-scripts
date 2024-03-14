@@ -24,6 +24,11 @@
   width: 100px;
 }
 
+.server-manager-button-list {
+  display: flex;
+  gap: 0.5em;
+}
+
 .server-manager-purchase-server-button {
   cursor: pointer;
 
@@ -40,6 +45,23 @@
   height: 1.5em;
 }
 
+.server-manager-auto-upgrade-button {
+  cursor: pointer;
+
+  user-select: none;
+
+  border: 1px solid var(--welllight);
+  background-color: var(--backgroundprimary);
+
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+
+  width: 3em;
+  height: 1.5em;
+}
+
+.server-manager-auto-upgrade-button:hover,
 .server-manager-purchase-server-button:hover {
   filter: brightness(150%);
 }

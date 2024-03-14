@@ -10,8 +10,9 @@ type Props = {
 };
 
 export function ServerEntry({ server: { hostname }, ns, remove }: Props) {
-
+  'use getServerMaxRam';
   'use getServer';
+
   const [server, setServer] = useState<Server>(ns.getServer(hostname));
 
   return <>
@@ -26,8 +27,6 @@ export function ServerEntry({ server: { hostname }, ns, remove }: Props) {
       <div className='server-entry-button-wrapper'>
         <span className='server-entry-button'
           onClick={() => {
-            'use getServerMaxRam';
-
             if (doublePurchasedServerRam(ns, server.hostname))
               ns.toast('Server upgraded successfully', 'success');
             else if (server.maxRam == ns.getServerMaxRam(hostname))
