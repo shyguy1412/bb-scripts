@@ -7,6 +7,9 @@ import React, { useState, useRef, useContext } from 'react';
 import { NetscriptContext } from '@/lib/Context';
 
 export function ServerManager() {
+  'use getPurchasedServerLimit';
+  'use purchaseServer';
+  'use deleteServer';
 
   const ns = useContext(NetscriptContext);
   const [servers, setServers] = useState<Server[]>(getPurchasedServers(ns));
@@ -26,9 +29,6 @@ export function ServerManager() {
         </span>
         <span className='server-manager-purchase-server-button'
           onClick={() => {
-            'use getPurchasedServerLimit';
-            'use purchaseServer';
-
             if (!inputRef.current) throw new Error('Something went wrong, no input ref');
             const newServer = ns.purchaseServer(inputRef.current.value, 2);
             if (!newServer && servers.length == ns.getPurchasedServerLimit()) {
@@ -48,7 +48,6 @@ export function ServerManager() {
           ns,
           server: s,
           remove: () => {
-            'use deleteServer';
             ns.deleteServer(s.hostname);
             setServers(getPurchasedServers(ns));
           }
