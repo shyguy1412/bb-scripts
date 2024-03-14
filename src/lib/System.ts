@@ -29,6 +29,8 @@ export function allocateRam<T = any>(ns: NS, options: AllocateOptions, callback:
   'use getHostname';
   'use getServerMaxRam';
   'use getServerUsedRam';
+  'use fileExists';
+  'use scp';
 
   const threads = options.threads || 1;
   const ram = options.ram;
@@ -39,6 +41,7 @@ export function allocateRam<T = any>(ns: NS, options: AllocateOptions, callback:
     })), ram * threads)?.hostname : ns.getHostname();
 
   if (!host) throw new Error('RAM could not be allocated, no suitable host');
+  if (!ns.fileExists('ram-allocator.js', host)) ns.scp('ram-allocator.js', host, 'home');
   const pid = ns.exec('ram-allocator.js', host, { ramOverride: ram, threads, temporary: true });
   if (!pid) throw new Error('RAM could not be allocated, script failed to start');
 
