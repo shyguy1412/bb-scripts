@@ -19,7 +19,7 @@ export async function main(ns: NS) {
     for (const server of servers) {
       if (gainRoot(ns, server.hostname)) {
         queueMicrotask(() => {
-          servers.splice(servers.indexOf(server));
+          servers.splice(servers.indexOf(server), 1);
         });
         ns.print("GAINED ROOT: " + server.hostname);
       };
