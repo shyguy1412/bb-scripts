@@ -48,6 +48,8 @@ export function ServerManager() {
             onClick={() => {
 
               const servers = getPurchasedServers(ns);
+              servers.sort((a, b) => a.maxRam - b.maxRam);
+
               while (doublePurchasedServerRam(ns, servers[0].hostname)) {
                 servers[0].maxRam *= 2;
                 servers.sort((a, b) => a.maxRam - b.maxRam);
