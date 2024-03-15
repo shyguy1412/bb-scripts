@@ -1,6 +1,10 @@
 import { allocateRam, getRamCost } from '@/lib/System';
 import { getAllServers as getAllServersUnsafe } from '@/lib/Network' with {type: 'unsafe'};
 
+export function autocomplete({servers}:{servers:string[]}){
+  return servers
+}
+
 export async function main(ns: NS) {
   while (true) {
     const [target, hosts] = await allocateRam(ns, {
