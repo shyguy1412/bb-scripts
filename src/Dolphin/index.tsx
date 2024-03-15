@@ -3,16 +3,16 @@ import Style from './Dolphin.css';
 import { ServerSection } from '@/Dolphin/ServerSection';
 import { List } from '@/lib/components/List';
 import { getAllServers } from '@/lib/Network';
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { Dispatch, SetStateAction, createContext, useContext, useEffect, useState } from 'react';
 import { BreadCrumbs } from '@/Dolphin/BreadCrumbs';
 import { mkdir, readDir, readFile, writeFile } from '@/lib/FileSystem';
 import { DoubleClickFileContext } from '@/lib/components/FileTile';
 import { NetscriptContext } from '@/lib/Context';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import { getAllCodingContracts } from '@/lib/FileSystem';
 
-
-export const PathContext = createContext<ReturnType<typeof useState<string>>>(null);
+export const PathContext = createContext<([string, Dispatch<SetStateAction<string>>]) | undefined>(undefined);
 
 export function Dolphin() {
   'use exec';
@@ -65,7 +65,7 @@ export function Dolphin() {
     return () => clearTimeout(timeout);
   });
 
-  const files = readDir(ns, path);
+  const files = path == '~home/coding-contracts' ? getAllCodingContracts(ns) : readDir(ns, path);
   if (files)
     return <>
       <Style></Style>
@@ -79,7 +79,7 @@ export function Dolphin() {
                   mkdir(ns, `${path}/new_dir`);
                 }}
               >
-                <FontAwesomeIcon style={{marginRight: '0.2em'}} icon={faPlus}></FontAwesomeIcon>
+                <FontAwesomeIcon style={{ marginRight: '0.2em' }} icon={faPlus}></FontAwesomeIcon>
                 new folder
               </span>
               <span
@@ -87,13 +87,17 @@ export function Dolphin() {
                   writeFile(ns, '', `${path}/new_file.js`);
                 }}
               >
-                <FontAwesomeIcon style={{marginRight: '0.2em'}} icon={faPlus}></FontAwesomeIcon>
+                <FontAwesomeIcon style={{ marginRight: '0.2em' }} icon={faPlus}></FontAwesomeIcon>
                 new file
               </span>
             </span>
           </div>
           <div className='dolphin-explorer'>
             <List data={sections.map(s => ({ ...s }))} li={ServerSection} ></List>
+            <div
+              className='dolphin-explorer-button'
+              onClick={() => (setPath('~home/coding-contracts'))}
+            >Coding Contracs</div>
           </div>
           <div className='dolphin-content'>
             <DoubleClickFileContext.Provider value={(e, { type, name }) => {

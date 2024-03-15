@@ -1,3 +1,18 @@
+import { getAllServers } from "@/lib/Network";
+
+export function getAllCodingContracts(ns: NS) {
+  'use ls';
+  const files: { name: string, type: 'file'; }[] = [];
+  for (const server of getAllServers(ns).filter(s => s != 'home')) {
+    for (const file of ns.ls(server)) {
+      if (file.endsWith('.cct')) {
+        files.push({ name: file, type: 'file' });
+      }
+    }
+  }
+  return files;
+}
+
 export function readDir(ns: NS, path: string) {
   'use ls';
   try {
