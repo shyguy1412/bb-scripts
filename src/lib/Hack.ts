@@ -1,6 +1,6 @@
-import { getAllServers } from "@/lib/Network" with {type: 'unsafe'};
-import { allocateRam, getMaxThreads, getRamCost } from "@/lib/System";
-import { Server } from "NetscriptDefinitions";
+import { getAllServers } from '@/lib/Network' with {type: 'unsafe'};
+import { allocateRam, getMaxThreads, getRamCost } from '@/lib/System';
+import { Server } from 'NetscriptDefinitions';
 
 export function gainRoot(ns: NS, host: string) {
   'use brutessh';
@@ -166,26 +166,32 @@ export async function prepServer(ns: NS, hostname: string, hacknet: string[]) {
   while (true) {
     const [target, hosts] = await allocateRam(ns, {
       ram: getRamCost(ns, [
-        "getServer",
+        'getServer',
       ]),
-    }, ns => ([ns.getServer(hostname), hacknet.map(h => ns.getServer(h)).map(s => ({ hostname: s.hostname, freeRam: s.maxRam - s.ramUsed }))] as const));
+    }, ns => ([ns.getServer(hostname), hacknet.map(h => ns.getServer(h)).map(s => ({ hostname: s.hostname, freeRam: s.maxRam - s.ramUsed }))] as const)).catch(_ => []);
+
+    if (!target) { await ns.sleep(500); continue; }
     if (target.hackDifficulty == target.minDifficulty && target.moneyAvailable == target.moneyMax) break;
 
+
     if (target.hackDifficulty != target.minDifficulty) {
-      await Promise.all(hosts.map(server => {
-        const ram = getRamCost(ns, ["weaken"]);
+      await Promise.allSettled(hosts.map(async server => {
+        const ram = getRamCost(ns, ['weaken']);
         const threads = Math.floor(server.freeRam / ram) || 1;
-        return allocateRam(ns, { host: hosts.map(s => s.hostname), ram, threads }, ns => ns.weaken(target.hostname));
+        await allocateRam(ns, { host: server.hostname, ram, threads }, ns => ns.weaken(target.hostname));
       }));
     } else {
-      await Promise.all(hosts.map(server => {
+      await Promise.allSettled(hosts.map(async server => {
         const ram = getRamCost(ns, ["grow"]);
         const threads = Math.floor(server.freeRam / ram) || 1;
-        return allocateRam(ns, { host: hosts.map(s => s.hostname), ram, threads }, ns => ns.grow(target.hostname));
+        await allocateRam(ns, { host: server.hostname, ram, threads }, ns => ns.grow(target.hostname));
       }));
     }
+
+    await ns.sleep(0);
   }
 }
+
 
 export type BatchInfo = {
   server: Server;
@@ -210,12 +216,11 @@ export async function batch(ns: NS, batch: BatchInfo, [hackHost, growHost, weake
   ]);
 
   if (!order.every((o, i) => o == i)) {
-    throw new Error("Batch failed");
+    throw new Error('Batch failed');
   }
-
 }
 
-export async function calculateBatch(ns: NS, target: string, hackThreads: number): Promise<BatchInfo & { ram: number[]; }> {
+export async function calculateBatch(ns: NS, target: string, hackThreads: number, queue?: Promise<void>[]): Promise<BatchInfo & { ram: number[]; }> {
   return allocateRam(ns, {
     ram: getRamCost(ns, [
       'getServer',
@@ -226,15 +231,14 @@ export async function calculateBatch(ns: NS, target: string, hackThreads: number
       'growthAnalyzeSecurity',
       'weakenAnalyze'
     ])
-  }, ns => {
+  }, async ns => {
+    if (queue) await queue.shift();
     const server = ns.getServer(target);
     const stolen = ns.hackAnalyze(target) * hackThreads;
-    console.log(stolen, ns.getServerMaxMoney(target));
-
-    const growThreads = Math.ceil(ns.growthAnalyze(target, 1 + (stolen / (ns.getServerMaxMoney(target) || 1))));
+    const growThreads = Math.ceil(ns.growthAnalyze(target, 1 / (1 - stolen)));
     const hackSecurity = ns.hackAnalyzeSecurity(hackThreads, target);
     const growSecurity = ns.growthAnalyzeSecurity(growThreads, target);
-    const weakenThreads = [...new Array(100).fill(1).keys()].find((i) => (console.log(i, ns.weakenAnalyze(i), hackSecurity + growSecurity), ns.weakenAnalyze(i) > hackSecurity + growSecurity));
+    const weakenThreads = [...new Array(100).fill(1).keys()].find((i) => ns.weakenAnalyze(i) > hackSecurity + growSecurity);
     if (!weakenThreads) throw new Error('Target is too expensive');
 
     const ram = [
@@ -253,7 +257,7 @@ export async function calculateBatch(ns: NS, target: string, hackThreads: number
   });
 }
 
-export async function calculateBatchingTarget(ns: NS, hackThreads: number) {
+export async function calculateBatchingTarget(ns: NS, hackThreads: number, queue?: Promise<void>[]) {
   return allocateRam(ns, {
     ram: getRamCost(ns, [
       'scan',
@@ -266,7 +270,9 @@ export async function calculateBatchingTarget(ns: NS, hackThreads: number) {
       'hackAnalyzeSecurity',
       'growthAnalyzeSecurity',
     ])
-  }, ns => {
+  }, async ns => {
+    if (queue) await queue.shift();
+
     const servers = getAllServers(ns)
       .map(s => ns.getServer(s))
       .filter(s => !s.purchasedByPlayer && s.hasAdminRights && s.moneyMax != 0);
