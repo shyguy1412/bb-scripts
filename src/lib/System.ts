@@ -50,6 +50,6 @@ export function allocateRam<T = any>(ns: NS, options: AllocateOptions, callback:
   });
 }
 
-export function getMaxThreads(server: Server, ram: number) {
+export function getMaxThreads(server: Pick<Server, 'maxRam' | 'ramUsed'>, ram: number) {
   return Math.floor((server.maxRam - server.ramUsed) / ram);
 };
