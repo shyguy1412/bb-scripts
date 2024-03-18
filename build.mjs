@@ -97,6 +97,26 @@ const UnsafePlugin = {
   }
 };
 
+/**
+ * @type {import('esbuild').Plugin}
+ */
+const TextPlugin = {
+  name: 'TextPlugin',
+  setup(pluginBuild) {
+
+    pluginBuild.onLoad({ filter: /.*/ }, async (opts) => {
+      if (opts.with.type == 'text') {
+        const file = await fs.readFile(opts.path, { encoding: 'utf8' });
+        return {
+          contents: file,
+          loader: 'text'
+        };
+      }
+
+    });
+  }
+};
+
 
 const createContext = async () => await context({
   entryPoints: [
