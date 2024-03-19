@@ -257,7 +257,7 @@ export async function calculateBatch(ns: NS, target: string, hackThreads: number
   });
 }
 
-export async function calculateBatchingTarget(ns: NS, hackThreads: number, queue?: Promise<void>[]) {
+export async function calculateBatchingTarget(ns: NS, hackThreads: number) {
   return allocateRam(ns, {
     ram: getRamCost(ns, [
       'scan',
@@ -271,8 +271,6 @@ export async function calculateBatchingTarget(ns: NS, hackThreads: number, queue
       'growthAnalyzeSecurity',
     ])
   }, async ns => {
-    if (queue) await queue.shift();
-
     const servers = getAllServers(ns)
       .map(s => ns.getServer(s))
       .filter(s => !s.purchasedByPlayer && s.hasAdminRights && s.moneyMax != 0);
