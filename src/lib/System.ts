@@ -40,12 +40,12 @@ export function allocateRam<T = any>(ns: NS, options: AllocateOptions, callback:
       hostname, freeRam: ns.getServerMaxRam(hostname) - ns.getServerUsedRam(hostname)
     })), ram * threads)?.hostname : ns.getHostname();
 
-  if (!host) throw new Error('RAM could not be allocated, no suitable host');
-  if (!ns.fileExists('ram-allocator.js', host)) ns.scp('ram-allocator.js', host, 'home');
-  const pid = ns.exec('ram-allocator.js', host, { ramOverride: ram, threads, temporary: true });
-  if (!pid) throw new Error('RAM could not be allocated, script failed to start');
+  return new Promise((resolve, reject) => {
+    if (!host) return reject('RAM could not be allocated, no suitable host');
+    if (!ns.fileExists('ram-allocator.js', host)) ns.scp('ram-allocator.js', host, 'home');
+    const pid = ns.exec('ram-allocator.js', host, { ramOverride: ram, threads, temporary: true });
+    if (!pid) return reject('RAM could not be allocated, script failed to start');
 
-  return new Promise((resolve) => {
     (globalThis as any)[`ns-${pid}`] = [callback, resolve];
   });
 }
