@@ -200,6 +200,9 @@ export type BatchInfo = {
   weakenThreads: number;
 };
 
+export type BatchInfoWithRam = BatchInfo & { ram: number[]; };
+
+
 export async function batch(ns: NS, batch: BatchInfo, [hackHost, growHost, weakenHost]: readonly [string, string, string]) {
   'use getWeakenTime';
   'use getGrowTime';
@@ -220,7 +223,7 @@ export async function batch(ns: NS, batch: BatchInfo, [hackHost, growHost, weake
   }
 }
 
-export async function calculateBatch(ns: NS, target: string, hackThreads: number, queue?: Promise<void>[]): Promise<BatchInfo & { ram: number[]; }> {
+export async function calculateBatch(ns: NS, target: string, hackThreadsMax: number, queue?: Promise<void>[]): Promise<BatchInfoWithRam> {
   return allocateRam(ns, {
     ram: getRamCost(ns, [
       'getServer',
@@ -233,31 +236,38 @@ export async function calculateBatch(ns: NS, target: string, hackThreads: number
     ])
   }, async ns => {
     if (queue) await queue.shift();
-    const server = ns.getServer(target);
-    const stolen = ns.hackAnalyze(target) * hackThreads;
-    const growThreads = Math.ceil(ns.growthAnalyze(target, 1 / (1 - stolen)));
-    const hackSecurity = ns.hackAnalyzeSecurity(hackThreads, target);
-    const growSecurity = ns.growthAnalyzeSecurity(growThreads, target);
-    const weakenThreads = [...new Array(100).fill(1).keys()].find((i) => ns.weakenAnalyze(i) > hackSecurity + growSecurity);
-    if (!weakenThreads) throw new Error('Target is too expensive');
+    const options: (BatchInfoWithRam & { score: number; })[] = [];
+    for (let hackThreads = 1; hackThreads < hackThreadsMax; hackThreads++) {
 
-    const ram = [
-      hackThreads * getRamCost(ns, ['hack']),
-      growThreads * getRamCost(ns, ['grow']),
-      weakenThreads * getRamCost(ns, ['weaken'])
-    ];
+      const server = ns.getServer(target);
+      const stolen = ns.hackAnalyze(target) * hackThreads;
+      const growThreads = Math.ceil(ns.growthAnalyze(target, 1 / (1 - stolen))) + 1;
+      const hackSecurity = ns.hackAnalyzeSecurity(hackThreads);
+      const growSecurity = ns.growthAnalyzeSecurity(growThreads);
+      const weakenThreads = [...new Array(100).fill(1).keys()].find((i) => ns.weakenAnalyze(i) > hackSecurity + growSecurity);
+      if (!weakenThreads) throw new Error('Target is too expensive');
 
-    return {
-      server,
-      hackThreads,
-      growThreads,
-      weakenThreads,
-      ram
-    };
+      const ram = [
+        hackThreads * getRamCost(ns, ['hack']),
+        growThreads * getRamCost(ns, ['grow']),
+        weakenThreads * getRamCost(ns, ['weaken'])
+      ];
+
+      options.push({
+        server,
+        hackThreads,
+        growThreads,
+        weakenThreads,
+        ram,
+        score: stolen / ram.reduce((a, b) => a + b) / ns.getWeakenTime(target)
+      });
+    }
+
+    return options.reduce((prev, cur) => prev.score > cur.score ? prev : cur);
   });
 }
 
-export async function calculateBatchingTarget(ns: NS, hackThreads: number) {
+export async function calculateBatchingTarget(ns: NS, hackThreadsMax: number) {
   return allocateRam(ns, {
     ram: getRamCost(ns, [
       'scan',
@@ -276,44 +286,44 @@ export async function calculateBatchingTarget(ns: NS, hackThreads: number) {
       .filter(s => !s.purchasedByPlayer && s.hasAdminRights && s.moneyMax != 0);
 
     const scores = servers.map(server => {
-      const model = { ...server };
-      const player = ns.getPlayer();
+      const options: (BatchInfoWithRam & { score: number; })[] = [];
+      for (let hackThreads = 1; hackThreads < hackThreadsMax; hackThreads++) {
 
-      model.hackDifficulty = model.minDifficulty;
-      model.moneyAvailable = model.moneyMax;
+        const model = { ...server };
+        const player = ns.getPlayer();
 
-      const stolen = Math.floor(ns.formulas.hacking.hackPercent(server, player) * hackThreads * model.moneyAvailable!);
-      // const hackTime = ns.formulas.hacking.hackTime(model, player);
+        model.hackDifficulty = model.minDifficulty;
+        model.moneyAvailable = model.moneyMax;
 
-      model.moneyAvailable! -= stolen;
+        const stolen = Math.ceil(ns.formulas.hacking.hackPercent(server, player) * hackThreads * model.moneyAvailable!);
 
-      const growThreads = ns.formulas.hacking.growThreads(model, player, model.moneyMax!);
-      // const growTime = ns.formulas.hacking.growTime(model, player);
+        model.moneyAvailable! -= stolen;
+        model.hackDifficulty! += ns.hackAnalyzeSecurity(hackThreads);
+        
+        const growThreads = ns.formulas.hacking.growThreads(model, player, model.moneyMax!);
+        
+        model.hackDifficulty! += ns.growthAnalyzeSecurity(growThreads);
+        const securityDifference = model.hackDifficulty! - model.minDifficulty!;
+        const weakenTime = ns.formulas.hacking.weakenTime(server, player);
+        const weakenThreads = Math.max(Math.ceil(securityDifference / ns.weakenAnalyze(1)), 1);
 
+        const ram = [
+          hackThreads * getRamCost(ns, ['hack']),
+          growThreads * getRamCost(ns, ['grow']),
+          weakenThreads * getRamCost(ns, ['weaken'])
+        ];
 
-      model.hackDifficulty! -= ns.hackAnalyzeSecurity(1);
-      model.hackDifficulty! -= ns.growthAnalyzeSecurity(growThreads);
-      const securityDifference = model.minDifficulty! - model.hackDifficulty!;
-      const weakenTime = ns.formulas.hacking.weakenTime(server, player);
-      const weakenThreads = Math.max(Math.ceil(securityDifference / ns.weakenAnalyze(1)), 1);
-
-      const ram = [
-        hackThreads * getRamCost(ns, ['hack']),
-        growThreads * getRamCost(ns, ['grow']),
-        weakenThreads * getRamCost(ns, ['weaken'])
-      ] as const;
-
-      return {
-        ram,
-        stolen,
-        batchTime: weakenTime,
-        score: stolen / ram.reduce((a, b) => a + b) / weakenTime,
-        server: server,
-        hackThreads,
-        growThreads,
-        weakenThreads
-      };
-    });
+        options.push({
+          ram,
+          score: stolen / ram.reduce((a, b) => a + b) / weakenTime,
+          server: server,
+          hackThreads,
+          growThreads,
+          weakenThreads
+        });
+      }
+      return options;
+    }).flat();
 
     return scores.toSorted((a, b) => b.score - a.score)[0];
     // return scores.toSorted((a, b) => a.batchTime - b.batchTime)[0];
