@@ -11,7 +11,7 @@ export async function main(ns: NS) {
   while (true) {
     const hacknet = await allocateRam(ns, {
       ram: getRamCost(ns, ['scan', 'getServer'])
-    }, ns => getAllServersUnsafe(ns).map(s => ns.getServer(s)).filter(s => s.maxRam && s.hasAdminRights && s.hostname != 'home').map(s => s.hostname));
+    }, ns => getAllServersUnsafe(ns).map(s => ns.getServer(s)).filter(s => s.maxRam && s.hasAdminRights).map(s => s.hostname));
 
     await Promise.allSettled(hacknet.map(host => {
       const threads = getMaxThreads({
