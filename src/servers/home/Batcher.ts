@@ -1,11 +1,11 @@
 import { batch, calculateBatch, calculateBatchingTarget, prepServer } from '@/lib/Hack';
 import { getAllServers } from '@/lib/Network';
-import { getWorkerServer } from '@/lib/System';
+import { getRamCost, getWorkerServer } from '@/lib/System';
 
-const HACK_THREADS = 1;
-const CONCURRENT_BATCHES = 100;
+const HACK_THREADS = 50;
+const CONCURRENT_BATCHES = 10;
 const MAX_BATCHES = 200_000;
-const INCLUDE_HOME = false;
+const INCLUDE_HOME = true;
 
 export function autocomplete({ servers }: { servers: string[]; }) {
   return servers;
@@ -45,6 +45,17 @@ export async function main(ns: NS) {
     //hacking level at time of batch calculations
     const playerLevel = ns.getHackingLevel();
     //Get the batch info for the best or specified target
+
+    while (includeHome && ns.getServerMaxRam('home') - ns.getServerUsedRam('home') < getRamCost(ns, [
+      'getServer',
+      'hackAnalyze',
+      'growthAnalyze',
+      'getServerMaxMoney',
+      'hackAnalyzeSecurity',
+      'growthAnalyzeSecurity',
+      'weakenAnalyze'
+    ])) await ns.sleep(1000);
+
     const target =
       typeof ns.args[0] == 'string' ?
         await calculateBatch(ns, ns.args[0], HACK_THREADS, queue) :
@@ -62,7 +73,7 @@ export async function main(ns: NS) {
     let max_batches_launched = 0; //batches launched this cycle
 
     ns.print(`READY TO DISPATCH`);
-    while (!failed && (playerLevel == ns.getHackingLevel() || includeHome)) {
+    while (!failed && (playerLevel == ns.getHackingLevel())) {
       //get possible worker hosts
       if (!hacknet.memo) ns.print("NEW CYCLE");
       const hostChoices = hacknet().map(hostname => ({
@@ -99,7 +110,7 @@ export async function main(ns: NS) {
       };
     }
     ns.print("LEVEL UP! RECALCULATING BATCHES");
-    if (includeHome) await Promise.all(queue); //await ram on home
+    // if (includeHome) await Promise.all(queue); //await ram on home
   }
 
 }
