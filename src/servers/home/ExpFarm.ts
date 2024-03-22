@@ -14,7 +14,7 @@ export async function main(ns: NS) {
           .getServer(ns.args[0] as string ?? 'foodnstuff'),
         getAllServersUnsafe(ns)
           .map(s => ns.getServer(s))
-          .filter(s => s.hostname != 'home' && s.hasAdminRights && s.maxRam)
+          .filter(s => s.hasAdminRights && s.maxRam)
       ] as const;
     });
     if (!hosts.length) throw new Error("could not get hosts");
