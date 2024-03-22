@@ -3,7 +3,7 @@ import { NetscriptContext, CleanupContext, TerminateContext, ContextCollection }
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-export function createWindowApp(ns: NS) {
+export function createWindowApp(ns: NS, pid?: string | number) {
   const cleanupCallbacks: (() => void)[] = [];
   return {
     cleanup: () => {
@@ -19,13 +19,13 @@ export function createWindowApp(ns: NS) {
 
         await ns.sleep(0); // give up control so DOM can update
 
-        const root = findTailRoot(document.querySelector(`span[data-pid="${ns.pid}"]`));
+        const root = findTailRoot(document.querySelector(`span[data-pid="${pid ?? ns.pid}"]`)!);
 
         const WindowWrapper = () => {
 
           const theme = ns.ui.getTheme();
           Object.entries(theme).forEach(([key, value]) => {
-            root.style.setProperty(`--${key}`, value);
+            root.style.setProperty(`--${key}`, value!);
           });
 
           root.style.flexDirection = 'unset';
