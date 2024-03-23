@@ -229,10 +229,10 @@ export async function calculateBatch(ns: NS, target: string, hackThreadsMax: num
       'getServer',
       'hackAnalyze',
       'growthAnalyze',
-      'getServerMaxMoney',
       'hackAnalyzeSecurity',
       'growthAnalyzeSecurity',
-      'weakenAnalyze'
+      'weakenAnalyze',
+      'getWeakenTime',
     ])
   }, async ns => {
     if (queue) await queue.shift();
@@ -240,11 +240,11 @@ export async function calculateBatch(ns: NS, target: string, hackThreadsMax: num
     for (let hackThreads = 1; hackThreads < hackThreadsMax; hackThreads++) {
 
       const server = ns.getServer(target);
-      const stolen = ns.hackAnalyze(target) * hackThreads;
+      const stolen = Math.min(0.99999, ns.hackAnalyze(target) * hackThreads);
       const growThreads = Math.ceil(ns.growthAnalyze(target, 1 / (1 - stolen))) + 1;
       const hackSecurity = ns.hackAnalyzeSecurity(hackThreads);
       const growSecurity = ns.growthAnalyzeSecurity(growThreads);
-      const weakenThreads = [...new Array(100).fill(1).keys()].find((i) => ns.weakenAnalyze(i) > hackSecurity + growSecurity);
+      const weakenThreads = [...new Array(10000).fill(1).keys()].find((i) => ns.weakenAnalyze(i) > hackSecurity + growSecurity);
       if (!weakenThreads) throw new Error('Target is too expensive');
 
       const ram = [
@@ -299,9 +299,9 @@ export async function calculateBatchingTarget(ns: NS, hackThreadsMax: number) {
 
         model.moneyAvailable! -= stolen;
         model.hackDifficulty! += ns.hackAnalyzeSecurity(hackThreads);
-        
+
         const growThreads = ns.formulas.hacking.growThreads(model, player, model.moneyMax!);
-        
+
         model.hackDifficulty! += ns.growthAnalyzeSecurity(growThreads);
         const securityDifference = model.hackDifficulty! - model.minDifficulty!;
         const weakenTime = ns.formulas.hacking.weakenTime(server, player);

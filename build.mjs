@@ -2,7 +2,7 @@ import { context } from 'esbuild';
 import { BitburnerPlugin } from 'esbuild-bitburner-plugin';
 import { OverloadPlugin } from 'esbuild-operator-overload-plugin';
 import fs from 'fs/promises';
-import {RamDodgerExtension, UnsafePlugin} from 'ramdodger-extension'
+import { RamDodgerExtension, UnsafePlugin } from 'ramdodger-extension';
 
 /**
  * @type {import('esbuild').Plugin}
@@ -90,7 +90,9 @@ const createContext = async () => await context({
       types: 'NetscriptDefinitions.d.ts',
       extensions: [RamDodgerExtension],
       mirror: {
-        'mirror': 'own'
+        'mirror/own': 'own',
+        'mirror/all': 'all',
+        'mirror/other': 'other'
       },
       distribute: {
         'build/all': 'all',
