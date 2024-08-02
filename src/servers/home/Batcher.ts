@@ -5,7 +5,7 @@ import { getRamCost, getWorkerServer } from '@/lib/System';
 const HACK_THREADS = 50;
 const CONCURRENT_BATCHES = 10;
 const MAX_BATCHES = 200_000;
-const INCLUDE_HOME = true;
+const INCLUDE_HOME = false;
 
 export function autocomplete({ servers }: { servers: string[]; }) {
   return servers;
@@ -55,6 +55,8 @@ export async function main(ns: NS) {
       'growthAnalyzeSecurity',
       'weakenAnalyze'
     ])) await ns.sleep(1000);
+
+    ns.print('STARTING');
 
     const target =
       typeof ns.args[0] == 'string' ?

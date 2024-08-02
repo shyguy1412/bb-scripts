@@ -1,5 +1,5 @@
-import { gainRoot } from "@/lib/Hack";
-import { getAllServers } from "@/lib/Network" with {type: 'unsafe'};
+import { gainRoot } from "@/lib/Hack"  with {type: 'unsafe'};
+import { getAllServers } from "@/lib/Network"  with {type: 'unsafe'};
 import { allocateRam, getRamCost, sleep } from "@/lib/System";
 
 export async function main(ns: NS) {
@@ -17,7 +17,12 @@ export async function main(ns: NS) {
 
   while (servers.length) {
     for (const server of servers) {
-      if (gainRoot(ns, server.hostname)) {
+
+      const gainedRoot = await allocateRam(ns, {
+        ram: getRamCost(ns, [])
+      }, ns => gainRoot(ns, server.hostname)).catch(_ => false);
+
+      if (gainedRoot) {
         queueMicrotask(() => {
           servers.splice(servers.indexOf(server), 1);
         });

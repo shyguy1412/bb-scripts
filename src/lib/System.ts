@@ -1,4 +1,5 @@
 import { Server } from "NetscriptDefinitions";
+import RamAllocatorScript from "@/lib/ram-allocator" with {type: 'text'};
 
 export async function sleep(ms: number) {
   await new Promise<void>(resolve => setTimeout(() => resolve(), ms));
@@ -29,8 +30,6 @@ export function allocateRam<T = any>(ns: NS, options: AllocateOptions, callback:
   'use getHostname';
   'use getServerMaxRam';
   'use getServerUsedRam';
-  'use fileExists';
-  'use scp';
 
   const threads = options.threads || 1;
   const ram = options.ram;
@@ -42,8 +41,10 @@ export function allocateRam<T = any>(ns: NS, options: AllocateOptions, callback:
 
   return new Promise((resolve, reject) => {
     if (!host) return reject('RAM could not be allocated, no suitable host');
-    if (!ns.fileExists('ram-allocator.js', host)) ns.scp('ram-allocator.js', host, 'home');
+    ns.write('ram-allocator.js', RamAllocatorScript, 'w');
+
     const pid = ns.exec('ram-allocator.js', host, { ramOverride: ram, threads, temporary: true });
+
     if (!pid) return reject('RAM could not be allocated, script failed to start');
 
     (globalThis as any)[`ns-${pid}`] = [callback, resolve];

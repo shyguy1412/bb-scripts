@@ -23,3 +23,7 @@ Press the thrash can next to a file/folder to delete it. You will be asked for c
 ## Starting a script
 
 Double clicking a script will start it on the server it is located. It will be started without arguments, to start a script with arguments the terminal is still needed.
+
+## Coding Contracts
+
+The Coding Contracts tab will show all coding contracts on the network as if they are in the same folder. This is mainly useful to check if any contracts exist at all, there isnt any real features to interact with them yet.

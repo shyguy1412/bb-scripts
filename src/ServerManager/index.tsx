@@ -15,7 +15,7 @@ export function ServerManager() {
   const ns = useContext(NetscriptContext);
   const [servers, setServers] = useState<Server[]>(getPurchasedServers(ns));
   const inputRef = useRef<HTMLInputElement>(null);
-  const defaultNewServerName = `grindr-${+(servers.at(-1)?.hostname?.split('-')?.[1] ?? 0) + 1}`;
+  const defaultNewServerName = `${ns.args[0]??'grindr'}-${+(servers.at(-1)?.hostname?.split('-')?.[1] ?? 0) + 1}`;
 
   return <>
     <Style></Style>

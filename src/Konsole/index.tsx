@@ -6,7 +6,7 @@ import { CleanupContext, NetscriptContext } from '@/lib/Context';
 
 export function Konsole() {
 
-  const ns = useContext(NetscriptContext)
+  const ns = useContext(NetscriptContext);
   const terminal = new Terminal(ns);
   const addCleanup = useContext(CleanupContext);
   const konsoleRef = useRef<HTMLUListElement>(null);
@@ -17,8 +17,9 @@ export function Konsole() {
 
   useEffect(() => {
     const updateTerminal = async () => {
+      if (!konsoleRef.current) return;
       konsoleRef.current.replaceChildren(...await terminal.getTerminalLines());
-      setPrompt(terminal.terminalInput.previousSibling.textContent);
+      setPrompt(terminal.terminalInput.previousSibling?.textContent ?? '');
     };
 
     const watchTerminalLines = () => {
@@ -31,13 +32,17 @@ export function Konsole() {
 
     terminal.addEventListener('connect', () => {
       watchTerminalLines();
-      updateTerminal().then(() =>
-        konsoleRef.current.scrollTop = konsoleRef.current.scrollHeight
+      updateTerminal().then(() => {
+        if (!konsoleRef.current) return;
+
+        konsoleRef.current.scrollTop = konsoleRef.current.scrollHeight;
+      }
       );
       setDisabled(false);
     });
 
     terminal.addEventListener('disconnect', () => {
+      if (!konsoleRef.current) return;
       konsoleRef.current.textContent = 'Terminal is offline';
       setDisabled(true);
     });
@@ -46,8 +51,10 @@ export function Konsole() {
 
     sleep(0) //this gives up control so the terminal has time to display that this script started
       .then(() => updateTerminal())
-      .then(() =>
-        konsoleRef.current.scrollTop = konsoleRef.current.scrollHeight
+      .then(() => {
+        if (!konsoleRef.current) return;
+        konsoleRef.current.scrollTop = konsoleRef.current.scrollHeight;
+      }
       );
 
   }, []);
@@ -84,6 +91,7 @@ export function Konsole() {
               .exec(command)
               .then(() => sleep(100))
               .then(() => {
+                if (!konsoleRef.current) return;
                 konsoleRef.current.scrollTop = konsoleRef.current.scrollHeight;
               }
               );

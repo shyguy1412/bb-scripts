@@ -1,6 +1,6 @@
 import { context } from 'esbuild';
 import { BitburnerPlugin } from 'esbuild-bitburner-plugin';
-import { OverloadPlugin } from 'esbuild-operator-overload-plugin';
+// import { OverloadPlugin } from 'esbuild-operator-overload-plugin';
 import fs from 'fs/promises';
 import { RamDodgerExtension, UnsafePlugin } from 'ramdodger-extension';
 
@@ -81,6 +81,7 @@ const createContext = async () => await context({
   outbase: './src/servers',
   outdir: './build',
   plugins: [
+    TextPlugin,
     CSSSpoofPlugin,
     SVGSpoofPlugin,
     UnsafePlugin,

@@ -27,9 +27,8 @@
     "acorn-walk": "^8.3.2",
     "astring": "^1.8.6",
     "esbuild": "^0.19.12",
-    "ramdodger-extension": "^1.0.0",
-    "esbuild-bitburner-plugin": "file:../../TypeScript/esbuild-bitburner-plugin",
-    "esbuild-operator-overload-plugin": "file:../../JavaScript/esbuild-operator-overload-plugin",
-    "geckosvg": "file:../../TypeScript/GeckoSVG"
+    "esbuild-bitburner-plugin": "file:../../typescript/esbuild-bitburner-plugin",
+    "geckosvg": "file:../../typescript/GeckoSVG",
+    "ramdodger-extension": "file:../../javascript/ramdodger-extension"
   }
 }
