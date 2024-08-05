@@ -1,4 +1,5 @@
 import { Server } from "NetscriptDefinitions";
+//@ts-expect-error: invalid type due to with text assertion
 import RamAllocatorScript from "@/lib/ram-allocator" with {type: 'text'};
 
 export async function sleep(ms: number) {

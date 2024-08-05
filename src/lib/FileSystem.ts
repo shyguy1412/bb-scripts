@@ -1,5 +1,9 @@
 import { getAllServers } from "@/lib/Network";
 
+export const ALLOWED_FILETYPES = [
+  'js', 'txt', 'json'
+]
+
 export function getAllCodingContracts(ns: NS) {
   'use ls';
   const files: { name: string, type: 'file'; }[] = [];
