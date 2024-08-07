@@ -101,7 +101,7 @@ const createContext = async () => await context({
       },
       // usePolling: true,
       // pollingInterval: 100,
-      // pushOnConnect: true,
+      pushOnConnect: true,
     })
   ],
   bundle: true,

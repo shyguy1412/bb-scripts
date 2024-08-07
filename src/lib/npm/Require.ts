@@ -1,76 +1,85 @@
 import { GetServer } from '@/lib/exploit/Internals';
-import { PACKAGE_DIR } from '@/lib/npm/cli';
+import { PackageJson } from '@/lib/npm/PackageParser';
 import { ModuleDeclaration, Statement, parse as ast } from 'acorn';
+import { simple } from 'acorn-walk';
 
+export const PACKAGE_DIR = 'node_modules';
 
 require.__cache = new Map<string, any>();
-export function require(path: string): any {
+export async function require(path: string, from?: string): Promise<any> {
   const chacheHit = require.__cache.get(path);
   if (chacheHit) return chacheHit;
 
-  //@ts-expect-error: overwrite require
-  window._require = window.require;
-  //@ts-expect-error: overwrite require
-  window.require = require;
+  console.log(`REQUIRE: ${path} ${from ? `from ${from}` : ''}`);
 
-  const entrypoint = resolve(path);
-  console.log(entrypoint);
 
-  const dependencyTree = parse(entrypoint);
-  const { module } = compile(dependencyTree);
+  const cwd = from ? from : `${PACKAGE_DIR}/${path}`;
+  const packageJson = from ?
+    getPackageJsonFromPath(from) :
+    JSON.parse(load(`${cwd}/package.json`) ?? 'null');
+
+  if (!packageJson) throw new Error('Required module is not part of a package');
+
+  const entrypoint = resolve(path, cwd, packageJson);
+
+  const dependencyTree = parse(entrypoint, cwd, packageJson);
+  const { module } = await compile(dependencyTree);
   require.__cache.set(path, module);
 
-  //@ts-expect-error: reset require
-  window.require = window._require;
-  //@ts-expect-error: reset require
-  delete window._require;
   return module;
 }
 
 resolve.__cache = new Map<string, string>();
-export function resolve(path: string, cwd?: string): string {
+export function resolve(path: string, cwd: string, packageJson: PackageJson): string {
+  console.log(`RESOLVE: ${path}`, { path, cwd, packageJson });
 
   if (path.startsWith('.') && cwd) return relativePathToAbsolute(path, cwd);
-  else if (path.startsWith('.')) throw new Error("resolve: cwd must be set for relative paths");
 
   const chacheHit = require.__cache.get(path);
   if (chacheHit) return chacheHit;
 
-  const server = GetServer('home');
-  server.getContentFile = server.getContentFile.bind(server);
-  const { getContentFile } = server;
+  const { exports } = packageJson;
 
-  const packagePath = `${PACKAGE_DIR}/${path}`;
-  const packageJson = JSON.parse(getContentFile(`${packagePath}/package.json`).text ?? 'null');
 
-  if (!packageJson) throw new Error(`resolve: resolving ${path} failed, could not find package.json`);
+  if (!exports || typeof exports == 'string') {
+    const entrypoint = relativePathToAbsolute(exports ?? packageJson.main, cwd);
+    resolve.__cache.set(path, entrypoint);
+    return entrypoint;
+  }
 
-  const entrypoint = `${packagePath}/${packageJson.main}`;
 
-  resolve.__cache.set(path, entrypoint);
-
-  return entrypoint;
+  throw new Error(`Could not resolve ${path} from ${cwd}`);
 }
 
-function load(path: string) {
-  return GetServer('home').getContentFile(path).content;
+function load(path: string): string {
+  const contentFile = GetServer('home').getContentFile(path);
+
+  if (!contentFile) throw new Error('Could not load file: ' + path);
+
+  return contentFile.content;
 }
 
 type DependencyTree = {
-  [path: string]: {
-    content: string;
-    dependencies: DependencyTree;
-  };
-};
+  path: string;
+  content: string;
+  name: string;
+} & ({
+  type: 'cjs';
+} | {
+  dependencies: DependencyTree[];
+  type: 'esm';
+});
 
 parse.__cache = new Map<string, DependencyTree>;
-export function parse(path: string): DependencyTree {
+export function parse(path: string, cwd: string, packageJson: PackageJson): DependencyTree {
   const chacheHit = require.__cache.get(path);
   if (chacheHit) return chacheHit;
 
+  const [dir, name] = path.split(/\/(.*)/, 2);
   const content = load(path);
   const program = ast(content, {
-    ecmaVersion: 'latest'
+    ecmaVersion: 'latest',
+    sourceType: 'module'
   });
 
   const esm = program.body.some(
@@ -83,24 +92,57 @@ export function parse(path: string): DependencyTree {
       .includes(statement.type)
   );
 
-  if (esm) throw new Error("Require of esm modules is not implemented. Instead import from this path: " + path);
+  if (!esm) return {
+    path,
+    name,
+    content,
+    type: 'cjs'
+  };
+
+  const imports: string[] = [];
+
+  simple(program, {
+    ImportDeclaration(node) {
+      // Push this import onto the stack to replace
+      if (!node.source) return;
+      imports.push(node.source.value as string);
+    },
+    ExportNamedDeclaration(node) {
+      if (!node.source) return;
+      imports.push(node.source.value as string);
+    },
+    ExportAllDeclaration(node) {
+      if (!node.source) return;
+      imports.push(node.source.value as string);
+    },
+  });
 
 
   return {
-    [path]: {
-      content,
-      dependencies: {}
-    }
+    type: 'esm',
+    dependencies: imports.map(path => parse(resolve(path, cwd, packageJson), cwd, packageJson)),
+    path: dir,
+    name,
+    content
   };
 }
 
-export function compile(dependencyTree: DependencyTree): { module: any; } {
-  const content = Object.values(dependencyTree)[0].content;
-  const module = { exports: {} };
-  {
-    eval(content);
+export async function compile(dependencyTree: DependencyTree): Promise<{ module: any; }> {
+  console.log({ dependencyTree });
+
+  if (dependencyTree.type == 'cjs') {
+    const content = dependencyTree.content;
+    const module = { exports: {} };
+    const _require = require; //scoping shenanigans
+    {
+      //curry require to include path of the currently executing file
+      const require = (path: string) => _require(path, dependencyTree.path);
+      eval(content);
+    }
+    return { module: module.exports };
   }
-  return { module: module.exports };
+
+  return { module: undefined };
 }
 
 
@@ -108,7 +150,7 @@ function relativePathToAbsolute(path: string, cwd: string): string {
   const fragments = (cwd + '/' + path).split('/').filter(f => f != '' && f != '.');
   const absolute: string[] = [];
   let skipCount = 0;
-  for (let i = fragments.length - 1; i > 0; i--) {
+  for (let i = fragments.length - 1; i >= 0; i--) {
     const fragment = fragments[i];
 
     if (fragment == '..' && fragments[i - 1] == '..') {
@@ -125,4 +167,17 @@ function relativePathToAbsolute(path: string, cwd: string): string {
     absolute.unshift(fragment);
   }
   return absolute.join('/');
+}
+
+function getPackageJsonFromPath(path: string): PackageJson | undefined {
+  const fragments = path.split('/');
+  while (fragments.length) {
+    const path = fragments.join('/');
+    try {
+      const packageJson = JSON.parse(load(path));
+      return packageJson;
+    } catch { }
+    fragments.pop();
+  }
+  return;
 }

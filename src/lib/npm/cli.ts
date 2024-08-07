@@ -1,7 +1,6 @@
 import { PackageInfo, getPackage, getPackageInfo } from "@/lib/npm/ApiWrapper";
+import { PACKAGE_DIR } from "@/lib/npm/Require";
 import { ScriptArg } from "NetscriptDefinitions";
-
-export const PACKAGE_DIR = 'node_modules';
 
 export type ValidCommands =
   'i' | 'ci' | 'install' |
@@ -54,15 +53,17 @@ export const Commands: { [key in ValidCommands]: (ns: NS, ...input: ScriptArg[])
 };
 
 export async function installPackage(ns: NS, packageInfo: PackageInfo, visited: string[] = []) {
+  if (visited.includes(packageInfo.name)) return;
+  
   const files = await getPackage(packageInfo);
 
   for (const { name, content } of files) {
-    ns.write(`node_modules/${packageInfo.name}/${name}`, content, 'w');
+    ns.write(`${PACKAGE_DIR}/${packageInfo.name}/${name}`, content, 'w');
   }
 
   visited.push(packageInfo.name);
 
-  await Promise.all(Object.keys(packageInfo.dependencies??{})
+  await Promise.all(Object.keys(packageInfo.dependencies ?? {})
     .map(async dep => (installPackage(ns, await getPackageInfo(dep), visited)))
   );
 
