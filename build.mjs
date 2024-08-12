@@ -73,7 +73,7 @@ const TextPlugin = {
 const createContext = async () => await context({
   entryPoints: [
     'src/servers/**/*.js',
-    'src/servers/**/*.jsx',
+    // 'src/servers/**/*.jsx',
     'src/servers/**/*.ts',
     'src/servers/**/*.tsx',
   ],
@@ -89,19 +89,21 @@ const createContext = async () => await context({
     BitburnerPlugin({
       port: 12525,
       types: 'NetscriptDefinitions.d.ts',
-      extensions: [RamDodgerExtension],
+      // extensions: [RamDodgerExtension],
       mirror: {
-        'mirror/own': 'own',
-        'mirror/all': 'all',
-        'mirror/other': 'other'
+        'mirror': ['home']
+        // 'mirror/own': 'own',
+        // 'mirror/all': 'all',
+        // 'mirror/other': 'other'
       },
       distribute: {
-        'build/all': 'all',
-        'all': 'all',
+        // 'build/all': 'all',
+        // 'all': 'all',
       },
       // usePolling: true,
       // pollingInterval: 100,
       pushOnConnect: true,
+      remoteDebugging: true
     })
   ],
   bundle: true,

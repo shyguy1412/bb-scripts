@@ -76,6 +76,7 @@ export async function getPackage(package_info: PackageInfo): Promise<{ name: str
   const files = await untar(buffer.buffer);
 
   return files
+    .map((file: any) => (file.name = file.name.replace(/.[cm]js$/, '.js'), file))
     .filter(({ name }: { name: string; }) => ALLOWED_FILETYPES.some(type => name.endsWith(`.${type}`)))
     .map(({ name, buffer }: { name: string, buffer: ArrayBuffer; }) => ({
       name: name.replace(/^package\//, ''),

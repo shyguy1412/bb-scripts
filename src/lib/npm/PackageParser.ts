@@ -3,7 +3,16 @@ export type PackageJson = {
   main: string;
   exports: string | {
     [path: string]: string | {
-      [condition: string]: string;
+      [condition: string]: string | {
+        [method: string]: string;
+      };
+    };
+  };
+  imports: {
+    [path: string]: string | {
+      [condition: string]: string | {
+        [method: string]: string;
+      };
     };
   };
 };

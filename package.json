@@ -20,7 +20,8 @@
     "@fortawesome/free-brands-svg-icons": "^6.6.0",
     "@fortawesome/free-solid-svg-icons": "^6.6.0",
     "@fortawesome/react-fontawesome": "^0.2.2",
-    "@types/node": "^22.1.0",
+    "@types/glob-to-regexp": "^0.4.4",
+    "@types/node": "^22.2.0",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "acorn": "^8.12.1",
@@ -29,6 +30,7 @@
     "esbuild": "^0.23.0",
     "esbuild-bitburner-plugin": "file:../../typescript/esbuild-bitburner-plugin",
     "geckosvg": "file:../../typescript/GeckoSVG",
+    "glob-to-regexp": "^0.4.1",
     "js-untar": "^2.0.0",
     "ramdodger-extension": "file:../../javascript/ramdodger-extension",
     "requirejs": "^2.3.7"
