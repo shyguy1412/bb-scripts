@@ -18,3 +18,4 @@ Notice: Most my scripts dodge ram by offloading ram heavy operations to a worker
 - [Batcher](./doc/Batcher.md) My batcher. Works with and without Formulas API.
 - [RootGainer](./doc/RootGainer.md) Runs in the background until every server in the network is rooted.
 - [npm.js](./doc/npm.md) A crude tool to download and import npm packages inside bitburner.
+- [FapUI](./doc/FapUI.md) Fast and Practical UI. A simple UI framework to quickly get started with custom UI

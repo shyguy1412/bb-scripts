@@ -109,7 +109,7 @@ const createContext = async () => await context({
   bundle: true,
   format: 'esm',
   platform: 'browser',
-  // minify: true,
+  minify: true,
   keepNames: true,
   logLevel: 'debug',
 });
