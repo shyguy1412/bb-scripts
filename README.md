@@ -17,3 +17,4 @@ Notice: Most my scripts dodge ram by offloading ram heavy operations to a worker
 - [ServerViewer](./doc/ServerViewer.md) View stats of servers on the network.
 - [Batcher](./doc/Batcher.md) My batcher. Works with and without Formulas API.
 - [RootGainer](./doc/RootGainer.md) Runs in the background until every server in the network is rooted.
+- [npm.js](./doc/npm.md) A crude tool to download and import npm packages inside bitburner.
