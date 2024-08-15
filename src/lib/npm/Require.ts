@@ -1,21 +1,58 @@
 import { GetServer } from '@/lib/exploit/Internals';
 import { PackageJson } from '@/lib/npm/PackageParser';
-import { ModuleDeclaration, Statement, parse as ast } from 'acorn';
-import { simple } from 'acorn-walk';
-import GlobToRegexp from 'glob-to-regexp';
+import { Plugin } from 'esbuild';
+import esbuild from 'esbuild-wasm';
+
+await esbuild.initialize({
+  // wasmURL: esbuild_wasm_dataurl,
+  wasmURL: 'https://www.unpkg.com/esbuild-wasm@0.23.0/esbuild.wasm',
+  worker: true
+});
 
 export const PACKAGE_DIR = 'node_modules';
+
+const ResolvePlugin: Plugin = {
+  name: 'ResolvePlugin',
+  setup(pluginBuild) {
+    pluginBuild.onResolve({ filter: /.*/ }, (opts) => {
+      const [, cwd] = opts.path.split(/(.*)\//);
+
+      console.log(opts, { cwd });
+      return {
+        path: resolve(opts.path, cwd),
+        namespace: 'bitburner'
+      };
+    });
+
+    pluginBuild.onLoad({ namespace: 'bitburner', filter: /.*/ }, (opts) => {
+      return {
+        contents: load(opts.path)
+      };
+    });
+  },
+};
 
 require.__cache = new Map<string, any>();
 export async function require(path: string, cwd = `${PACKAGE_DIR}/${path}`): Promise<any> {
   const chacheHit = require.__cache.get(relativePathToAbsolute(path, cwd));
   if (chacheHit) return chacheHit;
 
-  const entrypoint = resolve(path, cwd);
+  const { outputFiles: { 0: { contents: buffer } } } = await esbuild.build({
+    entryPoints: [path],
+    plugins: [ResolvePlugin],
+    write: false,
+    bundle: true,
+    platform: 'browser',
+    format: 'cjs',
+    minify: true,
+    keepNames: true,
+    legalComments: 'none',
+    logLevel: 'debug'
+  });
 
-  const dependencyTree = parse(entrypoint);
-  const { module } = await compile(dependencyTree);
+  const moduleCode = new TextDecoder().decode(buffer);
 
+  const module = compile(moduleCode);
   require.__cache.set(path, module);
 
   return module;
@@ -49,6 +86,8 @@ function resolveAlias(path: string, cwd: string): string | null {
 
   const { imports, name } = findPackageJson(cwd);
 
+  if (!imports) return null;
+
   if (imports[path]) {
     const browserVariant = getBrowserVariant(imports[path]);
     if (!browserVariant) return null;
@@ -65,13 +104,13 @@ function resolveAlias(path: string, cwd: string): string | null {
 }
 
 function resolveModule(path: string): string | null {
-  const [module, submodule] = path.split('/');
+  const [module, submodule] = path.split(/\/(.*)/);
   console.log({ module, submodule });
 
   const modulePath = `${PACKAGE_DIR}/${module}`;
-  const { exports, main, name } = JSON.parse(load(`${modulePath}/package.json`)) as PackageJson;
+  const { exports, main, browser } = JSON.parse(load(`${modulePath}/package.json`)) as PackageJson;
 
-  if (!exports) return relativePathToAbsolute(`./${main}`, modulePath);
+  if (!exports) return relativePathToAbsolute(`./${browser ?? main}`, modulePath);
 
   if (typeof exports == 'string') return relativePathToAbsolute(`./${exports}`, modulePath);
 
@@ -94,98 +133,20 @@ function load(path: string): string {
   return contentFile.content;
 }
 
-type DependencyTree = {
-  path: string;
-  content: string;
-  name: string;
-} & ({
-  type: 'cjs';
-} | {
-  dependencies: DependencyTree[];
-  type: 'esm';
-});
+export function compile(content: string): any {
+  const module = { exports: {} };
+  const moduleAsFunction = new Function('require', 'module', 'exports', `${content};return exports`);
 
-parse.__cache = new Map<string, DependencyTree>;
-export function parse(path: string): DependencyTree {
-  const chacheHit = parse.__cache.get(path);
-  if (chacheHit) return chacheHit;
-
-  console.log('PARSE: ' + path);
-
-
-  const [, dir, name] = path.split(/(.*)\//);
-  const content = load(path);
-  const program = ast(content, {
-    ecmaVersion: 'latest',
-    sourceType: 'module'
-  });
-
-  const esm = program.body.some(
-    statement => ([
-      "ExportAllDeclaration",
-      "ExportDefaultDeclaration",
-      "ExportNamedDeclaration",
-      "ImportDeclaration"
-    ] as (Statement | ModuleDeclaration)['type'][])
-      .includes(statement.type)
+  const exports = moduleAsFunction(
+    () => { throw new Error('Dynamic Require is not supported'); },
+    module,
+    {}
   );
 
-  if (!esm) return {
-    path,
-    name,
-    content,
-    type: 'cjs'
-  };
-
-  const imports: string[] = [];
-
-  simple(program, {
-    ImportDeclaration(node) {
-      // Push this import onto the stack to replace
-      if (!node.source) return;
-      imports.push(node.source.value as string);
-    },
-    ExportNamedDeclaration(node) {
-      if (!node.source) return;
-      imports.push(node.source.value as string);
-    },
-    ExportAllDeclaration(node) {
-      if (!node.source) return;
-      imports.push(node.source.value as string);
-    },
-  });
-
-  console.log({ dir, name, path });
-
-  return {
-    type: 'esm',
-    dependencies: imports.map(path => parse(resolve(path, dir))),
-    path: dir,
-    name,
-    content
-  };
+  return Object.keys(exports).length ? exports : module.exports;
 }
 
-export async function compile(dependencyTree: DependencyTree): Promise<{ module: any; }> {
-  console.log({ dependencyTree });
-
-  if (dependencyTree.type == 'cjs') {
-    const content = dependencyTree.content;
-    const module = { exports: {} };
-    const curriedRequire = (path: string) => require(path, dependencyTree.path);
-    const moduleAsFunction = new Function('require', 'module', content);
-
-    moduleAsFunction(curriedRequire, module);
-
-    return { module: module.exports };
-  }
-
-  throw new Error('Compilation of ES Modules is not yet implemented, try importing the relevant entrypoint directly');
-
-  return { module: undefined };
-}
-
-function matchExportPattern(path: string, patterns: PackageJson['imports']): string | null {
+function matchExportPattern(path: string, patterns: NonNullable<PackageJson['imports']>): string | null {
   return Object.keys(patterns)
     .reduce((prev: string | null, cur) => {
       const [prefix, suffix] = cur.split('*');
@@ -214,7 +175,7 @@ function findPackageJson(path: string): PackageJson {
   throw new Error('Could not find package.json: ' + path);
 }
 
-function getBrowserVariant(alias: PackageJson['imports'][string]): string | null {
+function getBrowserVariant(alias: NonNullable<PackageJson['imports']>[string]): string | null {
   if (alias && typeof alias == 'string')
     return alias;
   else if (alias && typeof alias != 'string') {

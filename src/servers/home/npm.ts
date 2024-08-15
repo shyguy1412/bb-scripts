@@ -9,7 +9,7 @@ export async function main(ns: NS) {
   if (!(command in Commands)) {
     ns.tprint(`Invalid command: ${command}`);
     return;
-  } 
+  }
 
   return Commands[command](ns, ...input).catch((e) => {
     ns.tprint('Something went unexpectedly wrong, sorry :(');
@@ -21,3 +21,4 @@ export async function main(ns: NS) {
 export { installPackage } from '@/lib/npm/cli';
 export * from '@/lib/npm/ApiWrapper';
 export { require } from '@/lib/npm/Require';
+export * from 'esbuild-wasm';

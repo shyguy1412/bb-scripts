@@ -1,6 +1,7 @@
-export type PackageJson = {
+export type PackageJson = Partial<{
   name: string;
   main: string;
+  browser: string;
   exports: string | {
     [path: string]: string | {
       [condition: string]: string | {
@@ -15,4 +16,4 @@ export type PackageJson = {
       };
     };
   };
-};
+}>;
