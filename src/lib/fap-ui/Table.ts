@@ -22,9 +22,6 @@ export function FapTable(data: React.ReactNode[][], header: [React.ReactNode[]?,
     data;
   const dataWithHeader = transposedData.map((row, i) => rowHeader ? [rowHeader[transpose ? i + 1 : i], ...row] : row);
 
-  console.log({ transposedData });
-
-
   table.push(
     Tbody(
       dataWithHeader.map(row => Tr([
