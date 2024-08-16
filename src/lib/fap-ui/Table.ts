@@ -1,10 +1,11 @@
 import { FapComponents, FapElement } from "@/lib/fap-ui";
 
-const {
-  Table, Th, Tr, Thead, Tbody, Td
-} = FapComponents;
 
 export function FapTable(data: React.ReactNode[][], header: [React.ReactNode[]?, React.ReactNode[]?] = [], transpose?: boolean) {
+  const {
+    Table, Th, Tr, Thead, Tbody, Td
+  } = FapComponents;
+  
   const table: FapElement<any>[] = [];
 
   const [columnHeader, rowHeader] = transpose ? header.toReversed() : header;
