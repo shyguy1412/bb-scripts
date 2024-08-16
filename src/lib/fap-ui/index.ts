@@ -1,4 +1,5 @@
-import React, { useReducer } from "react";
+import type _React from 'NetscriptDefinitions';
+import React, { useReducer } from 'react';
 
 type ReactEventType = keyof Omit<React.DOMAttributes<any>, 'children' | 'dangerouslySetInnerHTML'>;
 type ReactEvent<K extends ReactEventType> = Parameters<NonNullable<React.DOMAttributes<any>[K]>>[0];
@@ -32,6 +33,7 @@ export type DataAttributes<T> = {
 export type FapModifier<T> = {
   Content: (newContent: React.ReactNode) => FapElement<T>;
   Style: (style: React.CSSProperties) => FapElement<T>;
+  Update: () => FapElement<T>;
 };
 
 export type FapState<T> = {
@@ -39,37 +41,36 @@ export type FapState<T> = {
   attributes: { [key in Uncapitalize<keyof Attributes<T>>]?: string };
   content: React.ReactNode,
   style: React.CSSProperties,
-  bind: () => { props: Record<string, any>; content: React.ReactNode; };
+};
+
+export type Fapped<T> = {
+  state: T;
+  bind: () => T;
   render?: () => void;
 };
 
-export function useFap<T>(): FapState<T> {
+export function useFap<T extends {}>(state: T): Fapped<T> {
 
-  const state: FapState<T> = {
-    content: undefined,
-    events: {},
-    style: {},
-    attributes: {},
-    bind() {
+  const fap: Fapped<T> = {
+    state: new Proxy(state, {
+      set(target, p, newValue) {
+        if (fap.render && p != 'render') fap.render();
+        return Reflect.set(target, p, newValue);
+      },
+    }),
+    bind: () => {
 
       const [, render] = useReducer(() => {
         return {};
       }, {});
 
-      this.render = render;
+      fap.render = render;
 
-      const { content, events, style, attributes } = this;
-
-      return { props: { ...events, ...attributes, style }, content };
+      return fap.state;
     }
   };
 
-  return new Proxy(state, {
-    set(target, p, newValue) {
-      if (target.render && p != 'render') target.render();
-      return Reflect.set(target, p, newValue);
-    },
-  });
+  return fap;
 
 };
 
@@ -83,13 +84,15 @@ type Keys<T extends Record<string, any>, U extends PropertyKey[] = []> =
   }[keyof T];
 
 export function isModifierProp(p: string): p is keyof FapModifier<any> {
-  const modifierProps: Keys<FapModifier<any>> = ["Style", "Content"];
+  const modifierProps: Keys<FapModifier<any>> = ['Style', 'Content', 'Update'];
 
   return modifierProps.includes(p as any);
 }
 
+export type FapComponent<T> = (content?: React.ReactNode) => FapElement<T>;
+
 type FapComponents = {
-  [key in Capitalize<keyof HTMLElementTagNameMap>]: (content?: React.ReactNode) => FapElement<HTMLElementTagNameMap[Uncapitalize<key>]>
+  [key in Capitalize<keyof HTMLElementTagNameMap>]: FapComponent<HTMLElementTagNameMap[Uncapitalize<key>]>
 };
 
 export const FapComponents = new Proxy({} as FapComponents, {
@@ -99,16 +102,21 @@ export const FapComponents = new Proxy({} as FapComponents, {
 
     return (content?: React.ReactNode) => {
 
-      const state = useFap();
+      const { state, ...fap } = useFap<FapState<any>>({
+        events: {},
+        attributes: {},
+        content: undefined,
+        style: {}
+      });
 
       state.content = content;
 
       const Component = () => {
         const {
-          props, content
-        } = state.bind();
+          events, attributes, content, style
+        } = fap.bind();
 
-        return React.createElement(p.toLocaleLowerCase(), props, content);
+        return React.createElement(p.toLocaleLowerCase(), { ...events, ...attributes, style }, content);
       };
 
       return new Proxy(
@@ -123,8 +131,13 @@ export const FapComponents = new Proxy({} as FapComponents, {
               return (cb: any) => (state['events'][p] = cb.bind(undefined, receiver), receiver);
             }
 
+            if (isModifierProp(p) && p == 'Update') {
+              if (fap.render) fap.render();
+              return receiver;
+            }
+
             if (isModifierProp(p)) {
-              return (value: any) => (state[p.toLocaleLowerCase() as keyof FapState<any>] = value, receiver);
+              return (value: any) => (state[p.toLocaleLowerCase() as Lowercase<typeof p>] = value, receiver);
             }
 
             if (p.startsWith('Data') || p.startsWith('Aria')) {
@@ -143,3 +156,49 @@ export const FapComponents = new Proxy({} as FapComponents, {
     };
   },
 });
+
+
+type Bind<T> = Required<{
+  [key in keyof T]: [
+    () => T[key],
+    (value: T[key]) => void
+  ]
+}>;
+
+export function createBinding<T extends (...args: any[]) => R, R extends FapElement<any>>(component: T, ...args: Parameters<T>) {
+
+  const store = [...args];
+
+  const binding = new Proxy(args as any, {
+    get(target, p) {
+      if (typeof p == 'symbol') {
+        return Reflect.get(target, p);
+      }
+
+      if (isNaN(p as any)) {
+        return Reflect.get(target, p);
+      }
+
+      return [
+        () => {
+          return store[p as any];
+        },
+        (val: any) => {
+          store[p as any] = val;
+          if (state.render) state.render();
+        }
+      ];
+    },
+  }) as Bind<Parameters<T>>;
+
+  const state = useFap(store);
+
+  const Wrapper = () => {
+
+    state.bind();
+
+    return component(...store);
+  };
+
+  return [React.createElement(Wrapper) as _React.ReactNode, ...binding] as const;
+}
