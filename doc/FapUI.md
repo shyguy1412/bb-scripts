@@ -91,3 +91,81 @@ Input()
   .Style({ display: 'block' }),
 
 ```
+
+## Binding a Component
+
+Binding allows you to update and read the state of components more easily. A component is any function that returns a FapElement.  
+Lets assume we have this simple component and want to increase the number displayed by 1 every time the `div` is clicked.
+
+```js
+
+function Counter(){
+  return Div(0)
+}
+
+```
+
+First we create a binding for the `Div` with the `createBinding` function.
+The first parameter of `createBinding` is the component you want to bind, the rest are the arguments you want to bind.
+It then returns an array containing the bound component and a getter/setter tuple for each bound argument.
+The `Div` component only takes one argument so that would look like this.
+
+```js
+
+function Counter(){
+  const [BoundDiv, [getCount, setCount]] = createBinding(Div, 0)
+  return BoundDiv
+}
+
+
+```
+
+For a component with more than one argument your code may look like this
+
+```js
+
+const [
+  BoundComponent,
+  [getA, setA],
+  [getB, setB],
+  [getC, setC],
+] = createBinding(SomeComponent, a, b, c);
+
+```
+
+After a component was bound its locked in. This means event listeners, style and attributes have to be set before the component is bound.
+
+```js
+
+function Counter(){
+
+  const WrappedDiv = (count) => Div(count)
+    .Style({ 'background': 'green' })
+    .onClick(() => setCount(getCount() + 1));
+
+  const [BoundDiv, [getCount, setCount]] = createBinding(WrappedDiv, 0)
+  return BoundDiv;
+}
+
+```
+
+This completes a simple counter component that can be rendered directly
+
+```js
+
+ns.printRaw(Counter())
+
+```
+
+## Fragments
+
+A Fragment is a logical container for elements. It combines a list of elements into a single one without wrapping them into any HTML.
+This example renders 3 span elements without any container.
+
+```js
+
+ns.printRaw(Fragment([
+  Span(1), Span(2), Span(3)
+]));
+
+```

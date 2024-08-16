@@ -30,8 +30,9 @@ export type FapComponent<T> = (content?: React.ReactNode) => FapElement<T>;
 
 export type FapComponents = {
   [key in Capitalize<keyof HTMLElementTagNameMap>]: FapComponent<HTMLElementTagNameMap[Uncapitalize<key>]>
+} & {
+  'Fragment': (content?: React.ReactNode) => React.JSX.Element;
 };
-
 
 export type FapModifier<T> = {
   Content: (newContent: React.ReactNode) => FapElement<T>;
@@ -76,6 +77,8 @@ export const FapComponents = new Proxy({} as FapComponents, {
   get(_, p) {
     if (typeof p == 'symbol') return undefined;
     if (!/^[A-Z]/.test(p)) return undefined;
+
+    if (p == 'Fragment') return (content?: React.ReactNode) => React.createElement(React.Fragment, {}, content);
 
     return (content?: React.ReactNode) => {
 

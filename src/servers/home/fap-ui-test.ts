@@ -1,4 +1,4 @@
-import { createBinding, FapComponents, FapElement } from '@/lib/fap-ui';
+import { createBinding, FapComponents } from '@/lib/fap-ui';
 import { FapTable } from '@/lib/fap-ui/Table';
 
 import _style from '@/css/FapTableTest.css' with {type: 'text'};
@@ -12,16 +12,24 @@ export async function main(ns: NS) {
   ns.clearLog();
   console.clear();
 
-  // BindTest(ns);
-  // BasicTest(ns);
-  try {
-
-    TableTest(ns);
-  } catch (e) { console.error(e); }
+  FragmentTest(ns);
+  BindTest(ns);
+  BasicTest(ns);
+  TableTest(ns);
 
   ns.atExit(() => ns.clearLog());
 
   return new Promise(_ => { });
+}
+
+function FragmentTest(ns: NS) {
+  const {
+    Fragment, Span
+  } = FapComponents;
+
+  ns.printRaw(Fragment([
+    Span(1), Span(2), Span(3)
+  ]));
 }
 
 function BasicTest(ns: NS) {
@@ -52,28 +60,23 @@ function BasicTest(ns: NS) {
 
 function BindTest(ns: NS) {
 
-  const [Bound, [getCount, setCount]] = createBinding(Counter, 0);
-
   ns.printRaw([
-    Bound
+    Counter()
   ]);
 
-  const count = () => setTimeout(() => {
-    ns.scan();
-    setCount(getCount() + 1);
-    console.log({ count: getCount });
-    count();
-  }, 1000);
-
-  count();
 }
 
-function Counter(count: number) {
+function Counter() {
   const {
     Div
   } = FapComponents;
 
-  return Div(count).Style({ 'background': 'green' });
+  const WrappedDiv = (count: number) => Div(count)
+    .Style({ 'background': 'green' })
+    .onClick(() => setCount(getCount() + 1));
+
+  const [BoundDiv, [getCount, setCount]] = createBinding(WrappedDiv, 0);
+  return BoundDiv;
 }
 
 function TableTest(ns: NS) {
@@ -90,13 +93,16 @@ function TableTest(ns: NS) {
     ['Hostname', 'Max Ram', 'Used Ram', 'Free Ram'],
     getPurchasedServers(ns).map(s => s.hostname)
   ] as [string[], string[]];
-  
-  const TableWithClass = (...args:Parameters<typeof FapTable>) => FapTable(...args).Class('fap-table').CellPadding('5px')
-  
-    const data = getServerData();
-    const header = createHeader();
-  
-  const [ServerTable, [, setData], [, setHeader]] = createBinding(TableWithClass, data, header, false);
+
+  const TableWithClass = (...args: Parameters<typeof FapTable>) => FapTable(...args)
+    .Class('fap-table')
+    .CellPadding('5px')
+    .onClick(() => setTranspose(!getTranspose()));
+
+  const data = getServerData();
+  const header = createHeader();
+
+  const [ServerTable, [, setData], [, setHeader], [getTranspose, setTranspose]] = createBinding(TableWithClass, data, header, false);
 
   ns.printRaw([
     Style(style),
