@@ -165,7 +165,7 @@ type Bind<T> = Required<{
   ]
 }>;
 
-export function createBinding<T extends (...args: any[]) => R, R extends FapElement<any>>(component: T, ...args: Parameters<T>) {
+export function createBinding<T extends (...args: any[]) => R, R extends FapElement<any>, A extends Parameters<T>>(component: T, ...args: A) {
 
   const store = [...args];
 
@@ -189,7 +189,7 @@ export function createBinding<T extends (...args: any[]) => R, R extends FapElem
         }
       ];
     },
-  }) as Bind<Parameters<T>>;
+  }) as Bind<A>;
 
   const state = useFap(store);
 
