@@ -22,25 +22,25 @@ export function HomeMenu({ }: Props) {
 
   if (config.get('explorer')) {
     entries.push({
-      path: config.get('explorer'),
+      path: config.get('explorer')!,
       icon: faFolderOpen
     });
   }
 
   if (config.get('terminal')) {
     entries.push({
-      path: config.get('terminal'),
+      path: config.get('terminal')!,
       icon: faTerminal
     });
   }
 
   return <div className='homemenu plasma-box-inline'>
 
-    {entries.map(({ path, icon }) =>
+    {entries.map(({ path, icon }) =>(console.log(),
       <span className='plasma-button plasma-box-top' onClick={() => { ns.run(path); }}>
         <FontAwesomeIcon icon={icon}></FontAwesomeIcon>
-        <span className='plasma-center'>{path.split(/(.*)\//, 2).at(-1).split(/(.*)\./, 2)[1]}</span>
-      </span>
+        <span className='plasma-center'>{path.split(/(.*)\//).at(-1)!.split(/(.*)\./, 2)[1]}</span>
+      </span>)
     )}
 
 

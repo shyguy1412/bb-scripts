@@ -89,7 +89,7 @@ const createContext = async () => await context({
     BitburnerPlugin({
       port: 12525,
       types: 'NetscriptDefinitions.d.ts',
-      // extensions: [RamDodgerExtension],
+      extensions: [RamDodgerExtension],
       mirror: {
         'mirror': ['home']
         // 'mirror/own': 'own',
@@ -103,7 +103,7 @@ const createContext = async () => await context({
       // usePolling: true,
       // pollingInterval: 100,
       pushOnConnect: true,
-      remoteDebugging: true
+      // remoteDebugging: true
     })
   ],
   bundle: true,
