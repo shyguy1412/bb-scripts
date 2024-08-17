@@ -3,6 +3,7 @@ import { FapTable } from '@/FapUI/Table';
 
 import _style from '@/css/FapTableTest.css' with {type: 'text'};
 import { getPurchasedServers } from '@/lib/Network';
+import { create } from 'domain';
 const style: string = _style as any; //TS typing shenanigans
 
 
@@ -12,10 +13,12 @@ export async function main(ns: NS) {
   ns.clearLog();
   console.clear();
 
-  FragmentTest(ns);
-  BindTest(ns);
-  BasicTest(ns);
-  TableTest(ns);
+  
+  WeirdTest(ns);
+  // FragmentTest(ns);
+  // BindTest(ns);
+  // BasicTest(ns);
+  // TableTest(ns);
 
   ns.atExit(() => ns.clearLog());
 
@@ -30,6 +33,30 @@ function FragmentTest(ns: NS) {
   ns.printRaw(Fragment([
     Span(1), Span(2), Span(3)
   ]));
+}
+
+function WeirdTest(ns: NS) {
+
+  const {
+    Div, Button, Input
+  } = FapComponents;
+
+  const [Output, [, setOutput]] = createBinding(WeirdComponent, '');
+
+  ns.printRaw(
+
+    Div([
+      Input().Id('my-input').Class('custom-class').Style({ display: 'block' }),
+      Button('Submit').onClick(() => setOutput(document.querySelector<HTMLInputElement>('#my-input')!.value)),
+      Output
+    ])
+
+  );
+
+}
+
+function WeirdComponent(value: string) {
+  return `MyString: ${value}`;
 }
 
 function BasicTest(ns: NS) {
