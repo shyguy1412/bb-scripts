@@ -138,7 +138,7 @@ type Bind<T> = Required<{
   ]
 }>;
 
-export function createBinding<T extends (...args: any[]) => FapElement<any>, A extends Parameters<T>>(component: T, ...args: A): [React.JSX.Element, ...Bind<A>] {
+export function createBinding<T extends (...args: any[]) => React.ReactNode, A extends Parameters<T>>(component: T, ...args: A): [React.JSX.Element, ...Bind<A>] {
 
   const { state, bind } = useFap(args);
   const Wrapper = () => component(...bind());
