@@ -1,5 +1,5 @@
-import { createBinding, FapComponents } from '@/lib/fap-ui';
-import { FapTable } from '@/lib/fap-ui/Table';
+import { createBinding, FapComponents } from '@/FapUI';
+import { FapTable } from '@/FapUI/Table';
 
 import _style from '@/css/FapTableTest.css' with {type: 'text'};
 import { getPurchasedServers } from '@/lib/Network';

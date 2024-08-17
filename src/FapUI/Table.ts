@@ -1,4 +1,4 @@
-import { FapComponents, FapElement } from "@/lib/fap-ui";
+import { FapComponents, FapElement } from "@/FapUI";
 
 
 export function FapTable(data: React.ReactNode[][], header: [React.ReactNode[]?, React.ReactNode[]?] = [], transpose?: boolean) {

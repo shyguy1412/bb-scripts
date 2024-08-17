@@ -1,5 +1,5 @@
-import { PackageInfo, getPackage, getPackageInfo } from "@/lib/npm/ApiWrapper";
-import { PACKAGE_DIR } from "@/lib/npm/Require";
+import { PackageInfo, getPackage, getPackageInfo } from "@/npm/ApiWrapper";
+import { PACKAGE_DIR } from "@/npm/Require";
 import { ScriptArg } from "NetscriptDefinitions";
 
 export type ValidCommands =

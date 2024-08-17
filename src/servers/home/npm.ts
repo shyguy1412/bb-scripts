@@ -1,4 +1,4 @@
-import { Commands, ValidCommands } from "@/lib/npm/cli";
+import { Commands, ValidCommands } from "@/npm/cli";
 
 export async function main(ns: NS) {
   console.clear();
@@ -18,7 +18,7 @@ export async function main(ns: NS) {
 
 }
 
-export { installPackage } from '@/lib/npm/cli';
-export * from '@/lib/npm/ApiWrapper';
-export { require } from '@/lib/npm/Require';
+export { installPackage } from '@/npm/cli';
+export * from '@/npm/ApiWrapper';
+export { require } from '@/npm/Require';
 export * from 'esbuild-wasm';

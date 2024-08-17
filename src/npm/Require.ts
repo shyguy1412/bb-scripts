@@ -1,5 +1,5 @@
 import { GetServer } from '@/lib/exploit/Internals';
-import { PackageJson } from '@/lib/npm/PackageParser';
+import { PackageJson } from '@/npm/PackageParser';
 import { Plugin } from 'esbuild';
 import esbuild from 'esbuild-wasm';
 

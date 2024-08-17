@@ -1,1 +1,1 @@
-export * from '@/lib/fap-ui';
+export * from '@/FapUI';
