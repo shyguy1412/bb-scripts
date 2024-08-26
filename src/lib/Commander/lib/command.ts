@@ -75,7 +75,7 @@ export class Command extends NodeEventEmitter {
    * @param {string} [name]
    */
 
-  constructor(ns?: NS, name?: string) {
+  constructor(name?: string) {
     super();
     /** @type {Command[]} */
     this.commands = [];
@@ -113,12 +113,11 @@ export class Command extends NodeEventEmitter {
     /** @type {(boolean | string)} */
     this._showHelpAfterError = false;
     this._showSuggestionAfterError = true;
-    this.ns = ns;
 
     // see .configureOutput() for docs
     this._outputConfiguration = {
-      writeOut: (str) => (ns!.tprint(str), true),
-      writeErr: (str) => (ns!.tprint(str), true),
+      writeOut: (str) => (this.ns!.tprint(str), true),
+      writeErr: (str) => (this.ns!.tprint(str), true),
       getOutHelpWidth: () => 50,
       getErrHelpWidth: () => 50,
       outputError: (str, write) => write(str),
@@ -235,7 +234,7 @@ export class Command extends NodeEventEmitter {
    */
 
   createCommand(name: string): Command {
-    return new Command(this.ns, name);
+    return new Command(name);
   }
 
   /**
@@ -584,7 +583,7 @@ Expecting one of '${allowedValues.join("', '")}'`);
    * @return {Command} `this` command for chaining
    */
 
-  action(fn: (...args: any[]) => void): Command {
+  action(fn: (ns: NS, ...args: any[]) => void): Command {
     const listener = (args: any[]) => {
       // The .action callback takes an extra parameter which is the command or options.
       const expectedArgsCount = this.registeredArguments.length;
@@ -596,7 +595,7 @@ Expecting one of '${allowedValues.join("', '")}'`);
       }
       actionArgs.push(this);
 
-      return fn.apply(this, actionArgs);
+      return fn.apply(this, [new Proxy({}, { get: (t, p) => Reflect.get(this.ns!, p) }) as NS, ...actionArgs]);
     };
     this._actionHandler = listener;
     return this;
@@ -1098,7 +1097,8 @@ Expecting one of '${allowedValues.join("', '")}'`);
    * @return {Command} `this` command for chaining
    */
 
-  parse(argv?: string[], parseOptions?: { from?: string; }): Command {
+  parse(ns: NS, argv?: string[], parseOptions?: { from?: string; }): Command {
+    this.ns = ns;
     const userArgs = this._prepareUserArgs(argv!, parseOptions);
     this._parseCommand([], userArgs);
 
@@ -1126,7 +1126,8 @@ Expecting one of '${allowedValues.join("', '")}'`);
    * @return {Promise}
    */
 
-  async parseAsync(argv: string[], parseOptions: { from: string; }): Promise<any> {
+  async parseAsync(ns: NS, argv: string[], parseOptions: { from: string; }): Promise<any> {
+    this.ns = ns;
     const userArgs = this._prepareUserArgs(argv, parseOptions);
     await this._parseCommand([], userArgs);
 
@@ -1137,8 +1138,9 @@ Expecting one of '${allowedValues.join("', '")}'`);
     if (!args.at(-1)) return [];
     const options = this.options.filter(opt => opt.long).map(opt => opt.long as string);
     const commands = this.commands.filter(cmd => cmd._name).map(cmd => cmd._name as string);
-    const selection = [...options, ...commands].filter(val => val.startsWith(args.at(-1)!));
-    return selection;
+    const selection = [...options, ...commands].filter(val => val.startsWith(args.at(-1)!) && !args.includes(val));
+    if (selection.length) return selection;
+    return [...data.servers, ...data.scripts, ...data.txts];
   }
 
   /**
