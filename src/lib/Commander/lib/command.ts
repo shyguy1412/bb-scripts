@@ -116,7 +116,7 @@ export class Command extends NodeEventEmitter {
 
 
     const getTerminalWidth = () => {
-      const fontSizeReference = document.querySelector('#terminal')!.firstElementChild!.firstElementChild;
+      const fontSizeReference = (0, eval)('document').querySelector('#terminal')!.firstElementChild!.firstElementChild;
       if (!fontSizeReference) return 0;
 
       const { fontSize } = getComputedStyle(fontSizeReference);
