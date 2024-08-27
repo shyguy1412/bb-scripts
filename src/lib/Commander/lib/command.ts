@@ -5,8 +5,6 @@ import { Help } from './help.js';
 import { Option, DualOptions } from './option.js';
 import { suggestSimilar } from './suggestSimilar';
 
-const process = undefined;
-
 class NodeEventEmitter {
   events: Record<string | symbol, ((...args: any[]) => void)[]> = {};
 
@@ -69,6 +67,7 @@ export class Command extends NodeEventEmitter {
   _version: any;
   _usage: any;
   ns?: NS;
+  suggestions: Record<string, string[]>;
   /**
    * Initialize a new `Command`.
    *
@@ -113,13 +112,32 @@ export class Command extends NodeEventEmitter {
     /** @type {(boolean | string)} */
     this._showHelpAfterError = false;
     this._showSuggestionAfterError = true;
+    this.suggestions = {};
+
+
+    const getTerminalWidth = () => {
+      const fontSizeReference = document.querySelector('#terminal')!.firstElementChild!.firstElementChild;
+      if (!fontSizeReference) return 0;
+
+      const { fontSize } = getComputedStyle(fontSizeReference);
+
+      const widthInPixels = fontSizeReference.clientWidth;
+      const fontSizeInPixels = parseFloat(fontSize);
+
+      return Math.round(widthInPixels / (fontSizeInPixels / 1.6));
+    };
+
+    const write = (str: string) => {
+      if (!this.ns) throw new Error('Can only write if NS was passed to parse');
+      this.ns.tprintRaw(str);
+    };
 
     // see .configureOutput() for docs
     this._outputConfiguration = {
-      writeOut: (str) => (this.ns!.tprint(str), true),
-      writeErr: (str) => (this.ns!.tprint(str), true),
-      getOutHelpWidth: () => 50,
-      getErrHelpWidth: () => 50,
+      writeOut: (str) => (write(str), true),
+      writeErr: (str) => (write(str), true),
+      getOutHelpWidth: () => getTerminalWidth(),
+      getErrHelpWidth: () => getTerminalWidth(),
       outputError: (str, write) => write(str),
     };
 
@@ -182,7 +200,6 @@ export class Command extends NodeEventEmitter {
    *   .command('clone <source> [destination]')
    *   .description('clone a repository into a newly created directory')
    *   .action((source, destination) => {
-   *     console.log('clone command called');
    *   });
    *
    * // Command implemented using separate executable file (description is second parameter to `.command`)
@@ -322,7 +339,7 @@ export class Command extends NodeEventEmitter {
    * @return {Command} `this` command for chaining
    */
 
-  addCommand(cmd: Command, opts: any): Command {
+  addCommand(cmd: Command, opts?: any): Command {
     if (!cmd._name) {
       throw new Error(`Command passed to .addCommand() must have a name
 - specify the name in Command constructor or using .name()`);
@@ -1053,12 +1070,10 @@ Expecting one of '${allowedValues.join("', '")}'`);
       }
     }
 
-    if (!this.ns) {
-      throw new Error('Command cannot be parsed without NS supplied');
-    }
 
     // default to using process.argv
     if (argv === undefined) {
+      if (!this.ns) throw new Error('Command cannot be parsed without NS supplied');
       argv = this.ns.args;
     }
     this.rawArgs = argv.slice();
@@ -1134,13 +1149,72 @@ Expecting one of '${allowedValues.join("', '")}'`);
     return this;
   }
 
-  autocomplete(data: AutocompleteData, args: string[]) {
-    if (!args.at(-1)) return [];
-    const options = this.options.filter(opt => opt.long).map(opt => opt.long as string);
-    const commands = this.commands.filter(cmd => cmd._name).map(cmd => cmd._name as string);
-    const selection = [...options, ...commands].filter(val => val.startsWith(args.at(-1)!) && !args.includes(val));
-    if (selection.length) return selection;
-    return [...data.servers, ...data.scripts, ...data.txts];
+  autocomplete(data: AutocompleteData, rawArgs: string[]): string[] {
+
+    if (rawArgs.length == 0 && this.commands.length) {
+      return this.commands.map(c => c._name);
+    }
+
+    const currentCommand = this.commands.find(c => c._name == rawArgs[0]);
+
+    if (currentCommand) {
+      return currentCommand.autocomplete(data, rawArgs.slice(1));
+    }
+
+    // for(const command of this.commands){
+    //   const suggestions = command.autocomplete(data, rawArgs.slice(1));
+    // }
+
+    const argsWithoutFlags = []; //collection of arguments without flags or their values
+    for (let i = 0; i < rawArgs.length; i++) {
+      const arg = rawArgs[i];
+
+      //if argument is not a flag, add to args and proceed
+      if (!arg.startsWith('-')) {
+        argsWithoutFlags.push(arg);
+        continue;
+      };
+
+      //if argument is a non complete flag and is latest argument, recommend flags for autocomplete
+      if (i == rawArgs.length - 1 && !this.options.some(o => o.is(arg))) {
+        //get an array of all options in both long and short format that havent been used yet
+        const options = this.options.filter(o => !rawArgs.some(a => o.is(a))).map(o => [o.long, o.short]).flat().filter(o => o) as string[];
+        return [...options];
+      }
+
+      const option = this.options.find(o => o.is(arg));
+      if (!option) continue;
+      //recommend values for flag
+      const [valueName] = option.flags.match(/(?<=\[).*?(?=\])/g) ?? [];
+      if (!valueName) continue;
+      const variadic = valueName.endsWith('...');
+
+      if (rawArgs.length - i - 1 && !variadic) {
+        i++;
+        continue;
+      }
+
+      return this.suggestions[valueName.replace(/\.\.\.$/, '')] ?? [];
+    }
+
+    const argumentList = [...this.registeredArguments];
+    let curArg = argumentList.shift();
+
+    for (let i = 0; i < argsWithoutFlags.length; i++) {
+      const arg = argsWithoutFlags[i];
+      if (!curArg) break;
+      if (this.suggestions[curArg._name]?.some(s => s.startsWith(arg) && s != arg)) continue;
+      if (!curArg.variadic) curArg = argumentList.shift();
+    }
+
+    if (curArg) return this.suggestions[curArg._name] ?? [];
+
+    return [];
+  }
+
+  suggest(argument: string, suggestions: readonly string[]) {
+    this.suggestions[argument] = [...suggestions];
+    return this;
   }
 
   /**
@@ -1157,7 +1231,7 @@ Expecting one of '${allowedValues.join("', '")}'`);
    * @private
    */
 
-  _dispatchSubcommand(commandName: string, operands: any, unknown: string[]) {
+  _dispatchSubcommand(commandName: string, operands: any, unknown: string[], ns: NS) {
     const subCommand = this._findCommand(commandName)!;
     if (!subCommand) this.help({ error: true });
 
@@ -1171,6 +1245,7 @@ Expecting one of '${allowedValues.join("', '")}'`);
       if (subCommand._executableHandler) {
         this._executeSubCommand(subCommand, operands.concat(unknown));
       } else {
+        subCommand.ns = ns;
         return subCommand._parseCommand(operands, unknown);
       }
     });
@@ -1184,7 +1259,7 @@ Expecting one of '${allowedValues.join("', '")}'`);
    * @private
    */
 
-  _dispatchHelpCommand(subcommandName?: string) {
+  _dispatchHelpCommand(ns: NS, subcommandName?: string) {
     if (!subcommandName) {
       this.help();
     }
@@ -1198,6 +1273,7 @@ Expecting one of '${allowedValues.join("', '")}'`);
       subcommandName!,
       [],
       [this._getHelpOption()?.long ?? this._getHelpOption()?.short ?? '--help'],
+      ns
     );
   }
 
@@ -1355,6 +1431,7 @@ Expecting one of '${allowedValues.join("', '")}'`);
    */
 
   _parseCommand(operands: any, unknown: string[]) {
+    if (!this.ns) throw new Error('Cannot parse command without NS');
     const parsed = this.parseOptions(unknown);
     this._parseOptionsImplied();
     operands = operands.concat(parsed.operands);
@@ -1362,7 +1439,7 @@ Expecting one of '${allowedValues.join("', '")}'`);
     this.args = operands.concat(unknown);
 
     if (operands && this._findCommand(operands[0])) {
-      return this._dispatchSubcommand(operands[0], operands.slice(1), unknown);
+      return this._dispatchSubcommand(operands[0], operands.slice(1), unknown, this.ns);
     }
     if (
       this._getHelpCommand() &&
@@ -1376,6 +1453,7 @@ Expecting one of '${allowedValues.join("', '")}'`);
         this._defaultCommandName,
         operands,
         unknown,
+        this.ns
       );
     }
     if (
@@ -1424,7 +1502,7 @@ Expecting one of '${allowedValues.join("', '")}'`);
     } else if (operands.length) {
       if (this._findCommand('*')) {
         // legacy default command
-        return this._dispatchSubcommand('*', operands, unknown);
+        return this._dispatchSubcommand('*', operands, unknown, this.ns);
       }
       if (this.listenerCount('command:*')) {
         // skip option check, emit event for possible misspelling suggestion
@@ -1457,6 +1535,15 @@ Expecting one of '${allowedValues.join("', '")}'`);
     return this.commands.find(
       (cmd) => cmd._name === name || cmd._aliases.includes(name),
     );
+  }
+
+  getCommand(name: string) {
+    if (!name) return this;
+    const command = this.commands.find(
+      (cmd) => cmd._name === name || cmd._aliases.includes(name),
+    );
+    if (!command) throw new Error('no command named: ' + name);
+    return command;
   }
 
   /**
@@ -1721,7 +1808,7 @@ Expecting one of '${allowedValues.join("', '")}'`);
    * @param {string} [errorOptions.code] - an id string representing the error
    * @param {number} [errorOptions.exitCode] - used with process.exit
    */
-  error(message: string, errorOptions: { code?: string; exitCode?: number; }) {
+  error(message: string, errorOptions?: { code?: string; exitCode?: number; }) {
     // output handling
     this._outputConfiguration.outputError(
       `${message}\n`,
