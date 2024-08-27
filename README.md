@@ -19,3 +19,4 @@ Notice: Most my scripts dodge ram by offloading ram heavy operations to a worker
 - [RootGainer](./doc/RootGainer.md) Runs in the background until every server in the network is rooted.
 - [npm.js](./doc/npm.md) A crude tool to download and import npm packages inside bitburner.
 - [FapUI](./doc/FapUI.md) Fast and Practical UI. A simple UI framework to quickly get started with custom UI
+- [Commander.js](./doc/Commander.md) A port of [Commander.js](https://www.npmjs.com/package/commander) for Bitburner with some added autocomplete support
