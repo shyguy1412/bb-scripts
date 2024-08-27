@@ -797,7 +797,7 @@ Expecting one of '${allowedValues.join("', '")}'`);
       // deprecated
       const regex = fn;
       fn = (val: any, def: any) => {
-        const m = regex.exec(val);
+        const m = regex['exec'](val);
         return m ? m[0] : def;
       };
       option.default(defaultValue).argParser(fn);
