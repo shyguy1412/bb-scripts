@@ -40,8 +40,8 @@ const SERVER_PROPS = [
 ];
 
 //generates an ASCII table with some given data
-export function AsciiTable(ns: NS, data: string[][]) {
-  const valueFormatter = (val: string, i: number) => {
+export function AsciiTable(ns, data) {
+  const valueFormatter = (val, i) => {
     if (val == data[0][i]) return val.replace(/[A-Z]/g, (v) => ` ${v.toLocaleLowerCase()}`);
 
     if (data[0][i].toLocaleLowerCase().includes('ram')) {
@@ -92,10 +92,10 @@ function cli() {
 
       if (include && exclude) return command.error('Error: cannot set include and exclude flag at the same time');
 
-      const filter = columns && columns.length ? columns as string[] : SERVER_PROPS;
-      const filteredColumns = (columns as string[]).filter(el => exclude ? !filter.includes(el) : filter.includes(el));
+      const filter = columns && columns.length ? columns : SERVER_PROPS;
+      const filteredColumns = columns.filter(el => exclude ? !filter.includes(el) : filter.includes(el));
 
-      const data = (servers as string[]).map(s => ns.getServer(s)).map(s => filteredColumns.map(c => s[c as keyof Server] + ''));
+      const data = servers.map(s => ns.getServer(s)).map(s => filteredColumns.map(c => s[c] + ''));
 
       const { Div } = FapComponents; //Use FapUI to easily render styled HTML
       ns.tprintRaw(
@@ -106,14 +106,14 @@ function cli() {
   return command;
 }
 
-export function autocomplete(data: AutocompleteData, args: string[]) {
+export function autocomplete(data, args) {
   return cli()
     .suggest('servers', data.servers) //suggest all servers for the 'servers' attribute
     .suggest('columns', SERVER_PROPS) //suggest all props for the 'columns' attribute
     .autocomplete(data, args);
 }
 
-export async function main(ns: NS) {
+export async function main(ns) {
   return cli().parse(ns); //this will parse all arguments and call the correct command
 }
 ```
