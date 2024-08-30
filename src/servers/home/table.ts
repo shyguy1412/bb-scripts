@@ -1,8 +1,7 @@
 import { createCommand } from "@/lib/Commander";
 import { AutocompleteData, Server } from "NetscriptDefinitions";
-import { FapComponents } from "@/FapUI";
-
-const { Div } = FapComponents;
+import { createBinding } from "@/FapUI";
+import { AsciiTable } from "@/FapUI/Table";
 
 const SERVER_PROPS = [
   'hostname',
@@ -31,34 +30,7 @@ const SERVER_PROPS = [
   'serverGrowth',
 ] as readonly string[];
 
-export function AsciiTable(data: readonly string[][]) {
 
-  const colWidths = data.reduce((prev, row) => prev.map((v, i) => row[i].length > v ? row[i].length : v), data[0].map(v => v.length));
-  const table = data.reduce((prev, cur, i, { length }) => {
-
-    const filler = colWidths.map(w => Array(w).fill(i && i != length - 1 ? '─' : '═').join('')).join(i && i != length - 1 ? '┼' : !i ? '╪' : '╧');
-
-    let row = '';
-
-    if (i == 0) {
-      row += '╔' + filler.replaceAll('╪', '╤') + '╗' + '\n';
-    }
-
-    row += '║' + cur.map((v, i) => v.padEnd(colWidths[i], ' ')).join('│') + '║' + '\n';
-
-    if (i == 0)
-      row += '╠' + filler + '╣';
-    else if (i != length - 1)
-      row += '╟' + filler + '╢';
-    else
-      row += '╚' + filler + '╝';
-
-    return prev + '\n' + row;
-  }, '');
-
-
-  return table;
-}
 
 function cli() {
   const command = createCommand()
@@ -97,8 +69,14 @@ function cli() {
 
       data.unshift(filteredColumns);
 
+      const [Table, , [getTranspose, setTranspose]] = createBinding(
+        (d, t) => AsciiTable(d, t)
+          .onClick(() => setTranspose(!getTranspose())),
+        data.map(valueFormatter), false
+      );
+
       ns.tprintRaw(
-        Div(AsciiTable(data.map(valueFormatter))).Style({ lineHeight: 1 })
+        Table
       );
 
     });

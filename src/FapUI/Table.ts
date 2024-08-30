@@ -35,3 +35,37 @@ export function FapTable(data: React.ReactNode[][], header: [React.ReactNode[]?,
 
   return Table(table);
 }
+
+export function AsciiTable(data: readonly string[][], transpose?: boolean) {
+  const { Div } = FapComponents;
+
+  const transposedData = transpose ?
+    data.map((_, i, arr) => arr.map(row => row[i])).filter(arr => !arr.every(val => val == undefined)) :
+    data;
+
+  const colWidths = transposedData.reduce((prev, row) => prev.map((v, i) => row[i].length > v ? row[i].length : v), transposedData[0].map(v => v.length));
+  const table = transposedData.reduce((prev, cur, i, { length }) => {
+
+    const filler = colWidths.map(w => Array(w).fill(i && i != length - 1 ? '─' : '═').join('')).join(i && i != length - 1 ? '┼' : !i ? '╪' : '╧');
+
+    let row = '';
+
+    if (i == 0) {
+      row += '╔' + filler.replaceAll('╪', '╤') + '╗' + '\n';
+    }
+
+    row += '║' + cur.map((v, i) => v.padEnd(colWidths[i], ' ')).join('│') + '║' + '\n';
+
+    if (i == 0)
+      row += '╠' + filler + '╣';
+    else if (i != length - 1)
+      row += '╟' + filler + '╢';
+    else
+      row += '╚' + filler + '╝';
+
+    return prev + '\n' + row;
+  }, '');
+
+
+  return Div(table).Style({ lineHeight: 1 });
+}
