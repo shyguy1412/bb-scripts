@@ -31,22 +31,10 @@ const SERVER_PROPS = [
   'serverGrowth',
 ] as readonly string[];
 
-export function AsciiTable(ns: NS, data: string[][]) {
+export function AsciiTable(data: readonly string[][]) {
 
-
-  const valueFormatter = (val: string, i: number) => {
-    if (val == data[0][i]) return val.replace(/[A-Z]/g, (v) => ` ${v.toLocaleLowerCase()}`);
-
-    if (data[0][i].toLocaleLowerCase().includes('ram')) {
-      return ns.formatRam(+val);
-    }
-
-    return val;
-  };
-
-  const formattedData = data.map(c => c.map(valueFormatter));
-  const colWidths = formattedData.reduce((prev, row) => prev.map((v, i) => row[i].length > v ? row[i].length : v), formattedData[0].map(v => v.length));
-  const table = formattedData.reduce((prev, cur, i, { length }) => {
+  const colWidths = data.reduce((prev, row) => prev.map((v, i) => row[i].length > v ? row[i].length : v), data[0].map(v => v.length));
+  const table = data.reduce((prev, cur, i, { length }) => {
 
     const filler = colWidths.map(w => Array(w).fill(i && i != length - 1 ? '─' : '═').join('')).join(i && i != length - 1 ? '┼' : !i ? '╪' : '╧');
 
@@ -88,10 +76,29 @@ function cli() {
       const filter = columns && columns.length ? columns as string[] : SERVER_PROPS;
       const filteredColumns = (columns as string[]).filter(el => exclude ? !filter.includes(el) : filter.includes(el));
 
-      const data = (servers as string[]).map(s => ns.getServer(s)).map(s => filteredColumns.map(c => s[c as keyof Server] + ''));
+      const valueFormatter = (row: string[], i: number, data: string[][]) => {
+        if (i == 0) return row.map(v => v.replace(/[A-Z]/g, (v) => ` ${v.toLocaleLowerCase()}`));
+
+        return row.map((v, i) => {
+          if (data[0][i].toLocaleLowerCase().includes('ram')) {
+            return ns.formatRam(+v);
+          }
+
+          if (data[0][i].toLocaleLowerCase().includes('money')) {
+            return ns.formatNumber(+v);
+          }
+          return v;
+        });
+      };
+
+      const data = (servers as string[])
+        .map(s => ns.getServer(s))
+        .map(s => filteredColumns.map(c => s[c as keyof Server] + ''));
+
+      data.unshift(filteredColumns);
 
       ns.tprintRaw(
-        Div(AsciiTable(ns, [filteredColumns, ...data])).Style({ lineHeight: 1 })
+        Div(AsciiTable(data.map(valueFormatter))).Style({ lineHeight: 1 })
       );
 
     });
