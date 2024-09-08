@@ -1049,7 +1049,7 @@ Expecting one of '${allowedValues.join("', '")}'`);
    * @private
    */
 
-  _prepareUserArgs(argv: any[], parseOptions: any) {
+  _prepareUserArgs(argv?: any[], parseOptions?: any) {
     if (argv !== undefined && !Array.isArray(argv)) {
       throw new Error('first parameter to parse must be array or undefined');
     }
@@ -1114,7 +1114,7 @@ Expecting one of '${allowedValues.join("', '")}'`);
 
   parse(ns: NS, argv?: string[], parseOptions?: { from?: string; }): Command {
     this.ns = ns;
-    const userArgs = this._prepareUserArgs(argv!, parseOptions);
+    const userArgs = this._prepareUserArgs(argv, parseOptions);
     this._parseCommand([], userArgs);
 
     return this;
@@ -1141,7 +1141,7 @@ Expecting one of '${allowedValues.join("', '")}'`);
    * @return {Promise}
    */
 
-  async parseAsync(ns: NS, argv: string[], parseOptions: { from: string; }): Promise<any> {
+  async parseAsync(ns: NS, argv?: string[], parseOptions?: { from: string; }): Promise<any> {
     this.ns = ns;
     const userArgs = this._prepareUserArgs(argv, parseOptions);
     await this._parseCommand([], userArgs);
