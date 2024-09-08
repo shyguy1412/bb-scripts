@@ -1,4 +1,4 @@
-import { Commands, ValidCommands } from "@/service/cli";
+import { cli } from "@/service/cli";
 import { parseService } from "@/service/Parser";
 
 export async function main(ns: NS) {
@@ -10,7 +10,7 @@ export async function main(ns: NS) {
     console.log(parseService(service));
   } catch (e) { console.error(e); }
 
-
+  return cli().parseAsync(ns).catch(e => ns.tprint(e.message));
   // //the filter filters out flags
   // const [command, ...input] = (ns.args as string[]).filter(([a]) => a != '-') as ValidCommands[];
 
