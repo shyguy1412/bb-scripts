@@ -1,14 +1,14 @@
 import { FapComponents, FapElement } from "@/FapUI";
 
 
-export function FapTable(data: React.ReactNode[][], header: [React.ReactNode[]?, React.ReactNode[]?] = [], transpose?: boolean) {
+export function FapTable(data: readonly React.ReactNode[][], header: readonly [React.ReactNode[]?, React.ReactNode[]?] = [], transpose?: boolean) {
   const {
     Table, Th, Tr, Thead, Tbody, Td
   } = FapComponents;
-  
+
   const table: FapElement<any>[] = [];
 
-  const [columnHeader, rowHeader] = transpose ? header.toReversed() : header;
+  const [columnHeader, rowHeader] = transpose ? header.concat(...Array(2 - header.length)).reverse() : header;
 
   if (columnHeader) table.push(
     Thead(
@@ -22,6 +22,8 @@ export function FapTable(data: React.ReactNode[][], header: [React.ReactNode[]?,
     data.map((_, i, arr) => arr.map(row => row[i])).filter(arr => !arr.every(val => val == undefined)) :
     data;
   const dataWithHeader = transposedData.map((row, i) => rowHeader ? [rowHeader[transpose ? i + 1 : i], ...row] : row);
+
+  console.log({transposedData});
 
   table.push(
     Tbody(
