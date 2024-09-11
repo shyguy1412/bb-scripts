@@ -112,10 +112,13 @@ export const config = {
   sourcesContent: true,
   // minify: true,
   keepNames: true,
-  logLevel: 'debug',
+  logLevel: 'error',
 };
 
-const ctx = await context(config);
-ctx.watch();
+
+if(import.meta.filename == process.argv[1]){
+  const ctx = await context(config);
+  ctx.watch();
+}
 // await ctx.rebuild();
 // ctx.dispose();

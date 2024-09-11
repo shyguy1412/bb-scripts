@@ -1,4 +1,4 @@
-import { AutocompleteData, ScriptArg } from 'NetscriptDefinitions';
+import * as ND from 'NetscriptDefinitions';
 import { Argument, humanReadableArgName } from './argument.js';
 import { CommanderError } from './error.js';
 import { Help } from './help.js';
@@ -33,7 +33,7 @@ export class Command extends NodeEventEmitter {
   registeredArguments: Argument[];
   _args: any;
   args: string[];
-  rawArgs: ScriptArg[];
+  rawArgs: ND.ScriptArg[];
   processedArgs: Argument[];
   _scriptPath: null;
   _name: string;
@@ -1149,7 +1149,7 @@ Expecting one of '${allowedValues.join("', '")}'`);
     return this;
   }
 
-  autocomplete(data: AutocompleteData, rawArgs: string[]): string[] {
+  autocomplete(data: ND.AutocompleteData, rawArgs: string[]): string[] {
 
     if (rawArgs.length == 0 && this.commands.length) {
       return this.commands.map(c => c._name);

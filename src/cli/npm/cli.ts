@@ -1,6 +1,6 @@
 import { PackageInfo, getPackage, getPackageInfo } from "./ApiWrapper";
 import { PACKAGE_DIR } from "./Require";
-import { ScriptArg } from "NetscriptDefinitions";
+import * as ND from "NetscriptDefinitions";
 
 export type ValidCommands =
   'i' | 'ci' | 'install' |
@@ -8,7 +8,7 @@ export type ValidCommands =
   'outdated' | 'update' |
   'help';
 
-export const Commands: { [key in ValidCommands]: (ns: NS, ...input: ScriptArg[]) => Promise<void> } = {
+export const Commands: { [key in ValidCommands]: (ns: NS, ...input: ND.ScriptArg[]) => Promise<void> } = {
   i(ns, ...input) {
     return this.install(ns, ...input);
   },

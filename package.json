@@ -5,8 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node ./build.mjs",
-    "typecheck": "tsc --noEmit",
-    "generate-declarations": "tsc"
+    "typecheck": "tsc --noEmit"
   },
   "repository": {
     "type": "git",
@@ -22,15 +21,15 @@
     "@fortawesome/free-brands-svg-icons": "^6.6.0",
     "@fortawesome/free-solid-svg-icons": "^6.6.0",
     "@fortawesome/react-fontawesome": "^0.2.2",
-    "@types/node": "^22.2.0",
-    "@types/react": "^18.3.3",
+    "@types/node": "^22.5.4",
+    "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
     "acorn": "^8.12.1",
-    "acorn-walk": "^8.3.3",
-    "astring": "^1.8.6",
-    "esbuild": "^0.23.0",
+    "acorn-walk": "^8.3.4",
+    "astring": "^1.9.0",
+    "esbuild": "^0.23.1",
     "esbuild-bitburner-plugin": "file:../../typescript/esbuild-bitburner-plugin",
-    "esbuild-wasm": "^0.23.0",
+    "esbuild-wasm": "^0.23.1",
     "geckosvg": "file:../../typescript/GeckoSVG",
     "js-untar": "^2.0.0",
     "ramdodger-extension": "file:../../javascript/ramdodger-extension",
