@@ -70,4 +70,14 @@ export function createWindowApp(ns: NS, pid?: string | number) {
   };
 }
 
+export const mainWrapper = (Component: React.FunctionComponent) => {
+  return (ns: NS) => {
+    const windowApp = createWindowApp(ns);
+
+    ns.atExit(() => windowApp.cleanup());
+
+    return windowApp.mount(<Component></Component>);
+  };
+};
+
 export { NetscriptContext, CleanupContext, TerminateContext } from '@/lib/Context';
