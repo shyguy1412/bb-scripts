@@ -18,6 +18,7 @@ type ConfigWrapper = {
   set<T extends keyof PlasmaConfig>(key: T, value: PlasmaConfig[T]): void;
 };
 
+// @ts-expect-error
 export const ConfigContext = createContext<ConfigWrapper>(null);
 
 
@@ -47,7 +48,7 @@ export async function Plasma(ns: NS) {
       resolve();
     });
 
-    const el = [...document.querySelector('#root').children]
+    const el = [...document.querySelector('#root')!.children]
       .filter(el => !el.classList.contains('react-draggable') && el.id != '#unclickable')[0];
 
     const config: ConfigWrapper = {
@@ -61,11 +62,11 @@ export async function Plasma(ns: NS) {
       }
     };
 
-    if (!config.get('terminal') || !ns.fileExists(config.get('terminal'))) {
+    if (!config.get('terminal') || !ns.fileExists(config.get('terminal')!)) {
       ns.toast("No terminal app was set!", 'error');
     }
 
-    if (!config.get('explorer') || !ns.fileExists(config.get('explorer'))) {
+    if (!config.get('explorer') || !ns.fileExists(config.get('explorer')!)) {
       ns.toast("No file explorer app was set!", 'error');
     }
 

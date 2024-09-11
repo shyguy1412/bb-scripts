@@ -19,14 +19,14 @@ export function Konsole() {
     const updateTerminal = async () => {
       if (!konsoleRef.current) return;
       konsoleRef.current.replaceChildren(...await terminal.getTerminalLines());
-      setPrompt(terminal.terminalInput.previousSibling?.textContent ?? '');
+      setPrompt(terminal.terminalInput!.previousSibling?.textContent ?? '');
     };
 
     const watchTerminalLines = () => {
       const TerminalObserver = new MutationObserver(() => {
         updateTerminal();
       });
-      TerminalObserver.observe(terminal.terminalElement, { childList: true, subtree: true, characterData: true });
+      TerminalObserver.observe(terminal.terminalElement!, { childList: true, subtree: true, characterData: true });
       addCleanup(() => TerminalObserver.disconnect());
     };
 
@@ -125,7 +125,7 @@ export function Konsole() {
 
           e.preventDefault();
           await terminal.inputKey(e.key);
-          setCommand(terminal.terminalInput.value);
+          setCommand(terminal.terminalInput!.value);
         }}
       />
     </div>

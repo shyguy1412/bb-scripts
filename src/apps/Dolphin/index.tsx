@@ -12,8 +12,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { getAllCodingContracts } from '@/lib/FileSystem';
 
-// @ts-expect-error Is guranteed to be defined in valid context
-export const PathContext = createContext<([string, Dispatch<SetStateAction<string>>])>(undefined);
+// @ts-expect-error
+export const PathContext = createContext<([string, Dispatch<SetStateAction<string>>])>(null);
 
 export function Dolphin() {
   'use exec';

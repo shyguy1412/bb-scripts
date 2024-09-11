@@ -1,11 +1,11 @@
 import React from "react";
 import { createContext } from "react";
 
-//@ts-expect-error context starts as null, is guranteed to not be null wherever its valid
+//@ts-expect-error
 export const NetscriptContext = createContext<NS>(null);
-//@ts-expect-error context starts as null, is guranteed to not be null wherever its valid
+//@ts-expect-error
 export const CleanupContext = createContext<(f: () => void) => void>(null);
-//@ts-expect-error context starts as null, is guranteed to not be null wherever its valid
+//@ts-expect-error
 export const TerminateContext = createContext<() => void>(null);
 
 export type ContextProvider<T> = {

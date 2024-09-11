@@ -2,7 +2,7 @@ import { getAllServers } from "@/lib/Network";
 
 export const ALLOWED_FILETYPES = [
   'js', 'txt', 'json'
-]
+];
 
 export function getAllCodingContracts(ns: NS) {
   'use ls';
@@ -21,14 +21,15 @@ export function readDir(ns: NS, path: string) {
   'use ls';
   try {
 
+    type Tree = { [key: string]: Tree; };
     const [server, ...directory] = path.split('/');
 
-    const filesystemTree = ns.ls(server)
+    const filesystemTree: Tree = ns.ls(server)
       .reduce((prev, cur) => {
         const path = cur.split('/');
-        let node = prev;
+        let node: Tree = prev;
         while (path.length) {
-          const curNode = path.shift();
+          const curNode = path.shift()!;
           node[curNode] ??= {};
           node = node[curNode];
         };
@@ -48,11 +49,12 @@ export function readDir(ns: NS, path: string) {
   }
 };
 
-export function readDirRecursive(ns: NS, path: string): (ReturnType<typeof readDir>[number] & { path: string; })[] {
+type DirEntry = NonNullable<ReturnType<typeof readDir>>[number] & { path: string; };
+export function readDirRecursive(ns: NS, path: string): DirEntry[] {
   const content = readDir(ns, path);
+  if (!content) throw new Error("Path does not exists: " + path);
   return content
-    .map(file => file.type == 'folder' ? readDirRecursive(ns, `${path}/${file.name}`).flat() : file as (ReturnType<typeof readDir>[number] & { path?: string; }))
-    .flat()
+    .flatMap(file => file.type == 'folder' ? readDirRecursive(ns, `${path}/${file.name}`).flat() : file as DirEntry)
     .map(f => ({ ...f, path: f.path ?? path }));
 };
 

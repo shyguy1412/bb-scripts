@@ -1,7 +1,7 @@
 export function findTailRoot(span: HTMLElement) {
   let el = span;
-  while (!el.parentElement.classList.contains('react-resizable'))
-    el = el.parentElement;
+  while (!el.parentElement!.classList.contains('react-resizable'))
+    el = el.parentElement!;
   return el;
 }
 
@@ -38,7 +38,7 @@ export function watchSelectorForCreation(selector: string, callback: (el: HTMLEl
         if (cur.nodeType != cur.ELEMENT_NODE) return prev;
         const added = (cur as HTMLElement).matches(selector) ? cur : (cur as HTMLElement).querySelector(selector);
         return prev ?? added;
-      }, null) as HTMLElement;
+      }, null as Node | null) as HTMLElement;
 
       if (element) {
         callback(element);

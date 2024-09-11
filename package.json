@@ -4,7 +4,9 @@
   "description": "template for external editors for the game bitburner",
   "main": "index.js",
   "scripts": {
-    "start": "node ./build.mjs"
+    "start": "node ./build.mjs",
+    "typecheck": "tsc --noEmit",
+    "generate-declarations": "tsc"
   },
   "repository": {
     "type": "git",
@@ -31,6 +33,7 @@
     "esbuild-wasm": "^0.23.0",
     "geckosvg": "file:../../typescript/GeckoSVG",
     "js-untar": "^2.0.0",
-    "ramdodger-extension": "file:../../javascript/ramdodger-extension"
+    "ramdodger-extension": "file:../../javascript/ramdodger-extension",
+    "typescript": "^5.6.2"
   }
 }

@@ -47,9 +47,9 @@ export type TerminalCommands = "scan-analyze" |
 export class Terminal extends EventTarget {
 
   cleanupMap: Record<string, () => void> = {};
-  terminalInput: HTMLInputElement = null;
-  terminalElement: HTMLUListElement = null;
-  #terminalInputProps: string = null;
+  terminalInput: HTMLInputElement | null = null;
+  terminalElement: HTMLUListElement | null = null;
+  #terminalInputProps: string | null = null;
   #awaitConnectQueue: (() => void)[] = [];
 
   constructor(ns: NS) {
@@ -66,10 +66,10 @@ export class Terminal extends EventTarget {
     };
 
     const onConnect = () => {
-      this.terminalInput = document.querySelector('#terminal-input');
+      this.terminalInput = document.querySelector('#terminal-input')!;
       this.terminalElement = document.querySelector('#terminal');
-      this.#terminalInputProps = Object.keys(this.terminalInput).find(k => k.includes('__reactProps'));
-      while (this.#awaitConnectQueue.length) this.#awaitConnectQueue.shift()();
+      this.#terminalInputProps = Object.keys(this.terminalInput).find(k => k.includes('__reactProps'))!;
+      while (this.#awaitConnectQueue.length) this.#awaitConnectQueue.shift()!();
 
       const { cleanup } = watchElForDeletion(this.terminalInput, () => {
         this.terminalInput = null;
@@ -95,19 +95,31 @@ export class Terminal extends EventTarget {
   async exec(cmd: string) {
     await this.connect();
 
+    if (!this.terminalInput || !this.#terminalInputProps) throw new Error("Terminal input is undefined");
+
     this.terminalInput.value = cmd;
+
+    //@ts-expect-error accessing private react props
     this.terminalInput[this.#terminalInputProps].onChange({ target: this.terminalInput });
+    //@ts-expect-error accessing private react props
     this.terminalInput[this.#terminalInputProps].onKeyDown({ key: 'Enter', preventDefault: () => null });
 
   }
 
   async inputKey(key: string) {
     await this.connect();
+
+    if (!this.terminalInput || !this.#terminalInputProps) throw new Error("Terminal input is undefined");
+
+    //@ts-expect-error accessing private react props
     this.terminalInput[this.#terminalInputProps].onKeyDown({ key, preventDefault: () => null });
   }
 
   async getTerminalLines(): Promise<Element[]> {
     await this.connect();
+
+    if (!this.terminalElement) throw new Error("Terminal input is undefined");
+
     return [...this.terminalElement.children].map(c => c.cloneNode(true) as Element);
   }
 
@@ -120,8 +132,12 @@ export class Terminal extends EventTarget {
 
     setTimeout(() => cleanup(), 500); //make sure we always clean up
 
+    if (!this.terminalInput || !this.#terminalInputProps) throw new Error("Terminal input is undefined");
+
     this.terminalInput.value = cmd;
+    //@ts-expect-error accessing private react props
     this.terminalInput[this.#terminalInputProps].onChange({ target: this.terminalInput });
+    //@ts-expect-error accessing private react props
     this.terminalInput[this.#terminalInputProps].onKeyDown({ key: 'Tab', preventDefault: () => null });
 
     await sleep(0); //let handlers do their thing and update values
@@ -130,7 +146,7 @@ export class Terminal extends EventTarget {
       .find(d => d.innerHTML.includes('Possible autocomplete candidates:'));
 
     const autoComplete = tooltip ?
-      tooltip.firstElementChild.lastElementChild.textContent.split(' ') :
+      tooltip.firstElementChild!.lastElementChild!.textContent!.split(' ') :
       [this.terminalInput.value];
 
     return autoComplete;

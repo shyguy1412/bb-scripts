@@ -17,6 +17,8 @@ export function Desktop() {
     return () => clearTimeout(timeout);
   });
 
+  const explorerScript = config.get('explorer');
+
   return <div className='plasma-desktop'>
     <DoubleClickFileContext.Provider value={(e, { type, name }) => {
       switch (type) {
@@ -24,7 +26,7 @@ export function Desktop() {
           ns.run(name);
           break;
         case 'folder':
-            ns.run(config.get('explorer'), undefined, `home/${name}`);
+          explorerScript && ns.run(explorerScript, undefined, `home/${name}`);
           break;
         case 'txt':
           ns.alert(readFile(ns, `home/${name}`));
