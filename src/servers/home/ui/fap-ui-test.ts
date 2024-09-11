@@ -1,11 +1,7 @@
-import { createBinding, FapComponents } from '@/FapUI';
-import { FapTable } from '@/FapUI/Table';
+import { createBinding, FapComponent, FapComponents, FapElement } from '@/lib/FapUI';
+import { FapTable } from '@/lib/FapUI/Table';
 
-import _style from '@/css/FapTableTest.css' with {type: 'text'};
 import { getPurchasedServers } from '@/lib/Network';
-import { create } from 'domain';
-const style: string = _style as any; //TS typing shenanigans
-
 
 export async function main(ns: NS) {
   ns.disableLog('ALL');
@@ -98,7 +94,7 @@ function Counter() {
     Div
   } = FapComponents;
 
-  const WrappedDiv = (count: number) => Div(count)
+  const WrappedDiv:FapComponent = (count) => Div(count)
     .Style({ 'background': 'green' })
     .onClick(() => setCount(getCount() + 1));
 
@@ -121,7 +117,7 @@ function TableTest(ns: NS) {
     getPurchasedServers(ns).map(s => s.hostname)
   ] as [string[], string[]];
 
-  const TableWithClass = (...args: Parameters<typeof FapTable>) => FapTable(...args)
+  const TableWithClass: typeof FapTable = (...args: Parameters<typeof FapTable>) => FapTable(...args)
     .Class('fap-table')
     .CellPadding('5px')
     .onClick(() => setTranspose(!getTranspose()));
@@ -132,7 +128,6 @@ function TableTest(ns: NS) {
   const [ServerTable, [, setData], [, setHeader], [getTranspose, setTranspose]] = createBinding(TableWithClass, data, header, false);
 
   ns.printRaw([
-    Style(style),
     ServerTable
   ]);
 

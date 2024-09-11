@@ -1,4 +1,4 @@
-import { BatchManager } from "@/BatchManager";
+import { BatchManager } from "@/apps/BatchManager";
 import { createWindowApp } from "@/lib/WindowApp";
 import React from "react";
 

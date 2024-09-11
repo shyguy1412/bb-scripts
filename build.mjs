@@ -69,8 +69,8 @@ const TextPlugin = {
   }
 };
 
-
-const createContext = async () => await context({
+/** @type {import('esbuild').BuildOptions} */
+export const config = {
   entryPoints: [
     'src/servers/**/*.js',
     // 'src/servers/**/*.jsx',
@@ -113,9 +113,9 @@ const createContext = async () => await context({
   // minify: true,
   keepNames: true,
   logLevel: 'debug',
-});
+};
 
-const ctx = await createContext();
+const ctx = await context(config);
 ctx.watch();
 // await ctx.rebuild();
 // ctx.dispose();

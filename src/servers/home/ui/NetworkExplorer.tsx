@@ -1,4 +1,4 @@
-import { NetworkExplorer } from "@/NetworkExplorer";
+import { NetworkExplorer } from "@/apps/NetworkExplorer";
 import { createWindowApp } from "@/lib/WindowApp";
 import React from "react";
 

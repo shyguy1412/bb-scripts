@@ -1,4 +1,4 @@
-import { ServerViewer } from "@/ServerViewer";
+import { ServerViewer } from "@/apps/ServerViewer";
 import { createWindowApp } from "@/lib/WindowApp";
 import React from "react";
 

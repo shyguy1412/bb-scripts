@@ -70,3 +70,4 @@ export function createWindowApp(ns: NS, pid?: string | number) {
   };
 }
 
+export { NetscriptContext, CleanupContext, TerminateContext } from '@/lib/Context';

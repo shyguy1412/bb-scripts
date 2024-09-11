@@ -1,4 +1,4 @@
-import { Dolphin } from '@/Dolphin';
+import { Dolphin } from '@/apps/Dolphin';
 import { createWindowApp } from '@/lib/WindowApp';
 import React from 'react';
 

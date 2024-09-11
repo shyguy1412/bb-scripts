@@ -1,4 +1,4 @@
-import { ServerManager } from '@/ServerManager';
+import { ServerManager } from '@/apps/ServerManager';
 import { createWindowApp } from '@/lib/WindowApp';
 import React from 'react';
 

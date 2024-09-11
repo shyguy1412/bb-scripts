@@ -1,4 +1,4 @@
-import { Konsole } from '@/Konsole';
+import { Konsole } from '@/apps/Konsole';
 import { createWindowApp } from '@/lib/WindowApp';
 import React, { } from 'react';
 
