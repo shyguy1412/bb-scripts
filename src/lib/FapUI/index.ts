@@ -24,25 +24,27 @@ export type DataAttributes<T> = {
   [key in `Data${Capitalize<string>}`]: AttributeSetter<T>
 };
 
-export type FapElement<T> = React.JSX.Element & FapEvents<T> & FapModifier<T> & Attributes<T>;
+export type FapContent = React.ReactNode | React.FunctionComponent<any> | FapContent[];
 
-export type FapComponent<T = any> = (content?: React.ReactNode) => FapElement<T>;
+export type FapElement<T> = React.JSX.Element & FapEvents<T> & FapModifier<T> & Attributes<T>;
+export type FapComponent<T = any> = (content?: FapContent) => FapElement<T>;
 
 export type FapComponents = {
   [key in Capitalize<keyof HTMLElementTagNameMap>]: FapComponent<HTMLElementTagNameMap[Uncapitalize<key>]>
 } & {
-  'Fragment': (content?: React.ReactNode) => React.JSX.Element;
+  'Fragment': (content?: FapContent) => React.JSX.Element;
+  'RawElement': <T extends Element>(el: T) => React.JSX.Element;
 };
 
 export type FapModifier<T> = {
-  Content: (newContent: React.ReactNode) => FapElement<T>;
+  Content: (newContent: FapContent) => FapElement<T>;
   Style: (style: React.CSSProperties) => FapElement<T>;
 };
 
 export type FapState<T> = {
   events: { [key in ReactEventType]?: (ev: ReactEvent<key>) => void },
   attributes: { [key in Uncapitalize<keyof Attributes<T>>]?: string };
-  content: React.ReactNode,
+  content: FapContent,
   style: React.CSSProperties,
 };
 
@@ -73,14 +75,35 @@ function isModifierProp(p: string): p is keyof FapModifier<any> {
   return p == 'Content' || p == 'Style';
 }
 
+const recursivePrepareContent = (content: FapContent): React.ReactNode => {
+  if (typeof content == 'function') {
+    return React.createElement(content);
+  }
+  if (typeof content == 'object' && content instanceof Array) {
+    return content.map(recursivePrepareContent);
+  }
+  return content;
+};
+
 export const FapComponents = new Proxy({} as FapComponents, {
   get(_, p) {
     if (typeof p == 'symbol') return undefined;
     if (!/^[A-Z]/.test(p)) return undefined;
 
-    if (p == 'Fragment') return (content?: React.ReactNode) => React.createElement(React.Fragment, {}, content);
+    if (p == 'Fragment')
+      return (content?: React.ReactNode) => React.createElement(
+        React.Fragment,
+        {},
+        recursivePrepareContent(content)
+      );
 
-    return (content?: React.ReactNode) => {
+    if (p == 'RawElement') return (child: Element) =>
+      React.createElement(
+        'span',
+        { ref: (el: HTMLSpanElement) => el?.parentElement?.replaceChild(child, el) }
+      );
+
+    return (content?: FapContent) => {
 
       const { state, ...fap } = useFap<FapState<any>>({
         events: {},
@@ -89,12 +112,16 @@ export const FapComponents = new Proxy({} as FapComponents, {
         style: {}
       });
 
-      const Component = () => {
+      const Component = ({ _ref }: any) => {
         const {
           events, attributes, content, style
         } = fap.bind();
 
-        return React.createElement(p.toLocaleLowerCase(), { ...events, ...attributes, style }, content);
+        return React.createElement(
+          p.toLocaleLowerCase(),
+          { ...events, ...attributes, style, ref: _ref },
+          recursivePrepareContent(content)
+        );
       };
 
       return new Proxy(
@@ -110,16 +137,20 @@ export const FapComponents = new Proxy({} as FapComponents, {
             }
 
             if (isModifierProp(p)) {
-              return (value: any) => (state[p.toLocaleLowerCase() as Lowercase<typeof p>] = value, receiver);
+              const modifier = p.toLocaleLowerCase() as Lowercase<typeof p>;
+              return (value: any) => (state[modifier] = value, receiver);
             }
 
             if (p.startsWith('Data') || p.startsWith('Aria')) {
-              const attr = p.replace(/(?<=.)[A-Z]/g, (s) => `-${s.toLocaleLowerCase()}`).toLocaleLowerCase() as Uncapitalize<keyof Attributes<any>>;
+              const attr = p
+                .replace(/(?<=.)[A-Z]/g, (s) => `-${s.toLocaleLowerCase()}`)
+                .toLocaleLowerCase() as Uncapitalize<keyof Attributes<any>>;
               return (value: any) => (state['attributes'][attr] = value, receiver);
             }
 
             if (/^[A-Z]/.test(p)) {
-              return (value: any) => (state['attributes'][p.toLocaleLowerCase() as Uncapitalize<keyof Attributes<any>>] = value, receiver);
+              const attribute = p.toLocaleLowerCase() as Uncapitalize<keyof Attributes<any>>;
+              return (value: any) => (state['attributes'][attribute] = value, receiver);
             }
 
             return Reflect.get(target, p);
@@ -129,7 +160,6 @@ export const FapComponents = new Proxy({} as FapComponents, {
     };
   },
 });
-
 
 type Bind<T> = Required<{
   [key in keyof T]: [
