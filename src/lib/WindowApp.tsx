@@ -18,14 +18,13 @@ export function createWindowApp(ns: NS, pid?: string | number) {
         ns.printRaw(<span data-pid={ns.pid}></span>);
 
         await ns.sleep(0); // give up control so DOM can update
-
         const root = findTailRoot(document.querySelector(`span[data-pid="${pid ?? ns.pid}"]`)!);
 
         const WindowWrapper = () => {
 
           const theme = ns.ui.getTheme();
           Object.entries(theme).forEach(([key, value]) => {
-            root.style.setProperty(`--${key}`, value!);
+            root.parentElement!.parentElement!.style.setProperty(`--${key}`, value!);
           });
 
           root.style.flexDirection = 'unset';
@@ -72,11 +71,16 @@ export function createWindowApp(ns: NS, pid?: string | number) {
 
 export const mainWrapper = (Component: React.FunctionComponent) => {
   return (ns: NS) => {
-    const windowApp = createWindowApp(ns);
+    console.clear()
+    try {
+      const windowApp = createWindowApp(ns);
 
-    ns.atExit(() => windowApp.cleanup());
+      ns.atExit(() => windowApp.cleanup());
 
-    return windowApp.mount(<Component></Component>);
+      return windowApp.mount(<Component></Component>);
+    } catch (error) {
+      console.error(error);
+    }
   };
 };
 

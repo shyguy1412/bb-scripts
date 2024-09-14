@@ -1,4 +1,4 @@
-import { ConfigContext } from '../main';
+import { ConfigContext, PLASMA_CONFIG_FILE } from '../main';
 import { CleanupContext, NetscriptContext, TerminateContext } from '@/lib/Context';
 import { sleep } from '@/lib/System';
 import { Terminal } from '@/lib/Terminal';
@@ -46,7 +46,7 @@ export function HomeMenu({ }: Props) {
 
     <span className='plasma-button plasma-box-top' onClick={() => {
       const term = new Terminal(ns);
-      term.exec('home;nano .plasmaconf.txt');
+      term.exec(`home;nano ${PLASMA_CONFIG_FILE}`);
       term.cleanup();
     }}>
       <FontAwesomeIcon icon={faCog}></FontAwesomeIcon>

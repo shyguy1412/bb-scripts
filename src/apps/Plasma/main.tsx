@@ -4,8 +4,6 @@ import { DesktopEnviroment } from './DesktopEnviroment';
 import React, { createContext } from 'react';
 import { CleanupContext, ContextCollection, NetscriptContext, TerminateContext } from '@/lib/Context';
 
-export const CONFIG = '.plasmaconf.txt';
-
 type PlasmaConfig = Partial<{
   homeapps: string[];
   terminal: string;
@@ -20,7 +18,7 @@ type ConfigWrapper = {
 
 // @ts-expect-error
 export const ConfigContext = createContext<ConfigWrapper>(null);
-
+export const PLASMA_CONFIG_FILE = '.plasmaconf.json';
 
 export async function Plasma(ns: NS) {
 
@@ -29,8 +27,8 @@ export async function Plasma(ns: NS) {
     throw new Error('Plasma can not run on servers');
   }
 
-  if (!ns.fileExists('.plasmaconf.txt')) {
-    ns.write('.plasmaconf.txt', JSON.stringify({
+  if (!ns.fileExists(PLASMA_CONFIG_FILE)) {
+    ns.write(PLASMA_CONFIG_FILE, JSON.stringify({
       explorer: 'Dolphin.js',
       terminal: 'Konsole.js',
       homeapps: [],
@@ -52,13 +50,13 @@ export async function Plasma(ns: NS) {
       .filter(el => !el.classList.contains('react-draggable') && el.id != '#unclickable')[0];
 
     const config: ConfigWrapper = {
-      __data: JSON.parse(ns.read(CONFIG)) as PlasmaConfig,
+      __data: JSON.parse(ns.read(PLASMA_CONFIG_FILE)) as PlasmaConfig,
       get: function <T extends keyof PlasmaConfig>(value: T): PlasmaConfig[T] {
         return this.__data[value];
       },
       set: function <T extends keyof PlasmaConfig>(key: T, value: PlasmaConfig[T]): void {
         this.__data[key] = value;
-        ns.write(CONFIG, JSON.stringify(this.__data));
+        ns.write(PLASMA_CONFIG_FILE, JSON.stringify(this.__data));
       }
     };
 
