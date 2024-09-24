@@ -54,7 +54,7 @@ export type Fapped<T> = {
   render?: () => void;
 };
 
-function useFap<T extends {}>(state: T): Fapped<T> {
+export function useFap<T extends {}>(state: T): Fapped<T> {
   const fap: Fapped<T> = {
     state: new Proxy(state, {
       set(target, p, newValue) {
@@ -75,7 +75,7 @@ function isModifierProp(p: string): p is keyof FapModifier<any> {
   return p == 'Content' || p == 'Style';
 }
 
-const recursivePrepareContent = (content: FapContent): React.ReactNode => {
+export const recursivePrepareContent = (content: FapContent): React.ReactNode => {
   if (typeof content == 'function') {
     return React.createElement(content);
   }
@@ -183,4 +183,16 @@ export function createBinding<T extends (...args: any[]) => React.ReactNode, A e
   ]) as Bind<A>;
 
   return [React.createElement(Wrapper), ...binding] as const;
+}
+
+type RawMethods = { [key: string]: (...args: any[]) => void; };
+export type WrappedMethods<C extends () => React.ReactNode, M extends RawMethods> = { [key in keyof M]: (...args: Parameters<M[key]>) => C & WrappedMethods<C, M> };
+export type WrappedComponent<C extends () => React.ReactNode, M extends RawMethods> = C & WrappedMethods<C, M>;
+export function FapWrap<C extends () => React.ReactNode, M extends RawMethods>(component: C, methods: M) {
+  const wrappedMethods = Object.entries(methods).reduce((prev, [key, value]) => {
+    prev[key] = (...args:any) => (value(...args), proxy);
+    return prev;
+  }, {} as any) as WrappedMethods<C, M>;
+  const proxy = new Proxy(component, { get: (t, p) => Reflect.get(wrappedMethods, p) ?? Reflect.get(t, p) }) as C & WrappedMethods<C, M>;
+  return proxy;
 }
