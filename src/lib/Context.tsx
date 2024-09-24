@@ -7,6 +7,8 @@ export const NetscriptContext = createContext<NS>(null);
 export const CleanupContext = createContext<(f: () => void) => void>(null);
 //@ts-expect-error
 export const TerminateContext = createContext<() => void>(null);
+//@ts-expect-error
+export const TailRootContext = createContext<HTMLElement>(null);
 
 export type ContextProvider<T> = {
   context: React.Context<T>,

@@ -1,5 +1,5 @@
 import { findTailRoot, watchElForDeletion } from '@/lib/BitburnerDOM';
-import { NetscriptContext, CleanupContext, TerminateContext, ContextCollection } from '@/lib/Context';
+import { NetscriptContext, CleanupContext, TerminateContext, ContextCollection, TailRootContext } from '@/lib/Context';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
@@ -52,6 +52,10 @@ export function createWindowApp(ns: NS, pid?: string | number) {
           {
             context: CleanupContext,
             value: (f: () => void) => cleanupCallbacks.push(f)
+          },
+          {
+            context: TailRootContext,
+            value: root
           }
         ];
 
@@ -71,7 +75,7 @@ export function createWindowApp(ns: NS, pid?: string | number) {
 
 export const mainWrapper = (Component: React.FunctionComponent) => {
   return (ns: NS) => {
-    console.clear()
+    console.clear();
     try {
       const windowApp = createWindowApp(ns);
 
