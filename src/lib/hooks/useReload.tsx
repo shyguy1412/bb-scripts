@@ -13,9 +13,6 @@ export function useReload() {
   const addCleanup = useContext(CleanupContext);
   const root = useContext(TailRootContext);
 
-  console.log({root});
-  
-
   const getTitlebarElement = (action: HTMLElement | null) => {
     let el = action;
     while (!el?.matches('.react-resizable') && el?.parentElement) el = el.parentElement;
