@@ -58,8 +58,9 @@ export function useFap<T extends {}>(state: T): Fapped<T> {
   const fap: Fapped<T> = {
     state: new Proxy(state, {
       set(target, p, newValue) {
+        const set = Reflect.set(target, p, newValue)
         if (fap.render && p != 'render') fap.render();
-        return Reflect.set(target, p, newValue);
+        return set;
       },
     }),
     bind: () => (fap.render = useReducer(_ => ({}), {})[1], fap.state)
