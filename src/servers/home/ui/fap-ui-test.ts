@@ -1,5 +1,5 @@
 import { createBinding, FapComponent, FapComponents, FapElement } from '@/lib/FapUI';
-import { FapTable } from '@/lib/FapUI/Table';
+import { FapTable } from '@/lib/FapUI/gui/Table';
 
 import { getPurchasedServers } from '@/lib/Network';
 

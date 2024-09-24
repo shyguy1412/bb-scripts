@@ -1,7 +1,7 @@
 import { createCommand } from "@/lib/Commander";
 import { AutocompleteData, Server } from "NetscriptDefinitions";
 import { createBinding } from "@/lib/FapUI";
-import { AsciiTable } from "@/lib/FapUI/Table";
+import { AsciiTable } from "@/lib/FapUI/gui/Table";
 
 const SERVER_PROPS = [
   'hostname',
