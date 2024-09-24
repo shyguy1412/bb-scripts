@@ -1,5 +1,5 @@
 import { FapComponents } from "@/lib/FapUI";
-import { TUIGrid, TUIGridCell } from "@/lib/FapUI/tui/Grid";
+import { TUIGrid, TUIGridCell } from "@/lib/FapUI/tui/TUIGrid";
 import { CharCountContext, TUI } from "@/lib/FapUI/tui/TUIContainer";
 import { useReload } from "@/lib/hooks/useReload";
 import { createWindowApp } from "@/lib/WindowApp";
