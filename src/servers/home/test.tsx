@@ -1,42 +1,66 @@
-import { FapComponents } from "@/lib/FapUI";
-import { TUIGrid, TUIGridCell } from "@/lib/FapUI/tui/TUIGrid";
+import { FapComponents, FapWrap, useFap } from "@/lib/FapUI";
+import { TUIGrid } from "@/lib/FapUI/tui/TUIGrid";
 import { CharCountContext, TUI } from "@/lib/FapUI/tui/TUIContainer";
 import { useReload } from "@/lib/hooks/useReload";
 import { createWindowApp } from "@/lib/WindowApp";
 import { useContext } from "react";
+import { TUIButton } from "@/lib/FapUI/tui/TUIButton";
 
 export async function main(ns: NS) {
-  const { Fragment } = FapComponents;
+  try {
 
-  console.clear();
+    const { Fragment } = FapComponents;
 
-  const windowApp = createWindowApp(ns);
+    console.clear();
 
-  ns.atExit(() => windowApp.cleanup());
+    const windowApp = createWindowApp(ns);
 
-  return windowApp.mount(
-    Fragment([
-      () => (useReload(), null),
-      TUI([
-        TUIGrid([
-          TUIGridCell(FillSpaceWith('#')),
-          TUIGridCell(FillSpaceWith('X')),
-          TUIGridCell(FillSpaceWith('O')),
-        ])
-          .SetLayout([
-            ['a', 'a', '.'],
-            ['b', 'c', 'c'],
-            ['b', '.', '.'],
+    ns.atExit(() => windowApp.cleanup());
+
+    const label = 'Click Me!';
+
+    const testbutton = () => TUIButton(label)
+      .onMouseOver((el) => {
+        el.Style({ background: 'var(--primary)', color: 'var(--backgroundprimary)', cursor: 'pointer' });
+      })
+      .onMouseOut((el) => {
+        el.Style({});
+      })
+      .onMouseDown((el) => {
+        el.Style({ cursor: 'pointer' });
+      })
+      .onMouseUp((el) => {
+        el.Style({ background: 'var(--primary)', color: 'var(--backgroundprimary)', cursor: 'pointer' });
+      })
+      .onClick((el) => {
+        el.Content('Clicked!');
+      });
+
+    return windowApp.mount(
+      Fragment([
+        () => (useReload(), null),
+        TUI([
+          TUIGrid([
+            [
+                testbutton
+            ],
+            FillSpaceWith('X'),
+            FillSpaceWith('O'),
           ])
+            .SetLayout([
+              ['a', 'a', '.'],
+              ['b', 'c', 'c'],
+              ['b', '.', '.'],
+            ])
+        ])
       ])
-    ])
-  );
+    );
+  } catch (e) { console.error(e); }
 }
 
 function FillSpaceWith(name: string) {
-  const { Div } = FapComponents;
   return () => {
     const { width, height } = useContext(CharCountContext);
-    return Array(height).fill(null).map(_ => Div(Array(width).fill(name)));
+    return Array(width * height).fill(name);//.map(_ => Div(Array(width).fill(name)));
   };
 }
