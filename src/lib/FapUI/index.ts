@@ -8,7 +8,7 @@ export type FapEvents<T> = {
 };
 
 type AttributeSetter<T> = (attr: string | number | boolean) => FapElement<T>;
-export type Attributes<T> = HTMLAttributes<T> & AriaAttributes<T> & DataAttributes<T>;
+export type Attributes<T> = Omit<HTMLAttributes<T> & AriaAttributes<T> & DataAttributes<T>, keyof FapModifier<T>>;
 
 type HTMLAttributeKeys<T> = Capitalize<keyof Omit<React.AllHTMLAttributes<T>, keyof FapEvents<T> | keyof React.AriaAttributes | 'className'> | 'class'>;
 export type HTMLAttributes<T> = Required<{
@@ -26,8 +26,18 @@ export type DataAttributes<T> = {
 
 export type FapContent = React.ReactNode | React.FunctionComponent<any> | FapContent[];
 
+type FapOverloadMap<T> = {
+  [key in keyof FapElement<T>]?: FapElement<T>[key] extends ((...args: infer P) => FapElement<T>) ?
+  (state: FapState<T>, ...args: P) => void :
+  never
+};
+
+export type FapOverload<T> = {
+  Overload(map: FapOverloadMap<T>): FapComponent<T>;
+};
+
 export type FapElement<T> = React.JSX.Element & FapEvents<T> & FapModifier<T> & Attributes<T>;
-export type FapComponent<T = any> = (content?: FapContent) => FapElement<T>;
+export type FapComponent<T = any> = ((content?: FapContent) => FapElement<T>) & FapOverload<T>;
 
 export type FapComponents = {
   [key in Capitalize<keyof HTMLElementTagNameMap>]: FapComponent<HTMLElementTagNameMap[Uncapitalize<key>]>
@@ -58,7 +68,7 @@ export function useFap<T extends {}>(state: T): Fapped<T> {
   const fap: Fapped<T> = {
     state: new Proxy(state, {
       set(target, p, newValue) {
-        const set = Reflect.set(target, p, newValue)
+        const set = Reflect.set(target, p, newValue);
         if (fap.render && p != 'render') fap.render();
         return set;
       },
@@ -86,6 +96,65 @@ export const recursivePrepareContent = (content: FapContent): React.ReactNode =>
   return content;
 };
 
+const GenericFapComponent = <T extends FapElement<any>>(tag: string, overload: FapOverloadMap<T>, content?: FapContent) => {
+  const { state, ...fap } = useFap<FapState<any>>({
+    events: {},
+    attributes: {},
+    content,
+    style: {}
+  });
+
+  const Component = ({ _ref }: any) => {
+    const {
+      events, attributes, content, style
+    } = fap.bind();
+
+    return React.createElement(
+      tag.toLocaleLowerCase(),
+      { ...events, ...attributes, style, ref: _ref },
+      recursivePrepareContent(content)
+    );
+  };
+
+  return new Proxy(
+    React.createElement(Component),
+    {
+      get(target, p: keyof FapElement<any>, receiver) {
+        if (typeof p == 'symbol') {
+          return Reflect.get(target, p);
+        }
+
+        if (overload[p]) {
+          return (...args: any[]) => (overload[p]!(state, ...args), receiver);
+        }
+
+        if (isEventHandler(p)) {
+          return (cb: any) => (state['events'][p] = cb.bind(undefined, receiver), receiver);
+        }
+
+        if (isModifierProp(p)) {
+          const modifier = p.toLocaleLowerCase() as Lowercase<typeof p>;
+          return (value: any) => (state[modifier] = value, receiver);
+        }
+
+        if (p.startsWith('Data') || p.startsWith('Aria')) {
+          const attr = p
+            .replace(/(?<=.)[A-Z]/g, (s) => `-${s.toLocaleLowerCase()}`)
+            .toLocaleLowerCase() as Uncapitalize<keyof Attributes<any>>;
+          return (value: any) => (state['attributes'][attr] = value, receiver);
+        }
+
+        if (/^[A-Z]/.test(p)) {
+          const attribute = p.toLocaleLowerCase() as Uncapitalize<keyof Attributes<any>>;
+          return (value: any) => (state['attributes'][attribute] = value, receiver);
+        }
+
+        return Reflect.get(target, p);
+      },
+    }
+  );
+};
+
 export const FapComponents = new Proxy({} as FapComponents, {
   get(_, p) {
     if (typeof p == 'symbol') return undefined;
@@ -104,61 +173,9 @@ export const FapComponents = new Proxy({} as FapComponents, {
         { ref: (el: HTMLSpanElement) => el?.parentElement?.replaceChild(child, el) }
       );
 
-    return (content?: FapContent) => {
-
-      const { state, ...fap } = useFap<FapState<any>>({
-        events: {},
-        attributes: {},
-        content,
-        style: {}
-      });
-
-      const Component = ({ _ref }: any) => {
-        const {
-          events, attributes, content, style
-        } = fap.bind();
-
-        return React.createElement(
-          p.toLocaleLowerCase(),
-          { ...events, ...attributes, style, ref: _ref },
-          recursivePrepareContent(content)
-        );
-      };
-
-      return new Proxy(
-        React.createElement(Component),
-        {
-          get(target, p: keyof FapElement<any>, receiver) {
-            if (typeof p == 'symbol') {
-              return Reflect.get(target, p);
-            }
-
-            if (isEventHandler(p)) {
-              return (cb: any) => (state['events'][p] = cb.bind(undefined, receiver), receiver);
-            }
-
-            if (isModifierProp(p)) {
-              const modifier = p.toLocaleLowerCase() as Lowercase<typeof p>;
-              return (value: any) => (state[modifier] = value, receiver);
-            }
-
-            if (p.startsWith('Data') || p.startsWith('Aria')) {
-              const attr = p
-                .replace(/(?<=.)[A-Z]/g, (s) => `-${s.toLocaleLowerCase()}`)
-                .toLocaleLowerCase() as Uncapitalize<keyof Attributes<any>>;
-              return (value: any) => (state['attributes'][attr] = value, receiver);
-            }
-
-            if (/^[A-Z]/.test(p)) {
-              const attribute = p.toLocaleLowerCase() as Uncapitalize<keyof Attributes<any>>;
-              return (value: any) => (state['attributes'][attribute] = value, receiver);
-            }
-
-            return Reflect.get(target, p);
-          },
-        }
-      );
-    };
+    const FapComponent = GenericFapComponent.bind(undefined, p, {}) as FapComponent<any>;
+    FapComponent.Overload = (map) => GenericFapComponent.bind(undefined, p, map) as FapComponent<any>;
+    return FapComponent;
   },
 });
 
