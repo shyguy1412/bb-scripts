@@ -1,4 +1,4 @@
-import { FapContent, recursivePrepareContent } from "@/lib/FapUI";
+import { FapComponent, FapContent, FapElement, recursivePrepareContent } from "@/lib/FapUI";
 import { sleep } from "@/lib/System";
 import React, { Children, createContext, PropsWithChildren, RefCallback, useContext, useEffect, useRef, useState } from "react";
 
@@ -20,13 +20,13 @@ export function TUIContainer({ children }: TUIContainerProps) {
   const [ref, em] = useWidthReference();
 
   return <div
-  style={{
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%',
-    height: '100%',
-  }}
+    style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      width: '100%',
+      height: '100%',
+    }}
   >
     <div ref={ref} style={{
       display: 'flex',
