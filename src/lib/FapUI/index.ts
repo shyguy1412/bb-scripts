@@ -187,13 +187,22 @@ export function createBinding<T extends (...args: any[]) => React.ReactNode, A e
 }
 
 type RawMethods = { [key: string]: (...args: any[]) => void; };
-export type WrappedMethods<C extends () => React.ReactNode, M extends RawMethods> = { [key in keyof M]: (...args: Parameters<M[key]>) => C & WrappedMethods<C, M> };
-export type WrappedComponent<C extends () => React.ReactNode, M extends RawMethods> = C & WrappedMethods<C, M>;
-export function FapWrap<C extends () => React.ReactNode, M extends RawMethods>(component: C, methods: M) {
-  const wrappedMethods = Object.entries(methods).reduce((prev, [key, value]) => {
-    prev[key] = (...args:any) => (value(...args), proxy);
-    return prev;
-  }, {} as any) as WrappedMethods<C, M>;
-  const proxy = new Proxy(component, { get: (t, p) => Reflect.get(wrappedMethods, p) ?? Reflect.get(t, p) }) as C & WrappedMethods<C, M>;
+export type WrappedMethods<C extends () => React.ReactNode, M extends RawMethods | FapElement<any>> = {
+  [key in keyof M]: M extends RawMethods ?
+  (...args: Parameters<M[key]>) => C & WrappedMethods<C, M> :
+  M[key]
+};
+
+export type WrappedComponent<C extends () => React.ReactNode, M extends RawMethods | FapElement<any>> = C & WrappedMethods<C, M>;
+
+export function FapWrap<C extends () => React.ReactNode, M extends RawMethods | FapElement<any>>(component: C, methods: M) {
+  const getMethod = (p: string | symbol) => {
+    const m = methods[p as keyof M];
+    if (typeof m == 'function') {
+      return (...args: any) => (m(...args), proxy);
+    }
+    return undefined;
+  };
+  const proxy = new Proxy(component.bind(undefined), { get: (t, p) => getMethod(p) ?? Reflect.get(t, p) }) as C & WrappedMethods<C, M>;
   return proxy;
 }
