@@ -1,10 +1,10 @@
 import React, { useReducer } from 'react';
 
 type ReactEventType = keyof Omit<React.DOMAttributes<any>, 'children' | 'dangerouslySetInnerHTML'>;
-type ReactEvent<K extends ReactEventType> = Parameters<NonNullable<React.DOMAttributes<any>[K]>>[0];
+type ReactEvent<K extends ReactEventType, T> = Parameters<NonNullable<React.DOMAttributes<T>[K]>>[0];
 
 export type FapEvents<T> = {
-  [key in ReactEventType]: (cb: (el: FapElement<T>, ev: ReactEvent<key>) => void) => FapElement<T>;
+  [key in ReactEventType]: (cb: (el: FapElement<T>, ev: ReactEvent<key, T>) => void) => FapElement<T>;
 };
 
 type AttributeSetter<T> = (attr: string | number | boolean) => FapElement<T>;
@@ -52,7 +52,7 @@ export type FapModifier<T> = {
 };
 
 export type FapState<T> = {
-  events: { [key in ReactEventType]?: (ev: ReactEvent<key>) => void },
+  events: { [key in ReactEventType]?: (ev: ReactEvent<key, T>) => void },
   attributes: { [key in Uncapitalize<keyof Attributes<T>>]?: string };
   content: FapContent,
   style: React.CSSProperties,
