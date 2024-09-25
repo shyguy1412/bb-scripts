@@ -8,7 +8,7 @@ export function createWindowApp(ns: NS, pid?: string | number) {
   return {
     cleanup: () => {
       cleanupCallbacks.forEach(c => c());
-      ns.tprint('Terminated');
+      // ns.tprint('Terminated');
       ns.closeTail();
     },
     async mount(component: React.JSX.Element) {
