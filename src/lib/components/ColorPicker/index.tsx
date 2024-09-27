@@ -40,7 +40,8 @@ export function ColorPicker({ initialColor, ...attr }: Props) {
     style={{
       width: '320px',
       display: 'flex',
-      flexDirection: 'column'
+      flexDirection: 'column',
+      userSelect: 'none'
     }}
     onKeyDown={(e) => { e.stopPropagation(); }}
   >
@@ -79,14 +80,7 @@ export function useSync<T>(set: (arg: T) => void, [toSet, toSync]: [T, T], l = f
   }
   
   if (Object.is(prev, toSet)) return false;
-  
 
-  // if (prev == toSet) {
-  //   return false;
-  // }
-  // l && console.log('SYNCING TO', { toSet });
-  // set(toSet);
-  // setPrev(toSet);
   return false;
 }
 

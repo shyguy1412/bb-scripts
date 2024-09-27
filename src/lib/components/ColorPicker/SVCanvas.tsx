@@ -1,5 +1,5 @@
-import { HSV, RGB, useSync } from "@/lib/components/ColorPicker";
-import React, { Dispatch, MouseEvent, SetStateAction, useEffect, useMemo, useState } from "react";
+import { HSV, useSync } from "@/lib/components/ColorPicker";
+import React, { MouseEvent, useMemo, useState } from "react";
 
 type Props = {
   sat: number;

@@ -1,5 +1,5 @@
 import { useSync } from "@/lib/components/ColorPicker";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 
 type Props = {
   digitLabel: 'R' | 'G' | 'B',

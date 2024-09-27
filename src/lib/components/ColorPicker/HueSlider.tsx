@@ -1,5 +1,4 @@
-import { useSync } from "@/lib/components/ColorPicker";
-import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
+import React, { useEffect } from "react";
 
 type Props = {
   hue: number;
