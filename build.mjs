@@ -99,11 +99,11 @@ export const config = {
       distribute: {
         // 'build/all': 'all',
         // 'all': 'all',
-      },
+      }, 
       // usePolling: true,
       // pollingInterval: 100, 
       pushOnConnect: true,
-      remoteDebugging: true
+      // remoteDebugging: true
     })
   ],
   bundle: true,

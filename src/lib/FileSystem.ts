@@ -7,13 +7,15 @@ export const ALLOWED_FILETYPES = [
 export function getAllCodingContracts(ns: NS) {
   'use ls';
   const files: { name: string, type: 'file'; }[] = [];
-  for (const server of getAllServers(ns).filter(s => s != 'home')) {
+  for (const server of getAllServers(ns)) {
     for (const file of ns.ls(server)) {
       if (file.endsWith('.cct')) {
         files.push({ name: file, type: 'file' });
       }
     }
   }
+  console.log(`${files.length} coding contracts found`);
+  
   return files;
 }
 

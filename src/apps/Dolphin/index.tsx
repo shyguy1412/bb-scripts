@@ -3,7 +3,7 @@ import Style from './Dolphin.css';
 import { ServerSection } from './ServerSection';
 import { List } from '@/lib/components/List';
 import { getAllServers } from '@/lib/Network';
-import React, { Dispatch, SetStateAction, createContext, useContext, useEffect, useState } from 'react';
+import React, { Dispatch, SetStateAction, createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { BreadCrumbs } from './BreadCrumbs';
 import { mkdir, readDir, readFile, writeFile } from '@/lib/FileSystem';
 import { DoubleClickFileContext } from '@/lib/components/FileTile';
@@ -11,6 +11,7 @@ import { NetscriptContext } from '@/lib/Context';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { getAllCodingContracts } from '@/lib/FileSystem';
+import { useReload } from '@/lib/hooks/useReload';
 
 // @ts-expect-error
 export const PathContext = createContext<([string, Dispatch<SetStateAction<string>>])>(null);
@@ -21,6 +22,8 @@ export function Dolphin() {
   'use getServer';
 
   const ns = useContext(NetscriptContext);
+
+  useReload();
 
   const [path, setPath] = useState<string>(ns.args[0] as string ?? ns.getHostname());
 
@@ -62,11 +65,14 @@ export function Dolphin() {
 
   const [_, reload] = useState(true); //this is just used to poll the fs since BB doesnt have fs events
   useEffect(() => {
+    if(path == '~home/coding-contracts') return;
     const timeout = setTimeout(() => reload(!_), 500); //just swapping between true/false
     return () => clearTimeout(timeout);
   });
 
-  const files = path == '~home/coding-contracts' ? getAllCodingContracts(ns) : readDir(ns, path);
+  const files = useMemo(() => path == '~home/coding-contracts' ? getAllCodingContracts(ns) : readDir(ns, path), [path]);
+  console.log('GOT FILES');
+  
   if (files)
     return <>
       <Style></Style>
