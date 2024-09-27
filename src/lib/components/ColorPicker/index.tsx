@@ -64,17 +64,30 @@ export function ColorPicker({ initialColor, ...attr }: Props) {
 export function useSync<T>(set: (arg: T) => void, [toSet, toSync]: [T, T], l = false): boolean {
   const [prev, setPrev] = useState(toSync);
   l && console.log('SYNCING', { toSet, toSync, prev });
-  if (toSet == toSync) {
+  
+  if (!Object.is(prev, toSet)) {
+    l && console.log('SYNCING TO', { toSet });
+  
+    setPrev(toSet);
+    set(toSet);
     return true;
   }
-  if (prev == toSet) {
-    setPrev(toSync);
-    return false;
+
+  if (Object.is(toSync, toSet)) {
+    l && console.log('ALREADY SYNCED');
+    return true;
   }
-  l && console.log('SYNCING TO', { toSet });
-  set(toSet);
-  setPrev(toSet);
-  return true;
+  
+  if (Object.is(prev, toSet)) return false;
+  
+
+  // if (prev == toSet) {
+  //   return false;
+  // }
+  // l && console.log('SYNCING TO', { toSet });
+  // set(toSet);
+  // setPrev(toSet);
+  return false;
 }
 
 function formatRGBtoHEX(rgb: RGB) {

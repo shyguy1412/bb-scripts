@@ -1,5 +1,5 @@
 import { HSV, RGB, useSync } from "@/lib/components/ColorPicker";
-import React, { Dispatch, MouseEvent, SetStateAction, useEffect, useState } from "react";
+import React, { Dispatch, MouseEvent, SetStateAction, useEffect, useMemo, useState } from "react";
 
 type Props = {
   sat: number;
@@ -23,24 +23,20 @@ export function SVCanvas({ hue, sat, val, setSV }: Props) {
   const vSync = useSync(setV, [val, v]);
   const sync = sSync || vSync;
 
-  // const [marker, setMarker] = useState({ x: Math.round((sat / 100) * 320), y: Math.round(((100 - val) / 100) * 128) });
-
   const setSVByEvent = (event: MouseEvent) => {
     const pos = event.currentTarget.getBoundingClientRect();
     const x = constrain(event.clientX - pos.x - MARKER_RADIUS, 0 - MARKER_RADIUS, 320 - MARKER_RADIUS);
     const y = constrain(event.clientY - pos.y - MARKER_RADIUS, 0 - MARKER_RADIUS, 128 - MARKER_RADIUS);
     const s = (x + MARKER_RADIUS) / 320 * 100;
     const v = 100 - (y + MARKER_RADIUS) / 128 * 100;
+
     setS(s);
     setV(v);
   };
 
-  // const setMarkerByEvent = (event: MouseEvent) => {
-  // };
-
-  useEffect(() => {
+  useMemo(() => {
     if (sync) return;
-    setSV({ sat: Math.floor(s), val: Math.floor(v) });
+    setSV({ sat: s, val: v });
   }, [s, v]);
 
   return <div

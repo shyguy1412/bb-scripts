@@ -10,26 +10,16 @@ type Props = {
 export function HexSelector({ hex, setRGB }: Props) {
 
   const [value, setValue] = useState(hex);
-  const [intermediateValue, setIntermediateValue] = useState(hex);
   const [error, setError] = useState(false);
   const [focus, setFocus] = useState(false);
 
-  const synced = useSync((v) => {
-    console.log('SETTING', v, value);
-    
-    if (error) return;
-    // if (v != value) setValue(v);
-  }, [hex, value], true);
-
-  console.log('render', { value, synced, error });
+  const synced = useSync(setValue, [hex, value], true);
 
   useEffect(() => console.clear(), [focus]);
 
   useMemo(() => {
-    console.log({ synced, value, focus });
-
-    if (synced) return (console.log('set error 0'), setError(false));
-    if (value.length != 3 && value.length != 6) return (console.log('set error 1', { error }), setError(true));
+    if (synced) return setError(false);
+    if (value.length != 3 && value.length != 6) return setError(true);
 
     const rgb = value.length == 3 ?
       {
@@ -43,13 +33,11 @@ export function HexSelector({ hex, setRGB }: Props) {
         b: Number.parseInt(value.slice(4, 6), 16),
       };
 
-    if (Object.values(rgb).some(v => isNaN(v))) return (console.log('set error 2'), setError(true));
+    if (Object.values(rgb).some(v => isNaN(v))) return setError(true);
 
-    (console.log('set error 3'), setError(false));
+    setError(false);
     setRGB(rgb);
   }, [value, focus]);
-
-  console.log('');
 
 
   return <div
@@ -61,20 +49,30 @@ export function HexSelector({ hex, setRGB }: Props) {
     }}
   >
     <span>HEX</span>
-    <span># <input type="text"
+    <span
       style={{
-        width: '5em',
-        appearance: 'none',
-        MozAppearance: 'none',
-        WebkitAppearance: 'none',
-        border: 'none',
-        background: 'transparent',
-        color: 'inherit'
+        display: 'flex',
+        justifyContent: 'space-between',
+        gap: '0.3em'
       }}
-      value={value}
-      onFocus={() => setFocus(true)}
-      onBlur={() => setFocus(false)}
-      onChange={({ currentTarget: { value } }) => value.length <= 6 && (console.log('change', { value }), setValue(value))}
-    /></span>
+    >
+      <span>#</span>
+      <input type="text"
+        style={{
+          width: '3.5em',
+          appearance: 'none',
+          MozAppearance: 'none',
+          WebkitAppearance: 'none',
+          border: 'none',
+          background: 'transparent',
+          color: 'inherit'
+        }}
+        value={value}
+        onFocus={() => setFocus(true)}
+        onBlur={() => setFocus(false)}
+        onChange={({ currentTarget: { value } }) => value.length <= 6 && setValue(value)}
+      />
+      <span style={{ display: 'inline-block', width: '1em', textAlign: 'right' }}>{error ? 'X' : ''}</span>
+    </span>
   </div>;
 }

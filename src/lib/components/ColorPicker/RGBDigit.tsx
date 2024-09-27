@@ -9,13 +9,16 @@ type Props = {
 export function RGBDigit({ digitLabel, digit: [digit, setDigit] }: Props) {
 
   const [value, setValue] = useState(digit);
-  const synced = useSync(setValue, [digit, value]);
+  const synced = useSync(setValue, [digit, value], digitLabel == 'R');
+
+  // digitLabel == 'R' && console.log('render', { value, synced });
 
   useMemo(() => {
-    if (synced) return;
+    // digitLabel == 'R' && console.log('memo', { value, synced });
+    if (synced || digit == value) return;
     if (value > 255) return setValue(255);
     if (value < 0) return setValue(0);
-    
+
     setDigit(value);
   }, [value]);
 
@@ -41,7 +44,7 @@ export function RGBDigit({ digitLabel, digit: [digit, setDigit] }: Props) {
         background: 'transparent',
         color: 'inherit'
       }}
-      value={value+''}
-      onChange={({ currentTarget: { value } }) => setValue(Number.parseInt((value||'0').replaceAll(/[^0-9]/g, '')))}
+      value={value + ''}
+      onChange={({ currentTarget: { value } }) => setValue(Number.parseInt((value || '0').replaceAll(/[^0-9]/g, '')))}
     /></div>;
 }
