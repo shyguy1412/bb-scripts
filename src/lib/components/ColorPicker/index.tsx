@@ -1,5 +1,5 @@
 import { ColorPreview } from "@/lib/components/ColorPicker/ColorPreview";
-import { HexSelector } from "@/lib/components/ColorPicker/HexSelector";
+import { HexInput } from "@/lib/components/ColorPicker/HexInput";
 import { HueSlider } from "@/lib/components/ColorPicker/HueSlider";
 import { RGBDigit } from "@/lib/components/ColorPicker/RGBDigit";
 import { SVCanvas } from "@/lib/components/ColorPicker/SVCanvas";
@@ -54,7 +54,7 @@ export function ColorPicker({ initialColor, ...attr }: Props) {
       }}
     >
       <ColorPreview rgb={rgb} ></ColorPreview>
-      <HexSelector hex={formatRGBtoHEX(rgb)} setRGB={(c) => setColor(c)}></HexSelector>
+      <HexInput hex={formatRGBtoHEX(rgb)} setRGB={(c) => setColor(c)}></HexInput>
       <RGBDigit digitLabel="R" digit={[rgb.r, r => setColor({ ...rgb, r })]}></RGBDigit>
       <RGBDigit digitLabel="G" digit={[rgb.g, g => setColor({ ...rgb, g })]}></RGBDigit>
       <RGBDigit digitLabel="B" digit={[rgb.b, b => setColor({ ...rgb, b })]}></RGBDigit>

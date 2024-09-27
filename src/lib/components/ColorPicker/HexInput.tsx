@@ -7,7 +7,7 @@ type Props = {
 };
 
 
-export function HexSelector({ hex, setRGB }: Props) {
+export function HexInput({ hex, setRGB }: Props) {
 
   const [value, setValue] = useState(hex);
   const [error, setError] = useState(false);
