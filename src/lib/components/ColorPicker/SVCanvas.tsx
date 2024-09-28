@@ -1,5 +1,5 @@
-import { HSV, useSync } from "@/lib/components/ColorPicker";
-import React, { MouseEvent, useMemo, useState } from "react";
+import { HSV, useSyncState } from "./";
+import React, { MouseEvent, useMemo } from "react";
 
 type Props = {
   sat: number;
@@ -16,12 +16,8 @@ function constrain(val: number, min: number, max: number) {
 
 export function SVCanvas({ hue, sat, val, setSV }: Props) {
 
-  const [s, setS] = useState(sat);
-  const [v, setV] = useState(val);
-
-  const sSync = useSync(setS, [sat, s]);
-  const vSync = useSync(setV, [val, v]);
-  const sync = sSync || vSync;
+  const [s, setS] = useSyncState(sat);
+  const [v, setV] = useSyncState(val);
 
   const setSVByEvent = (event: MouseEvent) => {
     const pos = event.currentTarget.getBoundingClientRect();
@@ -35,10 +31,29 @@ export function SVCanvas({ hue, sat, val, setSV }: Props) {
   };
 
   useMemo(() => {
-    if (sync) return;
+    if (sat == s && val == v) return;
+
     setSV({ sat: s, val: v });
   }, [s, v]);
 
+  return <SVCanvasDisplay
+    hue={hue}
+    onMouseDown={(e) => (setSVByEvent(e))}
+    onMouseMove={(e) => e.buttons == 1 && (setSVByEvent(e))}
+  >
+    <Marker s={s} v={v}></Marker>
+  </SVCanvasDisplay>;
+}
+
+
+type DisplayProps = {
+  hue: number;
+  onMouseDown: (e: MouseEvent) => void;
+  onMouseMove: (e: MouseEvent) => void;
+  children: JSX.Element;
+};
+
+function SVCanvasDisplay({ hue, onMouseDown, onMouseMove, children }: DisplayProps) {
   return <div
     style={{
       width: '100%',
@@ -46,8 +61,8 @@ export function SVCanvas({ hue, sat, val, setSV }: Props) {
       backgroundColor: `hsl(${hue} 100% 50%)`
     }}
     draggable={false}
-    onMouseDown={(e) => (setSVByEvent(e))}
-    onMouseMove={(e) => e.buttons == 1 && (setSVByEvent(e))}
+    onMouseDown={onMouseDown}
+    onMouseMove={onMouseMove}
   >
     <div
       style={{
@@ -64,12 +79,11 @@ export function SVCanvas({ hue, sat, val, setSV }: Props) {
           position: 'relative'
         }}
       >
-        <Marker s={s} v={v}></Marker>
+        {children}
       </div>
     </div>
   </div>;
 }
-
 
 type MarkerProps = {
   s: number,

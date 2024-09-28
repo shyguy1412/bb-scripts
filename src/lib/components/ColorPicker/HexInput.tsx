@@ -1,25 +1,33 @@
-import { RGB, useSync } from "@/lib/components/ColorPicker";
-import React, { useEffect, useMemo, useState } from "react";
+import { RGB, useSyncState } from "./";
+import React, { ChangeEvent, useMemo, useState } from "react";
 
 type Props = {
-  hex: string,
+  rgb: RGB,
   setRGB: (rgb: RGB) => void;
 };
 
 
-export function HexInput({ hex, setRGB }: Props) {
+export function formatRGBtoHEX(rgb: RGB) {
+  const digits = [
+    rgb.r.toString(16).padStart(2, '0'),
+    rgb.g.toString(16).padStart(2, '0'),
+    rgb.b.toString(16).padStart(2, '0')
+  ];
 
-  const [value, setValue] = useState(hex);
+  if (digits.every(d => d[0] == d[1])) return `${digits[0][0]}${digits[1][0]}${digits[2][0]}`;
+  return digits.join('');
+}
+
+
+export function HexInput({ rgb, setRGB }: Props) {
+
+  const hex = formatRGBtoHEX(rgb);
+
+  const [value, setValue] = useSyncState(hex);
   const [error, setError] = useState(false);
-  const [focus, setFocus] = useState(false);
-
-  const synced = useSync(setValue, [hex, value], true);
-
-  useEffect(() => console.clear(), [focus]);
 
   useMemo(() => {
-    if (synced) return setError(false);
-    if (value.length != 3 && value.length != 6) return setError(true);
+    if (value.length != 3 && value.length != 6) return error || setError(true);
 
     const rgb = value.length == 3 ?
       {
@@ -33,13 +41,30 @@ export function HexInput({ hex, setRGB }: Props) {
         b: Number.parseInt(value.slice(4, 6), 16),
       };
 
-    if (Object.values(rgb).some(v => isNaN(v))) return setError(true);
+    if (Object.values(rgb).some(v => isNaN(v))) return error || setError(true);
+    error && setError(false);
 
-    setError(false);
+    if (hex == formatRGBtoHEX(rgb)) return;
+
     setRGB(rgb);
-  }, [value, focus]);
+  }, [value]);
+
+  return <HexInputDisplay
+    value={value}
+    onChange={({ currentTarget: { value } }) => value.length <= 6 && setValue(value)}
+    error={error}
+  ></HexInputDisplay>;
+}
 
 
+
+type DisplayProps = {
+  error: boolean;
+  value: string;
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+};
+
+function HexInputDisplay({ error, value, onChange }: DisplayProps) {
   return <div
     style={{
       display: 'flex',
@@ -68,9 +93,7 @@ export function HexInput({ hex, setRGB }: Props) {
           color: 'inherit'
         }}
         value={value}
-        onFocus={() => setFocus(true)}
-        onBlur={() => setFocus(false)}
-        onChange={({ currentTarget: { value } }) => value.length <= 6 && setValue(value)}
+        onChange={onChange}
       />
       <span style={{ display: 'inline-block', width: '1em', textAlign: 'right' }}>{error ? 'X' : ''}</span>
     </span>

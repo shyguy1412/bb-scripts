@@ -1,4 +1,4 @@
-import { RGB } from "@/lib/components/ColorPicker";
+import { RGB } from "./";
 import React from "react";
 
 type Props = {

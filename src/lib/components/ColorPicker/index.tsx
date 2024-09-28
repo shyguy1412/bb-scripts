@@ -1,10 +1,9 @@
-import { ColorPreview } from "@/lib/components/ColorPicker/ColorPreview";
-import { HexInput } from "@/lib/components/ColorPicker/HexInput";
-import { HueSlider } from "@/lib/components/ColorPicker/HueSlider";
-import { RGBDigit } from "@/lib/components/ColorPicker/RGBDigit";
-import { SVCanvas } from "@/lib/components/ColorPicker/SVCanvas";
-import { useReload } from "@/lib/hooks/useReload";
-import React, { useState } from "react";
+import { ColorPreview } from "./ColorPreview";
+import { HexInput } from "./HexInput";
+import { HueSlider } from "./HueSlider";
+import { RGBDigit } from "./RGBDigit";
+import { SVCanvas } from "./SVCanvas";
+import React, { Dispatch, useMemo, useReducer, useState } from "react";
 
 export type HSV = {
   hue: number;
@@ -30,9 +29,7 @@ function normalize(color: HSV | RGB) {
 }
 
 export function ColorPicker({ initialColor, ...attr }: Props) {
-  useReload();
-
-  const [color, setColor] = useState<RGB | HSV>(initialColor ?? { r: 50, g: 20, b: 50 });
+  const [color, setColor] = useState<RGB | HSV>(initialColor ?? { r: 255, g: 255, b: 255 });
 
   const { rgb, hsv } = normalize(color);
 
@@ -54,7 +51,7 @@ export function ColorPicker({ initialColor, ...attr }: Props) {
       }}
     >
       <ColorPreview rgb={rgb} ></ColorPreview>
-      <HexInput hex={formatRGBtoHEX(rgb)} setRGB={(c) => setColor(c)}></HexInput>
+      <HexInput rgb={rgb} setRGB={(c) => setColor(c)}></HexInput>
       <RGBDigit digitLabel="R" digit={[rgb.r, r => setColor({ ...rgb, r })]}></RGBDigit>
       <RGBDigit digitLabel="G" digit={[rgb.g, g => setColor({ ...rgb, g })]}></RGBDigit>
       <RGBDigit digitLabel="B" digit={[rgb.b, b => setColor({ ...rgb, b })]}></RGBDigit>
@@ -62,37 +59,32 @@ export function ColorPicker({ initialColor, ...attr }: Props) {
   </div >;
 }
 
-export function useSync<T>(set: (arg: T) => void, [toSet, toSync]: [T, T], l = false): boolean {
-  const [prev, setPrev] = useState(toSync);
-  l && console.log('SYNCING', { toSet, toSync, prev });
-  
-  if (!Object.is(prev, toSet)) {
-    l && console.log('SYNCING TO', { toSet });
-  
-    setPrev(toSet);
-    set(toSet);
-    return true;
-  }
-
-  if (Object.is(toSync, toSet)) {
-    l && console.log('ALREADY SYNCED');
-    return true;
-  }
-  
-  if (Object.is(prev, toSet)) return false;
-
-  return false;
+function useDetachedState<T>(val: T) {
+  //the useMemo are used like useState that dont trigger a rerender
+  return useMemo(() => {
+    const state = [val];
+    return [state, (val: T) => { state[0] = val; }] as const;
+  }, []);
 }
 
-function formatRGBtoHEX(rgb: RGB) {
-  const digits = [
-    rgb.r.toString(16).padStart(2, '0'),
-    rgb.g.toString(16).padStart(2, '0'),
-    rgb.b.toString(16).padStart(2, '0')
-  ];
+export function useSyncState<T>(val: T): [T, Dispatch<T>] {
+  
+  //used to manually trigger a rerender on state change
+  const [, rerender] = useReducer(() => ({}), {});
+  
+  //this hook internal state is irrelevant for rendering so we dont want to rerender on change
+  const [[prev], setPrev] = useDetachedState(val);
+  const [[state], setStateInternal] = useDetachedState(val);
 
-  if (digits.every(d => d[0] == d[1])) return `${digits[0][0]}${digits[1][0]}${digits[2][0]}`;
-  return digits.join('');
+  const setState = (value: T) => (setStateInternal(value), rerender());
+
+  if (!Object.is(prev, val)) {
+    setPrev(val);
+    setStateInternal(val);
+    return [val, setState];
+  }
+
+  return [state, setState];
 }
 
 function HSVtoRGB({ hue, sat, val }: HSV): RGB {

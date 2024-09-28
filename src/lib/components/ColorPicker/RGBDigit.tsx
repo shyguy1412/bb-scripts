@@ -1,5 +1,5 @@
-import { useSync } from "@/lib/components/ColorPicker";
-import React, { useMemo, useState } from "react";
+import { useSyncState } from "./";
+import React, { useMemo } from "react";
 
 type Props = {
   digitLabel: 'R' | 'G' | 'B',
@@ -7,15 +7,11 @@ type Props = {
 };
 
 export function RGBDigit({ digitLabel, digit: [digit, setDigit] }: Props) {
-
-  const [value, setValue] = useState(digit);
-  const synced = useSync(setValue, [digit, value], digitLabel == 'R');
-
-  // digitLabel == 'R' && console.log('render', { value, synced });
+  
+  const [value, setValue] = useSyncState(digit);
 
   useMemo(() => {
-    // digitLabel == 'R' && console.log('memo', { value, synced });
-    if (synced || digit == value) return;
+    if (digit == value) return;
     if (value > 255) return setValue(255);
     if (value < 0) return setValue(0);
 
