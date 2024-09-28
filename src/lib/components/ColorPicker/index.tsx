@@ -68,10 +68,10 @@ function useDetachedState<T>(val: T) {
 }
 
 export function useSyncState<T>(val: T): [T, Dispatch<T>] {
-  
+
   //used to manually trigger a rerender on state change
   const [, rerender] = useReducer(() => ({}), {});
-  
+
   //this hook internal state is irrelevant for rendering so we dont want to rerender on change
   const [[prev], setPrev] = useDetachedState(val);
   const [[state], setStateInternal] = useDetachedState(val);
@@ -115,33 +115,31 @@ function RGBtoHSV(rgb: RGB): HSV {
   max = r > g ? r : g;
   max = max > b ? max : b;
 
-  hsv.val = Math.floor(max * 100);                                // v
+  hsv.val = Math.floor(max * 100);
   delta = max - min;
 
 
   if (delta < 0.00001) {
     hsv.sat = 0;
-    hsv.hue = 0; // undefined, maybe nan?
+    hsv.hue = 0;
     return hsv;
   }
-  if (max > 0.0) { // NOTE: if Max is == 0, this divide would cause a crash
-    hsv.sat = Math.floor((delta / max) * 100);                  // s
+  if (max > 0.0) {
+    hsv.sat = Math.floor((delta / max) * 100);
   } else {
-    // if max is 0, then r = g = b = 0              
-    // s = 0, h is undefined
     hsv.sat = 0.0;
-    hsv.hue = 0;                            // its now undefined
+    hsv.hue = 0;
     return hsv;
   }
-  if (r >= max)                           // > is bogus, just keeps compilor happy
-    hsv.hue = (g - b) / delta;        // between yellow & magenta
+  if (r >= max)
+    hsv.hue = (g - b) / delta;
   else
     if (g >= max)
-      hsv.hue = 2.0 + (b - r) / delta;  // between cyan & yellow
+      hsv.hue = 2.0 + (b - r) / delta;
     else
-      hsv.hue = 4.0 + (r - g) / delta;  // between magenta & cyan
+      hsv.hue = 4.0 + (r - g) / delta;
 
-  hsv.hue *= 60.0;                              // degrees
+  hsv.hue *= 60.0;
 
   if (hsv.hue < 0.0)
     hsv.hue += 360.0;
