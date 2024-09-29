@@ -20,12 +20,15 @@ export function SVCanvas({ hue, sat, val, setSV }: Props) {
   const [v, setV] = useSyncState(val);
 
   const setSVByEvent = (event: MouseEvent) => {
-    const pos = event.currentTarget.getBoundingClientRect();
-    const x = constrain(event.clientX - pos.x - MARKER_RADIUS, 0 - MARKER_RADIUS, 320 - MARKER_RADIUS);
-    const y = constrain(event.clientY - pos.y - MARKER_RADIUS, 0 - MARKER_RADIUS, 128 - MARKER_RADIUS);
-    const s = (x + MARKER_RADIUS) / 320 * 100;
-    const v = 100 - (y + MARKER_RADIUS) / 128 * 100;
+    const {width, height, x:posX, y:posY} = event.currentTarget.getBoundingClientRect();
 
+    
+    const x = constrain(event.clientX - posX - MARKER_RADIUS, -MARKER_RADIUS, width - MARKER_RADIUS);
+    const y = constrain(event.clientY - posY - MARKER_RADIUS, -MARKER_RADIUS, height - MARKER_RADIUS);
+
+    const s = (x + MARKER_RADIUS) / width * 100;
+    const v = 100 - (y + MARKER_RADIUS) / height * 100;
+    
     setS(s);
     setV(v);
   };
@@ -57,7 +60,7 @@ function SVCanvasDisplay({ hue, onMouseDown, onMouseMove, children }: DisplayPro
   return <div
     style={{
       width: '100%',
-      height: '128px',
+      height: '100%',
       backgroundColor: `hsl(${hue} 100% 50%)`
     }}
     draggable={false}
