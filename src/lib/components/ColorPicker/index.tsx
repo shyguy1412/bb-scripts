@@ -1,3 +1,4 @@
+import { useReload } from "@/lib/hooks/useReload";
 import { ColorPreview } from "./ColorPreview";
 import { HexInput } from "./HexInput";
 import { HueSlider } from "./HueSlider";
@@ -29,21 +30,23 @@ function normalize(color: HSV | RGB) {
 }
 
 export function ColorPicker({ initialColor, ...attr }: Props) {
+  useReload();
   const [color, setColor] = useState<RGB | HSV>(initialColor ?? { r: 255, g: 255, b: 255 });
 
   const { rgb, hsv } = normalize(color);
 
   return <div
     style={{
-      width: '320px',
+      height: '100%',
       display: 'flex',
       flexDirection: 'column',
-      userSelect: 'none'
+      userSelect: 'none',
+      gap: '1em',
     }}
     onKeyDown={(e) => { e.stopPropagation(); }}
   >
     <SVCanvas hue={hsv.hue} sat={hsv.sat} val={hsv.val} setSV={(sv) => setColor({ hue: hsv.hue, ...sv })}></SVCanvas>
-    <HueSlider hue={hsv.hue} setHue={(h) => setColor({ hue: h, sat: hsv.sat, val: hsv.val })}></HueSlider>
+    <HueSlider hue={hsv.hue} setHue={(h) => setColor({ ...hsv, hue: h })}></HueSlider>
     <span
       style={{
         display: 'flex',

@@ -26,7 +26,7 @@ export function RGBDigit({ digitLabel, digit: [digit, setDigit] }: Props) {
       borderBottom: '1px solid currentColor'
     }}
   >
-    <span>{digitLabel}</span>
+    <span style={{fontWeight: 'bolder'}}>{digitLabel}</span>
     <input
       type="number"
       min='0'

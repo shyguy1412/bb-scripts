@@ -73,7 +73,7 @@ function HexInputDisplay({ error, value, onChange }: DisplayProps) {
       borderBottom: '1px solid currentColor'
     }}
   >
-    <span>HEX</span>
+    <span style={{fontWeight: 'bolder'}}>HEX</span>
     <span
       style={{
         display: 'flex',

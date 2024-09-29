@@ -10,7 +10,8 @@ export function ColorPreview({ rgb: { r, g, b } }: Props) {
     style={{
       width: '50px',
       height: '50px',
-      backgroundColor: `rgb(${r} ${g} ${b})`
+      backgroundColor: `rgb(${r} ${g} ${b})`,
+      borderRadius: '20%'
     }}
   ></div>;
 } 
