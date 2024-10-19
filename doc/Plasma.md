@@ -1,6 +1,6 @@
 # Plasma
 
-This is Desktop enviroment that replaces the ingame terminal. To still use the terminal, you can use [Konsole](../Konsole/README.md).  
+This is Desktop enviroment that replaces the ingame terminal. To still use the terminal, you can use [Konsole](./Konsole.md).  
 
 ## Configuration
 
