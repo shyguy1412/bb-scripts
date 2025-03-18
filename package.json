@@ -28,7 +28,7 @@
     "acorn-walk": "^8.3.4",
     "astring": "^1.9.0",
     "esbuild": "^0.25.1",
-    "esbuild-bitburner-plugin": "file:../esbuild-bitburner-plugin",
+    "esbuild-bitburner-plugin": "file:../../typescript/esbuild-bitburner-plugin",
     "esbuild-wasm": "^0.25.1",
     "geckosvg": "^0.0.5",
     "js-untar": "^2.0.0",
