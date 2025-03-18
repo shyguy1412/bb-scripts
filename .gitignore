@@ -137,3 +137,4 @@ NetscriptDefinitions.d.ts
 mirror/
 .vscode
 build
+target

@@ -21,18 +21,18 @@
     "@fortawesome/free-brands-svg-icons": "^6.6.0",
     "@fortawesome/free-solid-svg-icons": "^6.6.0",
     "@fortawesome/react-fontawesome": "^0.2.2",
-    "@types/node": "^22.5.4",
-    "@types/react": "^18.3.5",
+    "@types/node": "^22.13.10",
+    "@types/react": "^17.0.67",
     "@types/react-dom": "^17.0.21",
-    "acorn": "^8.12.1",
+    "acorn": "^8.14.1",
     "acorn-walk": "^8.3.4",
     "astring": "^1.9.0",
-    "esbuild": "^0.23.1",
-    "esbuild-bitburner-plugin": "file:../../typescript/esbuild-bitburner-plugin",
-    "esbuild-wasm": "^0.23.1",
-    "geckosvg": "file:../../typescript/GeckoSVG",
+    "esbuild": "^0.25.1",
+    "esbuild-bitburner-plugin": "file:../esbuild-bitburner-plugin",
+    "esbuild-wasm": "^0.25.1",
+    "geckosvg": "^0.0.5",
     "js-untar": "^2.0.0",
-    "ramdodger-extension": "file:../../javascript/ramdodger-extension",
-    "typescript": "^5.6.2"
+    "ramdodger-extension": "^1.0.1",
+    "typescript": "^5.8.2"
   }
 }

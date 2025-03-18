@@ -1,8 +1,7 @@
 import { context } from 'esbuild';
 import { BitburnerPlugin } from 'esbuild-bitburner-plugin';
-// import { OverloadPlugin } from 'esbuild-operator-overload-plugin';
 import fs from 'fs/promises';
-import { RamDodgerExtension, UnsafePlugin } from 'ramdodger-extension';
+import { UnsafePlugin } from 'ramdodger-extension';
 
 /**
  * @type {import('esbuild').Plugin}
@@ -52,6 +51,41 @@ const SVGSpoofPlugin = {
 /**
  * @type {import('esbuild').Plugin}
  */
+const TestPlugin = {
+  name: 'TestPlugin',
+  setup(pluginBuild) {
+
+    pluginBuild.onLoad({ filter: /.*/ }, async (opts) => {
+      const file = await fs.readFile(opts.path, { encoding: 'utf8' });
+      console.log('A');
+
+      return {
+        contents: file
+      };
+    });
+  }
+};
+/**
+ * @type {import('esbuild').Plugin}
+ */
+const TestPlugin2 = {
+  name: 'TestPlugin2',
+  setup(pluginBuild) {
+
+    pluginBuild.onLoad({ filter: /.*/ }, async (opts) => {
+      const file = await fs.readFile(opts.path, { encoding: 'utf8' });
+      console.log('B');
+
+      return {
+        contents: file
+      };
+    });
+  }
+};
+
+/**
+ * @type {import('esbuild').Plugin}
+ */
 const TextPlugin = {
   name: 'TextPlugin',
   setup(pluginBuild) {
@@ -76,6 +110,7 @@ export const config = {
     // 'src/servers/**/*.jsx',
     'src/servers/**/*.ts',
     'src/servers/**/*.tsx',
+    'src/servers/**/example/**/lib.rs'
   ],
   // entryPoints: ['src/servers/grindr-1/test.ts'],
   outbase: './src/servers',
@@ -85,40 +120,25 @@ export const config = {
     CSSSpoofPlugin,
     SVGSpoofPlugin,
     UnsafePlugin,
-    // OverloadPlugin,
     BitburnerPlugin({
       port: 12525,
       types: 'NetscriptDefinitions.d.ts',
       // extensions: [RamDodgerExtension],
-      mirror: {
-        'mirror': ['home']
-        // 'mirror/own': 'own',
-        // 'mirror/all': 'all',
-        // 'mirror/other': 'other'
-      },
-      distribute: {
-        // 'build/all': 'all',
-        // 'all': 'all',
-      }, 
-      // usePolling: true,
-      // pollingInterval: 100, 
-      pushOnConnect: true,
-      // remoteDebugging: true
     })
   ],
   bundle: true,
   format: 'esm',
   platform: 'browser',
-  sourcesContent: true,
+  // sourcesContent: true,
   // minify: true,
   keepNames: true,
-  logLevel: 'error',
+  // logLevel: 'error',
 };
 
 
-if(import.meta.filename == process.argv[1]){
+if (import.meta.filename == process.argv[1]) {
   const ctx = await context(config);
+  await ctx.rebuild();
   ctx.watch();
 }
-// await ctx.rebuild();
 // ctx.dispose();
