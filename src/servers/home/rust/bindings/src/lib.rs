@@ -1,4 +1,3 @@
-use wasm_bindgen::JsError;
 use wasm_bindgen::convert::FromWasmAbi;
 use wasm_bindgen::describe::EXTERNREF;
 use wasm_bindgen::describe::WasmDescribe;
@@ -6,6 +5,7 @@ use wasm_bindgen::describe::inform;
 
 mod types;
 pub use types::*;
+use wasm_bindgen::JsValue;
 
 pub struct NS {
     _ns: Object,
@@ -21,7 +21,6 @@ impl FromWasmAbi for NS {
     type Abi = u32;
 
     unsafe fn from_abi(js: Self::Abi) -> Self {
-        // ! todo: validate ns object
         NS {
             _ns: Object::from(js),
         }
@@ -30,10 +29,10 @@ impl FromWasmAbi for NS {
 
 
 impl NS {
-    pub fn tprint(self, message: &str) -> Result<(), JsError>{
-        let tprint: Function = self._ns.get("tprint")?;
+    pub fn tprint(self, message: &str) -> Result<(), JsValue>{
+        let tprint: Function = self._ns.get("tprinst")?;
 
-        let _ = tprint.arg(message.into()).call();
+        tprint.arg(message.into()).call()?;
         Ok(())
     }
 }

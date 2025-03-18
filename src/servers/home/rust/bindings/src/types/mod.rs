@@ -8,5 +8,5 @@ mod any;
 pub use any::Any;
 
 pub trait Get<T> {
-  fn get(&self, key: &str) -> Result<T, wasm_bindgen::JsError>;
+  fn get(&self, key: &str) -> Result<T, wasm_bindgen::JsValue>;
 }

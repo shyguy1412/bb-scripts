@@ -18,10 +18,10 @@ impl Function {
 
         Self(self.0.bind1(&this, &arg.0), this)
     }
-    pub fn call(self) -> Result<Any, Any> {
+    pub fn call(self) -> Result<Any, JsValue> {
         match self.0.call0(&self.1) {
             Ok(v) => Ok(Any(v, JsValue::undefined())),
-            Err(v) => Err(Any(v, JsValue::undefined())),
+            Err(v) => Err(v),
         }
     }
     fn is_bound(&self) -> bool {
