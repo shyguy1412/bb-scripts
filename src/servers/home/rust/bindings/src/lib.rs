@@ -1,14 +1,37 @@
-use std::ops::Index;
-
-use js_sys::Function;
+use wasm_bindgen::JsValue as _JsValue;
 use js_sys::Object;
 use wasm_bindgen::convert::FromWasmAbi;
 use wasm_bindgen::describe::EXTERNREF;
 use wasm_bindgen::describe::WasmDescribe;
 use wasm_bindgen::describe::inform;
-use wasm_bindgen::JsCast;
 
-struct JsValue(wasm_bindgen::JsValue);
+struct JsValue(_JsValue, Option<_JsValue>);
+impl JsValue {
+    pub fn get(self, key: &str) -> Self {
+        let prop = js_sys::Reflect::get(&self.0, &_JsValue::from(key));
+
+        match prop {
+            Ok(v) => JsValue(v, Some(self.clone())),
+            Err(v) => JsValue(v, Some(self.clone())),
+        }
+    }
+}
+impl Into<JsFunction> for JsValue {
+    fn into(self) -> JsFunction {
+        JsFunction(self.0.into(), self.0)
+    }
+}
+
+struct JsFunction(js_sys::Function, _JsValue);
+
+impl JsFunction {
+    pub fn arg(self, arg:JsValue){
+        JsFunction(self.0.bind1(se, arg1))
+    }
+    pub fn call(self){
+
+    }
+}
 
 struct NSError;
 
@@ -19,7 +42,7 @@ impl NSError {
 }
 
 pub struct NS {
-    obj: Object,
+    obj: JsValue,
 }
 
 impl WasmDescribe for NS {
@@ -33,13 +56,16 @@ impl FromWasmAbi for NS {
 
     unsafe fn from_abi(js: Self::Abi) -> Self {
         NS {
-            obj: unsafe { Object::from_abi(js) },
+            obj: unsafe { JsValue(wasm_bindgen::JsValue::from_abi(js)) },
         }
     }
 }
 
 impl NS {
     pub fn tprint(self, message: &str) {
+        let tprint:JsFunction = self.obj.get("tprint").into();
+        
+        tprint.arg(message.into()).call();
         // let ns = &self.obj;
         // let tprint: Function = js_sys::Reflect::get(ns, &JsValue::from("tprint"))
         //     .unwrap()
@@ -51,15 +77,8 @@ impl NS {
     }
 }
 
-impl Index<&str> for JsValue {
-    type Output = JsValue;
-
-    fn index(&self, index: &str) -> &Self::Output {
-        let prop = js_sys::Reflect::get(self.0.dyn_ref().unwrap(), &wasm_bindgen::JsValue::from(index));
-
-        match prop {
-            Ok(v) => &JsValue(v),
-            Err(v) => &JsValue(v),
-        }
+impl Into<JsValue> for &str{
+    fn into(self) -> JsValue {
+        return  JsValue(_JsValue::from(self));
     }
 }
