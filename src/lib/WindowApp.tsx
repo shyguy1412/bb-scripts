@@ -9,11 +9,11 @@ export function createWindowApp(ns: NS, pid?: string | number) {
     cleanup: () => {
       cleanupCallbacks.forEach(c => c());
       // ns.tprint('Terminated');
-      ns.closeTail();
-    },
+      ns.ui.closeTail();
+    }, 
     async mount(component: React.JSX.Element) {
       return new Promise<void>(async resolve => {
-        ns.tail();
+        ns.ui.openTail();
         ns.disableLog('ALL');
         ns.printRaw(<span data-pid={ns.pid}></span>);
 
@@ -75,7 +75,6 @@ export function createWindowApp(ns: NS, pid?: string | number) {
 
 export const mainWrapper = (Component: React.FunctionComponent) => {
   return (ns: NS) => {
-    console.clear();
     try {
       const windowApp = createWindowApp(ns);
 
