@@ -55,33 +55,14 @@ const TestPlugin = {
   name: 'TestPlugin',
   setup(pluginBuild) {
 
-    pluginBuild.onLoad({ filter: /.*/ }, async (opts) => {
-      const file = await fs.readFile(opts.path, { encoding: 'utf8' });
-      console.log('A');
-
+    pluginBuild.onLoad({ filter: /.*\.d\.ts$/ }, async (opts) => {
       return {
-        contents: file
+        contents: ""
       };
     });
   }
 };
-/**
- * @type {import('esbuild').Plugin}
- */
-const TestPlugin2 = {
-  name: 'TestPlugin2',
-  setup(pluginBuild) {
 
-    pluginBuild.onLoad({ filter: /.*/ }, async (opts) => {
-      const file = await fs.readFile(opts.path, { encoding: 'utf8' });
-      console.log('B');
-
-      return {
-        contents: file
-      };
-    });
-  }
-};
 
 /**
  * @type {import('esbuild').Plugin}
@@ -120,6 +101,7 @@ export const config = {
     CSSSpoofPlugin,
     SVGSpoofPlugin,
     UnsafePlugin,
+    TestPlugin,
     BitburnerPlugin({
       port: 12525,
       types: 'NetscriptDefinitions.d.ts',
