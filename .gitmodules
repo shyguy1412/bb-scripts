@@ -1,0 +1,3 @@
+[submodule "src/servers/home/rust/bindings"]
+	path = src/servers/home/rust/bindings
+	url = ../bitburner-rust-bindings/
