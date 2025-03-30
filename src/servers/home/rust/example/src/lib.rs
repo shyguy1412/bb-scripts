@@ -1,39 +1,60 @@
 use bitburner_bindings::*;
-use wasm_bindgen::JsValue;
+use wasm_bindgen::prelude::*;
 
 #[bb_bindgen]
 pub async fn main(ns: &'static NS) -> Result<(), JsValue> {
+    clear();
+
+    let js_wrapper =
+    js_sys::Function::new_with_args("fn", "setTimeout(fn)");
+    let js_wrapper = Function::new(js_wrapper.into(), JsValue::undefined());
+    let closure = js_closure!(|_:Any| -> Result<Any, JsValue>{
+        // ns.tprint("timeout closure message".into())?;
+        Ok(Any::from(()))
+    });
+
+    js_wrapper.arg(closure.into()).call()?;
+
     let closure = js_closure!(|args: Any| -> Result<Any, JsValue> {
-        ns.tprint("message".into())?;
+        ns.tprint("at exit message".into())?;
         Ok(args)
     });
 
     ns.atExit(closure, "closure".into())?;
-    ns.atExit(js_closure!(logMessage), "closure".into())?;
+    ns.atExit(js_closure!(log_message), "global".into())?;
 
     let message: String = ns.args.get(&"0")?;
 
     ns.tprint(message)?;
-    let promise = ns.sleep(1000f64.into())?;
-    log("I am a log test");
+    // let promise1 = ns.sleep(1000f64.into())?;
+    let promise = ns.sleep(Number::new("1000".into(), JsValue::undefined()))?;
 
+    // promise1.await?;
     promise.await?;
 
     ns.tprint("Resolved uwu :3".into())?;
 
+    ns.toast("toast uwu".into(), bitburner_bindings::ToastVariant::INFO)?;
 
+    // Err(JsValue::undefined())
     Ok(())
 }
 
-fn logMessage(args: Any) -> Result<Any, JsValue> {
-    log("I am a global function");
-    Ok(Any::new(JsValue::undefined(), JsValue::undefined()))
+fn log_message(args: Any) -> Result<Any, JsValue> {
+    log("global function message");
+    Ok(args)
 }
 
-#[wasm_bindgen::prelude::wasm_bindgen]
+#[wasm_bindgen]
 extern "C" {
     // Use `js_namespace` here to bind `console.log(..)` instead of just
     // `log(..)`
     #[wasm_bindgen(js_namespace = console)]
     fn log(s: &str);
+
+    #[wasm_bindgen(js_namespace = console)]
+    fn clear();
+
+    #[wasm_bindgen(js_namespace = console, js_name = error)]
+    pub fn log_error(s: Any);
 }
