@@ -1,5 +1,6 @@
 export async function main() {
-  const module = await import("funky");
+  let val = "funky";
+  const module = await import(val);
   console.log(module)
 }
 
