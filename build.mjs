@@ -91,7 +91,8 @@ export const config = {
     // 'src/servers/**/*.jsx',
     'src/servers/**/*.ts',
     'src/servers/**/*.tsx',
-    'src/servers/**/example/**/lib.rs'
+    'src/servers/home/test.txt',
+    'src/servers/home/rust/example/src/lib.rs'
   ],
   // entryPoints: ['src/servers/grindr-1/test.ts'],
   outbase: './src/servers',
@@ -114,13 +115,12 @@ export const config = {
   // sourcesContent: true,
   // minify: true,
   keepNames: true,
-  // logLevel: 'error',
+  logLevel: 'warning',
 };
 
 
 if (import.meta.filename == process.argv[1]) {
   const ctx = await context(config);
-  await ctx.rebuild();
   ctx.watch();
 }
 // ctx.dispose();
