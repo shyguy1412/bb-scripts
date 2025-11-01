@@ -1,0 +1,18 @@
+[package]
+name = "bitburner_bindings_macros"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+itertools = "0.14.0"
+phf = "0.11.3"
+proc-macro-error = "1.0.4"
+quote = "1.0.40"
+swc_common = "8.0.1"
+swc_ecma_ast = "8.1.0"
+swc_ecma_parser = "10.0.2"
+syn = "2.0.100"
+

@@ -1,4 +1,4 @@
-import Style from '../style/Taskbar.css';
+// import Style from '../style/Taskbar.css';
 import { HomeButton } from '../components/HomeButton';
 import React, { useState, useEffect } from 'react';
 
@@ -20,7 +20,7 @@ export function Taskbar({ }: Props) {
   }, []);
 
   return <>
-    <Style></Style>
+    {/* <Style></Style> */}
     <div className='taskbar'>
       <HomeButton></HomeButton>
 

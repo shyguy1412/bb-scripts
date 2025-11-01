@@ -1,8 +1,10 @@
-import Style from './style/global.css';
-import { createPortal } from 'react-dom';
+import style from './style/global.css' with {type: 'css'};
+
 import { DesktopEnviroment } from './DesktopEnviroment';
+import { CleanupContext, NetscriptContext, TerminateContext } from '@/lib/Context';
+
+import ReactDOM from 'react-dom';
 import React, { createContext } from 'react';
-import { CleanupContext, ContextCollection, NetscriptContext, TerminateContext } from '@/lib/Context';
 
 type PlasmaConfig = Partial<{
   homeapps: string[];
@@ -36,6 +38,7 @@ export async function Plasma(ns: NS) {
   }
 
   const cleanupCallbacks: (() => void)[] = [];
+  const addCleanup = (f: () => void) => cleanupCallbacks.push(f);
   return new Promise<void>(resolve => {
 
     ns.atExit(() => {
@@ -68,33 +71,19 @@ export async function Plasma(ns: NS) {
       ns.toast("No file explorer app was set!", 'error');
     }
 
-    const contexts = [
-      {
-        context: NetscriptContext,
-        value: ns
-      },
-      {
-        context: TerminateContext,
-        value: resolve
-      },
-      {
-        context: CleanupContext,
-        value: (f: () => void) => cleanupCallbacks.push(f)
-      },
-      {
-        context: ConfigContext,
-        value: config
-      }
-    ];
+    ReactDOM.render(
+      <NetscriptContext.Provider value={ns}>
+        <CleanupContext.Provider value={addCleanup}>
+          <TerminateContext.Provider value={resolve}>
+            <ConfigContext.Provider value={config}>
 
-    ns.tprintRaw(<>
-      <Style></Style>
-      {createPortal(
-        <ContextCollection contexts={contexts}>
-          <DesktopEnviroment></DesktopEnviroment>
-        </ContextCollection>
-        , el)}
-    </>
+              <DesktopEnviroment></DesktopEnviroment>
+
+            </ConfigContext.Provider>
+          </TerminateContext.Provider>
+        </CleanupContext.Provider>
+      </NetscriptContext.Provider>
+      , el
     );
   });
 

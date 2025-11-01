@@ -1,13 +1,13 @@
-import Style from './FileTile.css';
-import { faFileCode, faFileLines, faFolderClosed, faPen, faTrash, faTrashCan } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+// import Style from './FileTile.css';
 import React, { MouseEvent, createContext, useContext } from 'react';
 import { deleteFile, deleteFolder, moveFile, moveFolder, transferFile } from '@/lib/FileSystem';
 import { DragTarget } from '@/lib/components/DragTarget';
 import { NetscriptContext } from '@/lib/Context';
 import { Terminal } from '@/lib/Terminal';
-import { NS } from 'NetscriptDefinitions';
 import { getConnectionPath } from '@/lib/Network';
+
+import { FaFileCode, FaPen } from 'react-icons/fa';
+import { FaFileLines, FaFolderClosed, FaTrashCan } from 'react-icons/fa6';
 
 type Props = {
   file: {
@@ -20,11 +20,11 @@ type Props = {
 export const DoubleClickFileContext = createContext<(e: MouseEvent<HTMLDivElement>, file: { path: string; name: string; type: keyof typeof FileIcons; }) => void>(() => { });
 
 const FileIcons = {
-  'js': () => <FontAwesomeIcon icon={faFileCode}></FontAwesomeIcon>,
-  'exe': () => <FontAwesomeIcon icon={faFileCode}></FontAwesomeIcon>,
-  'txt': () => <FontAwesomeIcon icon={faFileLines}></FontAwesomeIcon>,
-  'msg': () => <FontAwesomeIcon icon={faFileLines}></FontAwesomeIcon>,
-  'folder': () => <FontAwesomeIcon icon={faFolderClosed}></FontAwesomeIcon>
+  'js': () => <FaFileCode></FaFileCode>,
+  'exe': () => <FaFileCode></FaFileCode>,
+  'txt': () => <FaFileLines></FaFileLines>,
+  'msg': () => <FaFileLines></FaFileLines>,
+  'folder': () => <FaFolderClosed></FaFolderClosed>,
 } as const;
 
 export function FileTile({ file, path }: Props) {
@@ -56,7 +56,6 @@ export function FileTile({ file, path }: Props) {
       );
     }}
   >
-    <Style></Style>
     <Icon></Icon>
     <div
       className='file-name'
@@ -90,8 +89,7 @@ export function FileTile({ file, path }: Props) {
       }}>{file.name}</div>
     <div className='file-action-buttons'>
       {['js', 'txt'].includes(type) ?
-        <FontAwesomeIcon
-          icon={faPen}
+        <FaPen
           style={{ cursor: 'pointer', fontSize: '0.9em' }}
           onClick={async () => {
             const term = new Terminal(ns);
@@ -100,10 +98,9 @@ export function FileTile({ file, path }: Props) {
             term.exec(getConnectionPath(ns, server).reduce((prev, cur) => prev + `connect ${cur};`, ''));
             term.exec(`nano ${filepath}`);
             term.cleanup();
-          }}></FontAwesomeIcon> : <span></span>}
+          }}></FaPen> : <span></span>}
       {['js', 'txt', 'folder'].includes(type) ?
-        <FontAwesomeIcon
-          icon={faTrashCan}
+        <FaTrashCan
           style={{ cursor: 'pointer', fontSize: '0.9em' }}
           onClick={async () => {
             if (! await ns.prompt(`Are you sure you want to delete ${path}/${file.name}?`, { type: 'boolean' })) return;
@@ -111,7 +108,7 @@ export function FileTile({ file, path }: Props) {
               deleteFolder(ns, `${path}/${file.name}`);
             else
               deleteFile(ns, `${path}/${file.name}`);
-          }}></FontAwesomeIcon> : undefined}
+          }}></FaTrashCan> : undefined}
     </div>
   </DragTarget>;
 };

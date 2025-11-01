@@ -1,4 +1,4 @@
-import { PathContext } from '../';
+import { PathContext } from '..';
 import { DropTarget } from '@/lib/components/DropTarget';
 import { NetscriptContext } from '@/lib/Context';
 import { transferFile } from '@/lib/FileSystem';

@@ -1,4 +1,4 @@
-import Style from './FileGrid.css';
+// import Style from './FileGrid.css';
 import { useContext } from 'react';
 import React from 'react';
 import { readDir, transferFile, transferFolder } from '@/lib/FileSystem';
@@ -17,7 +17,7 @@ export function FileGrid({ path, files }: Props) {
 
   if (!files || !path) return undefined;
   return <>
-    <Style></Style>
+    {/* <Style></Style> */}
     <DropTarget
       accept={['file', 'folder']}
       className='file-grid-drop-target'

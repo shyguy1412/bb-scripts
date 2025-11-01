@@ -1,5 +1,5 @@
 import { sleep } from '@/lib/System';
-import Style from './Konsole.css';
+import Style from './Konsole.css' with {type: 'css'};
 import { Terminal } from '@/lib/Terminal';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { CleanupContext, NetscriptContext } from '@/lib/Context';

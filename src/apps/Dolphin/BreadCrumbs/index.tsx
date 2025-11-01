@@ -1,4 +1,4 @@
-import { PathContext } from '../';
+import { PathContext } from '..';
 import Style from './BreadCrumbs.css';
 import React, { useContext } from "react";
 import { List } from '@/lib/components/List';

@@ -6,62 +6,42 @@ import { UnsafePlugin } from 'ramdodger-extension';
 /**
  * @type {import('esbuild').Plugin}
  */
-const CSSSpoofPlugin = {
-  name: 'CSSSpoofPlugin',
+const CSSPlugin = {
+  name: 'CSSPlugin',
   setup(pluginBuild) {
-    pluginBuild.onLoad({ filter: /.*?\.css$/ }, async opts => {
-      const file = await fs.readFile(opts.path, { encoding: 'utf8' });
-      return {
-        loader: 'jsx',
-        contents: `\
-        import React from 'react';
+    pluginBuild.onLoad({ filter: /.*/ }, async (opts) => {
+      if (opts.with.type == 'css') {
+        return {
+          contents: `import css from '${opts.path}' with {type: 'text'};const sheet = new CSSStyleSheet();await sheet.replace(css);export default sheet;`,
+          loader: 'text'
+        };
+      }
 
-        export default function () {
-          return <style>{\`${file}\`}</style>;
-        }\
-        `
-      };
     });
   }
 };
 
-/**
- * @type {import('esbuild').Plugin}
- */
-const SVGSpoofPlugin = {
-  name: 'SVGSpoofPlugin',
-  setup(pluginBuild) {
-    pluginBuild.onLoad({ filter: /.*?\.svg$/ }, async opts => {
-      const file = await fs.readFile(opts.path, { encoding: 'utf8' });
-      return {
-        loader: 'jsx',
-        contents: `\
-        import React from 'react';
+// /**
+//  * @type {import('esbuild').Plugin}
+//  */
+// const SVGSpoofPlugin = {
+//   name: 'SVGSpoofPlugin',
+//   setup(pluginBuild) {
+//     pluginBuild.onLoad({ filter: /.*?\.svg$/ }, async opts => {
+//       const file = await fs.readFile(opts.path, { encoding: 'utf8' });
+//       return {
+//         loader: 'jsx',
+//         contents: `\
+//         import React from 'react';
 
-        export default function () {
-          return <div dangerouslySetInnerHTML={{__html: \`${file}\`}}></div>;
-        }\
-        `
-      };
-    });
-  }
-};
-
-
-/**
- * @type {import('esbuild').Plugin}
- */
-const TestPlugin = {
-  name: 'TestPlugin',
-  setup(pluginBuild) {
-
-    pluginBuild.onLoad({ filter: /.*\.d\.ts$/ }, async (opts) => {
-      return {
-        contents: ""
-      };
-    });
-  }
-};
+//         export default function () {
+//           return <div dangerouslySetInnerHTML={{__html: \`${file}\`}}></div>;
+//         }\
+//         `
+//       };
+//     });
+//   }
+// };
 
 
 /**
@@ -91,22 +71,21 @@ export const config = {
     // 'src/servers/**/*.jsx',
     'src/servers/**/*.ts',
     'src/servers/**/*.tsx',
-    'src/servers/home/test.txt',
-    'src/servers/home/rust/example/src/lib.rs'
+    // 'src/servers/home/test.txt',
+    // 'src/servers/home/rust/example/src/lib.rs'
   ],
   // entryPoints: ['src/servers/grindr-1/test.ts'],
   outbase: './src/servers',
   outdir: './build',
   plugins: [
     TextPlugin,
-    CSSSpoofPlugin,
-    SVGSpoofPlugin,
+    CSSPlugin,
+    // SVGSpoofPlugin,
     UnsafePlugin,
-    TestPlugin,
     BitburnerPlugin({
       port: 12525,
       types: 'NetscriptDefinitions.d.ts',
-      // extensions: [RamDodgerExtension],
+      mirror: { 'local': ['home'] }
     })
   ],
   bundle: true,
@@ -115,7 +94,7 @@ export const config = {
   // sourcesContent: true,
   // minify: true,
   keepNames: true,
-  logLevel: 'warning',
+  logLevel: 'debug',
 };
 
 
@@ -123,4 +102,3 @@ if (import.meta.filename == process.argv[1]) {
   const ctx = await context(config);
   ctx.watch();
 }
-// ctx.dispose();

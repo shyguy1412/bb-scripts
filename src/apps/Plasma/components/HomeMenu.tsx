@@ -1,11 +1,9 @@
 import { ConfigContext, PLASMA_CONFIG_FILE } from '../main';
 import { CleanupContext, NetscriptContext, TerminateContext } from '@/lib/Context';
-import { sleep } from '@/lib/System';
 import { Terminal } from '@/lib/Terminal';
-import { faJs } from '@fortawesome/free-brands-svg-icons';
-import { faCog, faFolderOpen, faPowerOff, faRotate, faTerminal } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useContext } from 'react';
+import { FaCog, FaFolderOpen, FaJs, FaPowerOff, FaTerminal } from 'react-icons/fa';
+import { FaRotate } from 'react-icons/fa6';
 
 type Props = {
 
@@ -18,27 +16,27 @@ export function HomeMenu({ }: Props) {
   const ns = useContext(NetscriptContext);
   const addCleanup = useContext(CleanupContext);
 
-  const entries = [...config.get('homeapps')?.map(a => ({ path: a, icon: faJs })) ?? []];
+  const entries = [...config.get('homeapps')?.map(a => ({ path: a, Icon: FaJs })) ?? []];
 
   if (config.get('explorer')) {
     entries.push({
       path: config.get('explorer')!,
-      icon: faFolderOpen
+      Icon: FaFolderOpen
     });
   }
 
   if (config.get('terminal')) {
     entries.push({
       path: config.get('terminal')!,
-      icon: faTerminal
+      Icon: FaTerminal
     });
   }
 
   return <div className='homemenu plasma-box-inline'>
 
-    {entries.map(({ path, icon }) =>(console.log(),
+    {entries.map(({ path, Icon }) => (console.log(),
       <span className='plasma-button plasma-box-top' onClick={() => { ns.run(path); }}>
-        <FontAwesomeIcon icon={icon}></FontAwesomeIcon>
+        <Icon></Icon>
         <span className='plasma-center'>{path.split(/(.*)\//).at(-1)!.split(/(.*)\./, 2)[1]}</span>
       </span>)
     )}
@@ -49,7 +47,7 @@ export function HomeMenu({ }: Props) {
       term.exec(`home;nano ${PLASMA_CONFIG_FILE}`);
       term.cleanup();
     }}>
-      <FontAwesomeIcon icon={faCog}></FontAwesomeIcon>
+      <FaCog></FaCog>
       <span className='plasma-center'>Settings</span>
     </span>
 
@@ -59,12 +57,12 @@ export function HomeMenu({ }: Props) {
         ns.run(ns.getScriptName());
       });
     }}>
-      <FontAwesomeIcon icon={faRotate}></FontAwesomeIcon>
+      <FaRotate></FaRotate>
       <span className='plasma-center'>Reboot</span>
     </span>
 
     <span className='plasma-button plasma-box-top' onClick={() => terminate()}>
-      <FontAwesomeIcon icon={faPowerOff}></FontAwesomeIcon>
+      <FaPowerOff></FaPowerOff>
       <span className='plasma-center'>Shutdown</span>
     </span>
   </div>;
