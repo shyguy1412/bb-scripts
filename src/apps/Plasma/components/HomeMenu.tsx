@@ -12,6 +12,8 @@ export function HomeMenu() {
   const ns = useContext(NetscriptContext);
   const addCleanup = useContext(CleanupContext);
 
+  const server = ns.self().server;
+
   const entries = [...config.get('homeapps')?.map(a => ({ path: a, Icon: FaJs })) ?? []];
 
   if (config.get('explorer')) {
@@ -40,7 +42,7 @@ export function HomeMenu() {
 
     <span className='plasma-button plasma-box-top' onClick={() => {
       const term = new Terminal(ns);
-      term.exec(`home;nano ${PLASMA_CONFIG_FILE}`);
+      term.exec(`${server};nano ${PLASMA_CONFIG_FILE}`);
       term.cleanup();
     }}>
       <FaCog></FaCog>

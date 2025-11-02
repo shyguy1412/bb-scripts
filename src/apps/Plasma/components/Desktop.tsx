@@ -12,27 +12,28 @@ export function Desktop() {
   const config = useContext(ConfigContext);
   const addCleanup = useContext(CleanupContext);
 
-  const [_, reload] = useState(true); //this is just used to poll the fs since BB doesnt have fs events
+  const [, reload] = useState(true); //this is just used to poll the fs since BB doesnt have fs events
   useEffect(() => {
-    const timeout = setTimeout(() => reload(!_), 100); //just swapping between true/false
-    addCleanup(() => clearTimeout(timeout));
-    return () => clearTimeout(timeout);
+    const interval = setInterval(() => reload(r => !r), 100); //just swapping between true/false
+    addCleanup(() => clearInterval(interval));
+    return () => clearInterval(interval);
   }, []);
 
-
+  const server = ns.self().server;
   const explorerScript = config.get('explorer');
+  const desktop = server + "/" + (config.get("desktop") ?? '');
 
   return <div className='plasma-desktop'>
-    <DoubleClickFileContext.Provider value={(e, { type, name }) => {
+    <DoubleClickFileContext.Provider value={(_, { type, name }) => {
       switch (type) {
         case 'js':
           ns.run(name);
           break;
         case 'folder':
-          explorerScript && ns.run(explorerScript, undefined, `home/${name}`);
+          explorerScript && ns.run(explorerScript, undefined, `${server}/${name}`);
           break;
         case 'txt':
-          ns.alert(readFile(ns, `home/${name}`));
+          ns.alert(readFile(ns, `${server}/${name}`));
           break;
         case 'exe':
           ns.toast('.exe files can only be run from the terminal', 'error');
@@ -43,7 +44,7 @@ export function Desktop() {
       }
     }}>
 
-      <FileGrid path={'home'} files={readDir(ns, 'home')} ></FileGrid>
+      <FileGrid path={server} files={readDir(ns, desktop)} ></FileGrid>
     </DoubleClickFileContext.Provider>
   </div>;
 }

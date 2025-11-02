@@ -8,10 +8,10 @@ type PlasmaConfig = Partial<{
   homeapps: string[];
   terminal: string;
   explorer: string;
+  desktop: string;
 }>;
 
 type ConfigWrapper = {
-  __data: PlasmaConfig,
   get<T extends keyof PlasmaConfig>(value: T): PlasmaConfig[T];
   set<T extends keyof PlasmaConfig>(key: T, value: PlasmaConfig[T]): void;
 };
@@ -22,9 +22,9 @@ export const PLASMA_CONFIG_FILE = '.plasmaconf.json';
 
 export async function Plasma(ns: NS) {
 
-  if (ns.getHostname() != 'home') {
-    throw new Error('Plasma can not run on servers');
-  }
+  // if (ns.getHostname() != 'home') {
+  //   throw new Error('Plasma can not run on servers');
+  // }
 
   const self = ns.self();
   const plasmas = ns.ps(self.server).filter(p => p.filename == self.filename);
@@ -37,12 +37,17 @@ export async function Plasma(ns: NS) {
     throw new Error('Plasma can only run once');
   }
 
-  if (!ns.fileExists(PLASMA_CONFIG_FILE)) {
-    ns.write(PLASMA_CONFIG_FILE, JSON.stringify({
-      explorer: 'Dolphin.js',
-      terminal: 'Konsole.js',
+  //This is awfull
+  let config: PlasmaConfig = (() => { try { return JSON.parse(ns.read(PLASMA_CONFIG_FILE)); } catch { } })();
+
+  if (!config) {
+    config = {
+      explorer: '/bin/dolphin.js',
+      terminal: '/bin/Konsole.js',
       homeapps: [],
-    } as PlasmaConfig));
+      desktop: "home"
+    };
+    ns.write(PLASMA_CONFIG_FILE, JSON.stringify(config, null, 2), 'w');
   }
 
   const cleanupCallbacks: (() => void)[] = [];
@@ -50,31 +55,28 @@ export async function Plasma(ns: NS) {
   return new Promise<void>(resolve => {
 
     ns.atExit(() => {
-      ns.tprint('Terminated');
       ns.ui.clearTerminal();
       cleanupCallbacks.forEach(c => c());
-      resolve();
     });
 
     const el = [...document.querySelector('#root')!.children]
       .filter(el => !el.classList.contains('react-draggable') && el.id != '#unclickable')[0];
 
-    const config: ConfigWrapper = {
-      __data: JSON.parse(ns.read(PLASMA_CONFIG_FILE)) as PlasmaConfig,
+    const configWrapper = {
       get: function <T extends keyof PlasmaConfig>(value: T): PlasmaConfig[T] {
-        return this.__data[value];
+        return config[value];
       },
       set: function <T extends keyof PlasmaConfig>(key: T, value: PlasmaConfig[T]): void {
-        this.__data[key] = value;
-        ns.write(PLASMA_CONFIG_FILE, JSON.stringify(this.__data));
+        config[key] = value;
+        ns.write(PLASMA_CONFIG_FILE, JSON.stringify(config, null, 2), 'w');
       }
     };
 
-    if (!config.get('terminal') || !ns.fileExists(config.get('terminal')!)) {
+    if (!config["terminal"] || !ns.fileExists(config["terminal"]!)) {
       ns.toast("No terminal app was set!", 'error');
     }
 
-    if (!config.get('explorer') || !ns.fileExists(config.get('explorer')!)) {
+    if (!config['explorer'] || !ns.fileExists(config['explorer']!)) {
       ns.toast("No file explorer app was set!", 'error');
     }
 
@@ -83,7 +85,7 @@ export async function Plasma(ns: NS) {
         <NetscriptContext.Provider value={ns}>
           <CleanupContext.Provider value={addCleanup}>
             <TerminateContext.Provider value={resolve}>
-              <ConfigContext.Provider value={config}>
+              <ConfigContext.Provider value={configWrapper}>
 
                 <DesktopEnviroment></DesktopEnviroment>
 

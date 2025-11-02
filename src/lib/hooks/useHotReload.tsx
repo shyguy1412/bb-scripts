@@ -10,14 +10,13 @@ export async function main(ns){
     dispatchEvent(new Event('__hmr_hook_' + ${pid}));
     break;
   }
-
 }
 `;
 
 export function useHotReload() {
   const ns = useContext(NetscriptContext);
   const filename = useMemo(() => ns.self().filename, []);
-  const hmrServer = useMemo(() => `.__hmr_server_${ns.pid}.js`, []);
+  const hmrServer = useMemo(() => `/tmp/.__hmr_server_${ns.pid}.js`, []);
 
 
   const terminate = useContext(TerminateContext);
@@ -25,13 +24,13 @@ export function useHotReload() {
 
   useEffect(() => {
     if (ns.isRunning(hmrServer)) return;
-    console.log("Hot reload: " + filename);
-
+    
     const controller = new AbortController();
-
+    
     addCleanup(() => controller.abort());
 
     addEventListener('__hmr_hook_' + ns.pid, () => {
+      console.log("Hot reload: " + filename);
       terminate();
       addCleanup(() => ns.run(filename));
     }, { once: true, signal: controller.signal });
