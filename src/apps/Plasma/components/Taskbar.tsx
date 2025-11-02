@@ -1,13 +1,13 @@
-// import Style from '../style/Taskbar.css';
+import style from '../style/Taskbar.css' with {'type': 'css'};
 import { HomeButton } from '../components/HomeButton';
 import React, { useState, useEffect } from 'react';
+import { useStyle } from '@/lib/hooks/useStyle';
 
-type Props = {
-};
-
-export function Taskbar({ }: Props) {
+export function Taskbar() {
 
   const [clock, setClock] = useState(Date.now());
+
+  useStyle(style);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -20,7 +20,6 @@ export function Taskbar({ }: Props) {
   }, []);
 
   return <>
-    {/* <Style></Style> */}
     <div className='taskbar'>
       <HomeButton></HomeButton>
 

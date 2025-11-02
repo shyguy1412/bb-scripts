@@ -1,7 +1,6 @@
 import { NetscriptContext, TerminateContext, CleanupContext, TailRootContext } from "@/lib/Context";
 import { FapComponents } from "@/lib/FapUI";
-import { faRotate } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { FaRotate } from "react-icons/fa6";
 import React from "react";
 import { useContext, useEffect } from "react";
 import ReactDOM from "react-dom";
@@ -46,7 +45,7 @@ export function useReload() {
           width: '2em'
         }}
       >
-        <FontAwesomeIcon style={{ color: 'var(--primary)', fontSize: '17px' }} icon={faRotate}></FontAwesomeIcon>
+        <FaRotate style={{ color: 'var(--primary)', fontSize: '17px' }}></FaRotate>
       </button>;
     };
 

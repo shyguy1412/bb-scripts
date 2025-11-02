@@ -3,11 +3,7 @@ import LogoSVG from '../assets/bitburner-logo.svg' with {type: 'text'};
 import { HomeMenu } from '../components/HomeMenu';
 import React, { useState } from 'react';
 
-type Props = {
-
-};
-
-export function HomeButton({ }: Props) {
+export function HomeButton() {
   const [showMenu, setShowMenu] = useState(false);
 
   return <>

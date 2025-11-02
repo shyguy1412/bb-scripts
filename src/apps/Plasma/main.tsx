@@ -1,9 +1,7 @@
-import style from './style/global.css' with {type: 'css'};
-
 import { DesktopEnviroment } from './DesktopEnviroment';
 import { CleanupContext, NetscriptContext, TerminateContext } from '@/lib/Context';
 
-import ReactDOM from 'react-dom';
+import { createPortal } from 'react-dom';
 import React, { createContext } from 'react';
 
 type PlasmaConfig = Partial<{
@@ -24,9 +22,19 @@ export const PLASMA_CONFIG_FILE = '.plasmaconf.json';
 
 export async function Plasma(ns: NS) {
 
-  'use getHostname';
   if (ns.getHostname() != 'home') {
     throw new Error('Plasma can not run on servers');
+  }
+
+  const self = ns.self();
+  const plasmas = ns.ps(self.server).filter(p => p.filename == self.filename);
+
+  if (ns.args.includes("--replace")) {
+    plasmas.filter(p => p.pid != ns.pid).map(p => p.pid).forEach(ns.kill);
+  }
+
+  if (plasmas.length > 1) {
+    throw new Error('Plasma can only run once');
   }
 
   if (!ns.fileExists(PLASMA_CONFIG_FILE)) {
@@ -43,7 +51,6 @@ export async function Plasma(ns: NS) {
 
     ns.atExit(() => {
       ns.tprint('Terminated');
-      'use clearTerminal';
       ns.ui.clearTerminal();
       cleanupCallbacks.forEach(c => c());
       resolve();
@@ -71,19 +78,21 @@ export async function Plasma(ns: NS) {
       ns.toast("No file explorer app was set!", 'error');
     }
 
-    ReactDOM.render(
-      <NetscriptContext.Provider value={ns}>
-        <CleanupContext.Provider value={addCleanup}>
-          <TerminateContext.Provider value={resolve}>
-            <ConfigContext.Provider value={config}>
+    ns.tprintRaw(<>
+      {createPortal(
+        <NetscriptContext.Provider value={ns}>
+          <CleanupContext.Provider value={addCleanup}>
+            <TerminateContext.Provider value={resolve}>
+              <ConfigContext.Provider value={config}>
 
-              <DesktopEnviroment></DesktopEnviroment>
+                <DesktopEnviroment></DesktopEnviroment>
 
-            </ConfigContext.Provider>
-          </TerminateContext.Provider>
-        </CleanupContext.Provider>
-      </NetscriptContext.Provider>
-      , el
+              </ConfigContext.Provider>
+            </TerminateContext.Provider>
+          </CleanupContext.Provider>
+        </NetscriptContext.Provider>
+        , el)}
+    </>
     );
   });
 

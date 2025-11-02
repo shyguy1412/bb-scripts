@@ -1,17 +1,24 @@
 import { Taskbar } from './components/Taskbar';
-import { mapObject } from './lib/MapObject';
 import { Desktop } from './components/Desktop';
-// import Style from './style/DesktopEnviroment.css';
+import global_style from './style/global.css' with {'type': 'css'};
+import component_style from './style/DesktopEnviroment.css' with {'type': 'css'};
 import React, { useContext } from 'react';
 import { NetscriptContext } from '@/lib/Context';
+import { useStyle } from '@/lib/hooks/useStyle';
+import { useHotReload } from '@/lib/hooks/useHotReload';
 
 export function DesktopEnviroment() {
 
+  useHotReload();
+
   const ns = useContext(NetscriptContext);
 
-  const theme = mapObject(ns.ui.getTheme(), (key, value) => ({
-    ['--' + key]: value
-  }));
+  const theme = Object.fromEntries(
+    Object.entries(ns.ui.getTheme()).map(([k, v]) => (['--' + k, v]))
+  );
+
+  useStyle(global_style);
+  useStyle(component_style);
 
   return <>
     <div className='desktop-enviroment' style={theme}>

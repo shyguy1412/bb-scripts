@@ -5,11 +5,7 @@ import React, { useContext } from 'react';
 import { FaCog, FaFolderOpen, FaJs, FaPowerOff, FaTerminal } from 'react-icons/fa';
 import { FaRotate } from 'react-icons/fa6';
 
-type Props = {
-
-};
-
-export function HomeMenu({ }: Props) {
+export function HomeMenu() {
   'use run';
   const terminate = useContext(TerminateContext);
   const config = useContext(ConfigContext);
@@ -54,7 +50,7 @@ export function HomeMenu({ }: Props) {
     <span className='plasma-button plasma-box-top' onClick={async () => {
       terminate();
       addCleanup(() => {
-        ns.run(ns.getScriptName());
+        ns.run(ns.getScriptName(), 1, "--replace");
       });
     }}>
       <FaRotate></FaRotate>

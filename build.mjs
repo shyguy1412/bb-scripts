@@ -13,7 +13,7 @@ const CSSPlugin = {
       if (opts.with.type == 'css') {
         return {
           contents: `import css from '${opts.path}' with {type: 'text'};const sheet = new CSSStyleSheet();await sheet.replace(css);export default sheet;`,
-          loader: 'text'
+          loader: 'js'
         };
       }
 
@@ -85,7 +85,7 @@ export const config = {
     BitburnerPlugin({
       port: 12525,
       types: 'NetscriptDefinitions.d.ts',
-      mirror: { 'local': ['home'] }
+      mirror: { 'mirror': ['home'] }
     })
   ],
   bundle: true,

@@ -1,4 +1,4 @@
-// import Style from './FileTile.css';
+import style from './FileTile.css' with {'type': 'css'};
 import React, { MouseEvent, createContext, useContext } from 'react';
 import { deleteFile, deleteFolder, moveFile, moveFolder, transferFile } from '@/lib/FileSystem';
 import { DragTarget } from '@/lib/components/DragTarget';
@@ -8,6 +8,7 @@ import { getConnectionPath } from '@/lib/Network';
 
 import { FaFileCode, FaPen } from 'react-icons/fa';
 import { FaFileLines, FaFolderClosed, FaTrashCan } from 'react-icons/fa6';
+import { useStyle } from '@/lib/hooks/useStyle';
 
 type Props = {
   file: {
@@ -32,6 +33,8 @@ export function FileTile({ file, path }: Props) {
   const type = (file.type == 'file' ? file.name.split('.').at(-1) : 'folder') as keyof typeof FileIcons;
   const Icon = FileIcons[type] ?? FileIcons['txt'];
   const onDoubleClick = useContext(DoubleClickFileContext);
+
+  useStyle(style);
 
   return <DragTarget
     className='file-tile'

@@ -1,5 +1,5 @@
 import { ConfigContext } from '../main';
-import { NetscriptContext } from '@/lib/Context';
+import { CleanupContext, NetscriptContext } from '@/lib/Context';
 import { readDir, readFile } from '@/lib/FileSystem';
 import { FileGrid } from '@/lib/components/FileGrid';
 import { DoubleClickFileContext } from '@/lib/components/FileTile';
@@ -10,12 +10,15 @@ export function Desktop() {
 
   const ns = useContext(NetscriptContext);
   const config = useContext(ConfigContext);
+  const addCleanup = useContext(CleanupContext);
 
   const [_, reload] = useState(true); //this is just used to poll the fs since BB doesnt have fs events
   useEffect(() => {
-    const timeout = setTimeout(() => reload(!_), 500); //just swapping between true/false
+    const timeout = setTimeout(() => reload(!_), 100); //just swapping between true/false
+    addCleanup(() => clearTimeout(timeout));
     return () => clearTimeout(timeout);
-  });
+  }, []);
+
 
   const explorerScript = config.get('explorer');
 
