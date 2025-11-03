@@ -2,7 +2,7 @@ import { hotReload } from "@/lib/syscalls/HotReload";
 import { createProcessInterface } from "@/lib/syscalls/ProcessInterface";
 import { registerProcess } from "@/lib/syscalls/RegisterProcess";
 import { getSafePortHandle } from "@/lib/System";
-import metaFilename from "meta:filename";
+import __META_FILENAME from "meta:filename";
 
 type FSEvent = {
   type: "change",
@@ -29,42 +29,40 @@ type FSDaemonMessage = SubscribeMessage | UnsubscribeMessage;
 export const connect = createProcessInterface<
   FSDaemonMessage,
   FSEvent
->(metaFilename);
+>(__META_FILENAME);
+
+type FsDaemonData = {
+  listeners: Map<string, Map<number, SubscribeMessage>>;
+  fileCache: Map<string, string>;
+};
 
 export async function main(ns: NS) {
   registerProcess(ns);
 
-  // hotReload(ns);
+  hotReload(ns);
 
-  const port = getSafePortHandle(ns, ns.pid)!;
-
-  const listeners = new Map<string, Map<number, SubscribeMessage>>();
-  const fileCache = new Map<string, string>();
-
-  let garbageCollector = setInterval(() => {
-    const watchedFiles = listeners.keys().toArray();
-    const filesToDelete = fileCache.keys().filter(file => !watchedFiles.includes(file));
-    for (const fileToDelete of filesToDelete) fileCache.delete(fileToDelete);
-  }, 500);
-
-  ns.atExit(() => clearInterval(garbageCollector));
+  const daemonData = {
+    listeners: new Map<string, Map<number, SubscribeMessage>>(),
+    fileCache: new Map<string, string>(),
+  };
 
   while (true) {
-    await ns.sleep(500);
+    await ns.sleep(0);
 
-    for (const [filename, content] of fileCache.entries()) {
+    for (const [filename, content] of daemonData.fileCache.entries()) {
+      const fileListeners = daemonData.listeners.get(filename);
+      if (!fileListeners) {
+        daemonData.fileCache.delete(filename);
+        continue;
+      };
+
+      const deadListeners = fileListeners.keys().filter(pid => !ns.isRunning(pid));
+      for (const deadListener of deadListeners) fileListeners.delete(deadListener);
+
       const newContent = ns.read(filename);
 
       if (content == newContent) continue;
-      fileCache.set(filename, newContent);
-
-      const fileListeners = listeners.get(filename);
-
-      if (!fileListeners) continue;
-
-      //before dispatch clear dead listeners
-      const deadListeners = fileListeners.keys().filter(pid => !ns.isRunning(pid));
-      for (const deadListener of deadListeners) fileListeners.delete(deadListener);
+      daemonData.fileCache.set(filename, newContent);
 
       const event: FSEvent = {
         type: "change",
@@ -74,24 +72,32 @@ export async function main(ns: NS) {
 
       for (const [pid] of fileListeners) {
         ns.writePort(pid, {
-          process: metaFilename,
+          process: __META_FILENAME,
           payload: event,
         });
       }
     }
 
-    while (!port.empty()) {
-      const msg: FSDaemonMessage = port.read();
-      if (msg.action == "subscribe") {
-        const fileListeners = listeners.get(msg.filename) ?? new Map();
-        listeners.set(msg.filename, fileListeners);
-        fileListeners.set(msg.listener, msg);
-        fileCache.set(msg.filename, ns.read(msg.filename));
-      } else {
-        const fileListeners = listeners.get(msg.filename);
-        if (!fileListeners) continue;
-        fileListeners.delete(msg.listener);
-      }
+    emptyRequestQueue(ns, daemonData);
+  }
+}
+
+function emptyRequestQueue(ns: NS, data: FsDaemonData) {
+  const port = getSafePortHandle(ns, ns.pid)!;
+
+  while (!port.empty()) {
+    const msg: FSDaemonMessage = port.read();
+    //ignore broken files
+    try { ns.read(msg.filename); } catch { continue; }
+    if (msg.action == "subscribe") {
+      const fileListeners = data.listeners.get(msg.filename) ?? new Map();
+      data.listeners.set(msg.filename, fileListeners);
+      fileListeners.set(msg.listener, msg);
+      data.fileCache.set(msg.filename, ns.read(msg.filename));
+    } else {
+      const fileListeners = data.listeners.get(msg.filename);
+      if (!fileListeners) continue;
+      fileListeners.delete(msg.listener);
     }
   }
 }

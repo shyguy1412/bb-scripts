@@ -7,7 +7,6 @@ export function registerProcess(ns: NS) {
 
   ns.write(pidFile, ns.pid + "", 'w');
   ns.atExit(() => {
-    ns.ramOverride(ns.self().dynamicRamUsage! + 1);
-    ns["rm"](pidFile);
+    ns.rm(pidFile);
   }, "__syscall_register_process");
 }

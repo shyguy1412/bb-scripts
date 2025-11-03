@@ -14,44 +14,17 @@ export function createProcessInterface<T, R>(process: string) {
     };
 
     const read = async (): Promise<R> => {
-
       const port = getSafePortHandle(ns, ns.pid)!;
-
       while (true) {
-        if (port.empty()) await new Promise<void>(async (resolve, reject) => {
-          let hasResolved = false;
-
-          const subResolve = () => hasResolved = true;
-
-          port.nextWrite().then(subResolve);
-
-          while (!hasResolved) {
-            await ns.sleep(0);
-            if (connection.port == 0) return reject(`${process} has disconnected`);
-          }
-
-          return resolve();
-        });
-
-        if (port.peek().process != process) {
-          await ns.sleep(0);
-          continue;
-        }
-
-        const msg = port.read();
-        return msg.payload;
+        await ns.sleep(0);
+        if (connection.port == 0) throw `${process} has disconnected`;
+        if (port.peek().process != process) continue;
+        return port.read().payload;
       }
     };
 
-    return [
-      write,
-      read
-    ] as const;
+    return [write, read] as const;
   };
-}
-
-export function awaitDisconnect() {
-
 }
 
 export function connectToProcess(ns: NS, process: string): Connection {
