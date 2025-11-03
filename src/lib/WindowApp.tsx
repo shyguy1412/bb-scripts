@@ -1,5 +1,5 @@
 import { findTailRoot, watchElForDeletion } from '@/lib/BitburnerDOM';
-import { NetscriptContext, CleanupContext, TerminateContext, ContextCollection, TailRootContext } from '@/lib/Context';
+import { NetscriptContext, CleanupContext, TerminateContext, TailRootContext } from '@/lib/Context';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
@@ -10,7 +10,7 @@ export function createWindowApp(ns: NS, pid?: string | number) {
       cleanupCallbacks.forEach(c => c());
       // ns.tprint('Terminated');
       ns.ui.closeTail();
-    }, 
+    },
     async mount(component: React.JSX.Element) {
       return new Promise<void>(async resolve => {
         ns.ui.openTail();
@@ -40,31 +40,20 @@ export function createWindowApp(ns: NS, pid?: string | number) {
           </div>;
         };
 
-        const contexts = [
-          {
-            context: NetscriptContext,
-            value: ns
-          },
-          {
-            context: TerminateContext,
-            value: resolve
-          },
-          {
-            context: CleanupContext,
-            value: (f: () => void) => cleanupCallbacks.push(f)
-          },
-          {
-            context: TailRootContext,
-            value: root
-          }
-        ];
+        const addCleanup = (f: () => void) => cleanupCallbacks.push(f);
 
         cleanupCallbacks.push(() => ReactDOM.unmountComponentAtNode(root)); //this ensures the app is properly dismounted before NS is invalid
 
         ReactDOM.render(
-          <ContextCollection contexts={contexts}>
-            <WindowWrapper></WindowWrapper>
-          </ContextCollection>
+          <NetscriptContext.Provider value={ns}>
+            <TerminateContext.Provider value={resolve}>
+              <CleanupContext.Provider value={addCleanup}>
+                <TailRootContext.Provider value={root}>
+                  <WindowWrapper></WindowWrapper>
+                </TailRootContext.Provider>
+              </CleanupContext.Provider>
+            </TerminateContext.Provider>
+          </NetscriptContext.Provider>
           , root);
 
         watchElForDeletion(root, () => resolve());

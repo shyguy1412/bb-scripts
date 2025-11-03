@@ -5,11 +5,8 @@ import component_style from './style/DesktopEnviroment.css' with {'type': 'css'}
 import React, { useContext } from 'react';
 import { NetscriptContext } from '@/lib/Context';
 import { useStyle } from '@/lib/hooks/useStyle';
-import { useHotReload } from '@/lib/hooks/useHotReload';
 
 export function DesktopEnviroment() {
-
-  useHotReload();
 
   const ns = useContext(NetscriptContext);
 

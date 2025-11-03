@@ -6,9 +6,10 @@ import { UnsafePlugin } from 'ramdodger-extension';
 /**
  * @type {import('esbuild').Plugin}
  */
-const CSSPlugin = {
-  name: 'CSSPlugin',
+const CustomImportAttributes = {
+  name: 'CustomImportAttributes',
   setup(pluginBuild) {
+
     pluginBuild.onLoad({ filter: /.*/ }, async (opts) => {
       if (opts.with.type == 'css') {
         return {
@@ -16,40 +17,7 @@ const CSSPlugin = {
           loader: 'js'
         };
       }
-
     });
-  }
-};
-
-// /**
-//  * @type {import('esbuild').Plugin}
-//  */
-// const SVGSpoofPlugin = {
-//   name: 'SVGSpoofPlugin',
-//   setup(pluginBuild) {
-//     pluginBuild.onLoad({ filter: /.*?\.svg$/ }, async opts => {
-//       const file = await fs.readFile(opts.path, { encoding: 'utf8' });
-//       return {
-//         loader: 'jsx',
-//         contents: `\
-//         import React from 'react';
-
-//         export default function () {
-//           return <div dangerouslySetInnerHTML={{__html: \`${file}\`}}></div>;
-//         }\
-//         `
-//       };
-//     });
-//   }
-// };
-
-
-/**
- * @type {import('esbuild').Plugin}
- */
-const TextPlugin = {
-  name: 'TextPlugin',
-  setup(pluginBuild) {
 
     pluginBuild.onLoad({ filter: /.*/ }, async (opts) => {
       if (opts.with.type == 'text') {
@@ -59,8 +27,54 @@ const TextPlugin = {
           loader: 'text'
         };
       }
-
     });
+
+    pluginBuild.onLoad({ filter: /.*/ }, async (opts) => {
+      if (opts.with.type == 'dataurl') {
+        const file = await fs.readFile(opts.path, { encoding: 'utf8' });
+        return {
+          contents: file,
+          loader: 'dataurl'
+        };
+      }
+    });
+
+  }
+};
+
+/**
+ * @type {import('esbuild').Plugin}
+ */
+const MetaImports = {
+  name: 'MetaImports',
+  setup(pluginBuild) {
+
+    pluginBuild.onResolve({ filter: /meta/ }, (opts) => {
+      return {
+        path: opts.importer,
+        pluginData: opts,
+        namespace: opts.path
+      };
+    });
+
+    pluginBuild.onLoad({ filter: /.*/, namespace: 'meta:filename' }, async (opts) => {
+      return {
+        contents: opts.path.replace(/^.*\/(.*)\..*$/, '$1'),
+        loader: 'text'
+      };
+    });
+
+  }
+};
+
+/**@type {import('esbuild-bitburner-plugin').PluginExtension} */
+const ClearChunksExtension = {
+  async afterBuild(rfa) {
+    const files = (await rfa.getFileNames('home')).result;
+    const chunks = files.filter(f => f.startsWith('usr/lib/chunks'));
+    const bin = files.filter(f => f.startsWith('bin'));
+    await Promise.all(chunks.map(c => rfa.deleteFile({ filename: c, server: 'home' }))
+    );
   }
 };
 
@@ -78,14 +92,15 @@ export const config = {
   outbase: './src/servers',
   outdir: './build',
   plugins: [
-    TextPlugin,
-    CSSPlugin,
+    CustomImportAttributes,
+    MetaImports,
     // SVGSpoofPlugin,
     UnsafePlugin,
     BitburnerPlugin({
       port: 12525,
       types: 'NetscriptDefinitions.d.ts',
-      mirror: { 'mirror': ['home'] }
+      mirror: { 'mirror': ['home'] },
+      extensions: [ClearChunksExtension]
     })
   ],
   bundle: true,
@@ -95,6 +110,8 @@ export const config = {
   // minify: true,
   keepNames: true,
   logLevel: 'debug',
+  // splitting: true,
+  chunkNames: 'home/usr/lib/chunks/[name]-[hash]'
 };
 
 

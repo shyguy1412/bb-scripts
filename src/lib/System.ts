@@ -1,4 +1,4 @@
-import { Server } from "NetscriptDefinitions";
+import { NetscriptPort, Server } from "NetscriptDefinitions";
 //@ts-expect-error: invalid type due to with text assertion
 import RamAllocatorScript from "@/lib/ram-allocator" with {type: 'text'};
 
@@ -8,6 +8,20 @@ export async function sleep(ms: number) {
 
 export function getRamCost(ns: NS, functions: string[], threads = 1) {
   return (1.6 + functions.reduce((a, b) => a + ns.getFunctionRamCost(b), 0)) * threads;
+}
+
+export function getSafePortHandle(ns: NS, port: number): NetscriptPort | undefined {
+  if (port < 1) return;
+  return {
+    write: (value: any) => ns.writePort(port, value),
+    tryWrite: (value: any) => ns.tryWritePort(port, value),
+    nextWrite: () => ns.nextPortWrite(port),
+    read: () => ns.readPort(port),
+    peek: () => ns.peek(port),
+    full: () => ns.getPortHandle(port).full(),
+    empty: () => ns.getPortHandle(port).empty(),
+    clear: () => ns.clearPort(port)
+  };
 }
 
 type AllocateOptions = {

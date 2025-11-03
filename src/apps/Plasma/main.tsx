@@ -3,6 +3,7 @@ import { CleanupContext, NetscriptContext, TerminateContext } from '@/lib/Contex
 
 import { createPortal } from 'react-dom';
 import React, { createContext } from 'react';
+import { hotReload } from '@/lib/syscalls/HotReload';
 
 type PlasmaConfig = Partial<{
   homeapps: string[];
@@ -18,9 +19,11 @@ type ConfigWrapper = {
 
 // @ts-expect-error
 export const ConfigContext = createContext<ConfigWrapper>(null);
-export const PLASMA_CONFIG_FILE = '.plasmaconf.json';
+export const PLASMA_CONFIG_FILE = '/etc/plasma/plasmaconf.json';
 
 export async function Plasma(ns: NS) {
+
+  hotReload(ns);
 
   // if (ns.getHostname() != 'home') {
   //   throw new Error('Plasma can not run on servers');

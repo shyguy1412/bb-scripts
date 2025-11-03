@@ -1,5 +1,5 @@
 import { FileGrid } from '@/lib/components/FileGrid';
-import Style from './Dolphin.css';
+import style from './Dolphin.css' with {type: "css"};
 import { ServerSection } from './ServerSection';
 import { List } from '@/lib/components/List';
 import { getAllServers } from '@/lib/Network';
@@ -8,10 +8,11 @@ import { BreadCrumbs } from './BreadCrumbs';
 import { mkdir, readDir, readFile, writeFile } from '@/lib/FileSystem';
 import { DoubleClickFileContext } from '@/lib/components/FileTile';
 import { NetscriptContext } from '@/lib/Context';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { getAllCodingContracts } from '@/lib/FileSystem';
 import { useReload } from '@/lib/hooks/useReload';
+import { FaPlus } from 'react-icons/fa';
+import { useStyle } from '@/lib/hooks/useStyle';
+import { hotReload } from '@/lib/syscalls/HotReload';
 
 // @ts-expect-error
 export const PathContext = createContext<([string, Dispatch<SetStateAction<string>>])>(null);
@@ -24,6 +25,8 @@ export function Dolphin() {
   const ns = useContext(NetscriptContext);
 
   useReload();
+  hotReload(ns);
+  useStyle(style);
 
   const [path, setPath] = useState<string>(ns.args[0] as string ?? ns.getHostname());
 
@@ -61,21 +64,19 @@ export function Dolphin() {
     return prev;
   }, [] as Parameters<typeof ServerSection>[0][]);
 
-  ns.setTitle(`Dolphin - ${path.replace(/([^\/]*)(\/?)/, '$1://')}`);
+  ns.ui.setTailTitle(`Dolphin - ${path.replace(/([^\/]*)(\/?)/, '$1://')}`);
 
   const [_, reload] = useState(true); //this is just used to poll the fs since BB doesnt have fs events
   useEffect(() => {
-    if(path == '~home/coding-contracts') return;
+    if (path == '~home/coding-contracts') return;
     const timeout = setTimeout(() => reload(!_), 500); //just swapping between true/false
     return () => clearTimeout(timeout);
   });
 
   const files = useMemo(() => path == '~home/coding-contracts' ? getAllCodingContracts(ns) : readDir(ns, path), [path]);
-  console.log('GOT FILES');
-  
+
   if (files)
     return <>
-      <Style></Style>
       <PathContext.Provider value={[path, setPath]}>
         <div className='dolphin-layout'>
           <div className='dolphin-actionbar'>
@@ -86,7 +87,7 @@ export function Dolphin() {
                   mkdir(ns, `${path}/new_dir`);
                 }}
               >
-                <FontAwesomeIcon style={{ marginRight: '0.2em' }} icon={faPlus}></FontAwesomeIcon>
+                <FaPlus style={{ marginRight: '0.2em' }}></FaPlus>
                 new folder
               </span>
               <span
@@ -94,7 +95,7 @@ export function Dolphin() {
                   writeFile(ns, '', `${path}/new_file.js`);
                 }}
               >
-                <FontAwesomeIcon style={{ marginRight: '0.2em' }} icon={faPlus}></FontAwesomeIcon>
+                <FaPlus style={{ marginRight: '0.2em' }}></FaPlus>
                 new file
               </span>
             </span>
