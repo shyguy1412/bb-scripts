@@ -10,6 +10,14 @@ export function getRamCost(ns: NS, functions: string[], threads = 1) {
   return (1.6 + functions.reduce((a, b) => a + ns.getFunctionRamCost(b), 0)) * threads;
 }
 
+export function alive(ns:NS):boolean{
+  try {
+    return !!ns.self().pid;
+  } catch {
+    return false;
+  }
+}
+
 export function getSafePortHandle(ns: NS, port: number): NetscriptPort | undefined {
   if (port < 1) return;
   return {

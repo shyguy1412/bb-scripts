@@ -12,7 +12,7 @@ import { getAllCodingContracts } from '@/lib/FileSystem';
 import { useReload } from '@/lib/hooks/useReload';
 import { FaPlus } from 'react-icons/fa';
 import { useStyle } from '@/lib/hooks/useStyle';
-import { hotReload } from '@/lib/syscalls/HotReload';
+import { enable_hot_reload } from '@/lib/syscalls/hot_reload';
 
 // @ts-expect-error
 export const PathContext = createContext<([string, Dispatch<SetStateAction<string>>])>(null);
@@ -25,7 +25,7 @@ export function Dolphin() {
   const ns = useContext(NetscriptContext);
 
   useReload();
-  hotReload(ns);
+  enable_hot_reload(ns);
   useStyle(style);
 
   const [path, setPath] = useState<string>(ns.args[0] as string ?? ns.getHostname());

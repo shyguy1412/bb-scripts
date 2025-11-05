@@ -10,7 +10,7 @@ export async function main(ns){
 }
 `;
 
-export function hotReload(ns: NS) {
+export function enable_hot_reload(ns: NS) {
   const filename = ns.self().filename;
   const hmrServer = `/tmp/.__hmr_server_${ns.pid}.js`;
   if (ns.isRunning(hmrServer)) return;

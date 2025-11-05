@@ -1,29 +1,40 @@
-// must have kernel features:
-// filesystem events
-// pipes
+import { get_service, register_as_service } from "@/lib/syscalls/service";
+import META_FILENAME from "meta:filename";
+import { create_fdaemon, main as fdaemon, SubscribeMessage } from "@/servers/home/bin/service/fdaemon";
+import { enable_hot_reload } from "@/lib/syscalls/hot_reload";
 
-import { registerProcess } from "@/lib/syscalls/RegisterProcess";
-import { getSafePortHandle } from "@/lib/System";
 
-const syscalls = {
-  "hmr": () => { },
-} as const;
-
-export type Syscall = keyof typeof syscalls;
+export async function system_cycle(ns: NS) {
+  const { port } = get_service(ns, META_FILENAME);
+  if (!port) throw new Error(`${META_FILENAME} is not running`);
+  return ns.nextPortWrite(port);
+}
 
 export async function main(ns: NS) {
-  registerProcess(ns);
+  register_as_service(ns);
 
-  const port = getSafePortHandle(ns, ns.pid);
+  enable_hot_reload(ns);
+
+  ns.atExit(() => {
+    //send a cycle after the scripts death
+    //this prevents other scripts from immediatly awating the next cycle and getting stuck
+    const port = ns.getPortHandle(ns.pid);
+    setTimeout(() => {
+      port.write({ process: META_FILENAME });
+      port.clear();
+    });
+  }, "__kernel_send_final_cycle");
+
+  const fdaemon = create_fdaemon(ns);
 
   while (true) {
-    if (port.empty())
-      await port.nextWrite();
+    await ns.sleep(0);
 
-    const msg = port.read();
+    fdaemon();
 
-    if(msg in syscalls){
-      syscalls[msg as Syscall]();
-    }
+    ns.clearPort(ns.pid);
+    ns.writePort(ns.pid, { process: META_FILENAME });
+
+    // continue;
   }
 }
