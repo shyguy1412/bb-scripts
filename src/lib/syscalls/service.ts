@@ -20,8 +20,8 @@ export type Request<T extends string = string, D = any> = {
 };
 
 export function create_service_interface<S extends Request, R>(service_name: string) {
-  const connect_to_service =
-    (ns: NS) => connect_to_service_interface<S, Response<R>>(ns, service_name);
+  const connect_to_typed_service =
+    (ns: NS) => connect_to_service<S, Response<R>>(ns, service_name);
 
   const create_typed_request_channel =
     (ns: NS) => create_request_channel<S>(ns);
@@ -30,20 +30,23 @@ export function create_service_interface<S extends Request, R>(service_name: str
     (ns: NS, port: number) => create_response_channel<R>(ns, service_name, port);
 
   return [
-    connect_to_service,
+    connect_to_typed_service,
     create_typed_request_channel,
     create_typed_response_channel
   ] as const;
 };
 
-export function connect_to_service_interface<S extends Request, R extends Response>(ns: NS, service_name: string) {
+export function connect_to_service<S extends Request, R extends Response>(ns: NS, service_name: string) {
 
   const service = get_service(ns, service_name);
 
-  const writeToService = (type: S["type"], data: S["data"]) => write_to_service(ns, service, type, data);
-  const readFromService = () => read_from_service<R>(ns, service);
+  const typed_write_to_service = (type: S["type"], data: S["data"]) => write_to_service(ns, service, type, data);
+  const typed_read_from_service = () => read_from_service<R>(ns, service);
 
-  return [writeToService, readFromService] as const;
+  return [
+    typed_write_to_service,
+    typed_read_from_service
+  ] as const;
 }
 
 export function* create_request_channel<S extends Request>(ns: NS): Generator<S, void, undefined> {
