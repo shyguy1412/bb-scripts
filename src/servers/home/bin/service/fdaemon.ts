@@ -108,16 +108,20 @@ function process_request_queue(ns: NS, data: FsDaemonData) {
   const request_channel = create_request_channel(ns);
 
   for (const request of request_channel) {
-    switch (request.type) {
-      case "subscribe":
-        handle_subscribe_request(ns, data, request);
-        break;
-      case "unsubscribe":
-        handle_unsubscribe_request(ns, data, request);
-        break;
-    }
+    handle_request(ns, data, request);
   }
 
+}
+
+function handle_request(ns: NS, data: FsDaemonData, request: FSDaemonRequest) {
+  switch (request.type) {
+    case "subscribe":
+      handle_subscribe_request(ns, data, request);
+      break;
+    case "unsubscribe":
+      handle_unsubscribe_request(ns, data, request);
+      break;
+  }
 }
 
 function handle_unsubscribe_request(ns: NS, data: FsDaemonData, msg: UnsubscribeRequest) {
