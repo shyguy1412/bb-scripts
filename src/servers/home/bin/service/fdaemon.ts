@@ -1,5 +1,4 @@
 import { create_service_interface, Request, register_as_service, ResponseChannel } from "@/lib/syscalls/service";
-import { getSafePortHandle } from "@/lib/System";
 import { system_cycle } from "@/servers/home/bin/kernel";
 import __META_FILENAME from "meta:filename";
 
@@ -60,7 +59,7 @@ export function create_fdaemon(ns: NS) {
   return () => fdaemon_cycle(ns, data);
 }
 
-export function fdaemon_cycle(ns: NS, data: FsDaemonData) {
+function fdaemon_cycle(ns: NS, data: FsDaemonData) {
 
   process_request_queue(ns, data);
 

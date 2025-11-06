@@ -1,10 +1,11 @@
-import { enable_hot_reload } from "@/lib/syscalls/hot_reload";
 import { connect_to_fdaemon } from "@/servers/home/bin/service/fdaemon";
 import { system_cycle } from "@/servers/home/bin/kernel";
+import { enable_hot_reload } from "@/servers/home/bin/service/hmr-daemon";
 
 export async function main(ns: NS) {
 
   enable_hot_reload(ns);
+  
   const fdaemon = connect_to_fdaemon(ns);
   const [send, receive] = fdaemon;
 

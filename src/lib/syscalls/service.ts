@@ -3,28 +3,33 @@ import { system_cycle } from "@/servers/home/bin/kernel";
 
 type Service = {
   port: number;
-  service: string;
+  name: string;
 };
 
 export type ResponseChannel<T> = (response: T) => void;
 
 export type Response<T = any> = {
-  service: string,
+  uuid: string;
+  service: string;
   data: T;
 };
 
-export type Request<T extends string = string, D = any> = {
-  type: T,
-  sender: number,
+export type Request<T = string, D = any> = {
+  uuid: string;
+  service: string;
+  type: T;
+  sender: number;
   data: D;
 };
+
+export type RequestHandler<T> = (request: T) => void;
 
 export function create_service_interface<S extends Request, R>(service_name: string) {
   const connect_to_typed_service =
     (ns: NS) => connect_to_service<S, Response<R>>(ns, service_name);
 
   const create_typed_request_channel =
-    (ns: NS) => create_request_channel<S>(ns);
+    (ns: NS) => create_request_channel<S>(ns, service_name);
 
   const create_typed_response_channel =
     (ns: NS, port: number) => create_response_channel<R>(ns, service_name, port);
@@ -49,14 +54,16 @@ export function connect_to_service<S extends Request, R extends Response>(ns: NS
   ] as const;
 }
 
-export function* create_request_channel<S extends Request>(ns: NS): Generator<S, void, undefined> {
+export function* create_request_channel<S extends Request>(ns: NS, service_name: string): Generator<S, void, undefined> {
   const port = getSafePortHandle(ns, ns.pid)!;
+  if (port.peek().service != service_name) return;
   while (!port.empty()) yield port.read();
 }
 
 export function create_response_channel<R>(ns: NS, service: string, port: number) {
   return (data: R) => {
     const response: Response<R> = {
+      uuid: crypto.randomUUID(),
       service,
       data
     };
@@ -67,7 +74,9 @@ export function create_response_channel<R>(ns: NS, service: string, port: number
 
 export function write_to_service<T extends string, D>(ns: NS, service: Service, type: T, arg: D) {
   const message: Request<T, D> = {
+    uuid: crypto.randomUUID(),
     type,
+    service: service.name,
     sender: ns.pid,
     data: arg
   };
@@ -85,18 +94,18 @@ export async function read_from_service<R>(ns: NS, service: Service) {
 
     const hasDisconnected = !alive(ns) || service.port != servicePort;
 
-    if (hasDisconnected) throw `${service.service} has disconnected`;
+    if (hasDisconnected) throw `${service.name} has disconnected`;
 
-    if (port.peek().service != service.service) continue;
+    if (port.peek().service != service.name) continue;
 
     return port.read().data as R;
   }
 }
 
-export function get_service(ns: NS, service: string): Service {
-  return Object.defineProperties({ port: 0, service }, {
+export function get_service(ns: NS, service_name: string): Service {
+  return Object.defineProperties({ port: 0, name: service_name }, {
     port: {
-      get: () => get_service_port(ns, service)
+      get: () => get_service_port(ns, service_name)
     },
   });
 }
