@@ -8,38 +8,52 @@ type Service = {
 
 export type ResponseChannel<T> = (response: T) => void;
 
-export type Response<T> = {
+export type Response<T = any> = {
   service: string,
   data: T;
 };
 
-export type Message<T> = {
+export type Request<T extends string = string, D = any> = {
+  type: T,
   sender: number,
-  data: T;
+  data: D;
 };
 
-export function create_service_interface<T, R>(service_name: string) {
+export function create_service_interface<S extends Request, R>(service_name: string) {
   const connect_to_service =
-    (ns: NS) => connect_to_service_interface<T, R>(ns, service_name);
+    (ns: NS) => connect_to_service_interface<S, Response<R>>(ns, service_name);
 
-  const create_response_channel =
-    (ns: NS, port: number) => response_channel<R>(ns, service_name, port);
+  const create_typed_request_channel =
+    (ns: NS) => create_request_channel<S>(ns);
 
-  return [connect_to_service, create_response_channel] as const;
-}
+  const create_typed_response_channel =
+    (ns: NS, port: number) => create_response_channel<R>(ns, service_name, port);
 
-export function connect_to_service_interface<T, R>(ns: NS, service_name: string) {
+  return [
+    connect_to_service,
+    create_typed_request_channel,
+    create_typed_response_channel
+  ] as const;
+};
+
+export function connect_to_service_interface<S extends Request, R extends Response>(ns: NS, service_name: string) {
+
   const service = get_service(ns, service_name);
 
-  const writeToService = (arg: T) => write_to_service(ns, service, arg);
-  const readFromService = () => read_from_service(ns, service);
+  const writeToService = (type: S["type"], data: S["data"]) => write_to_service(ns, service, type, data);
+  const readFromService = () => read_from_service<R>(ns, service);
 
   return [writeToService, readFromService] as const;
 }
 
-export function response_channel<T>(ns: NS, service: string, port: number) {
-  return (data: T) => {
-    const response: Response<T> = {
+export function* create_request_channel<S extends Request>(ns: NS): Generator<S, void, undefined> {
+  const port = getSafePortHandle(ns, ns.pid)!;
+  while (!port.empty()) yield port.read();
+}
+
+export function create_response_channel<R>(ns: NS, service: string, port: number) {
+  return (data: R) => {
+    const response: Response<R> = {
       service,
       data
     };
@@ -48,9 +62,9 @@ export function response_channel<T>(ns: NS, service: string, port: number) {
   };
 }
 
-
-export function write_to_service<T>(ns: NS, service: Service, arg: T) {
-  const message: Message<T> = {
+export function write_to_service<T extends string, D>(ns: NS, service: Service, type: T, arg: D) {
+  const message: Request<T, D> = {
+    type,
     sender: ns.pid,
     data: arg
   };
@@ -63,7 +77,8 @@ export async function read_from_service<R>(ns: NS, service: Service) {
   const servicePort = service.port;
 
   while (true) {
-    await system_cycle(ns);
+    const cycled = await system_cycle(ns);
+    if (!cycled) continue;
 
     const hasDisconnected = !alive(ns) || service.port != servicePort;
 
@@ -71,7 +86,7 @@ export async function read_from_service<R>(ns: NS, service: Service) {
 
     if (port.peek().service != service.service) continue;
 
-    return port.read().data;
+    return port.read().data as R;
   }
 }
 

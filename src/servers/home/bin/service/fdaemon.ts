@@ -1,4 +1,4 @@
-import { create_service_interface, Message, register_as_service, ResponseChannel } from "@/lib/syscalls/service";
+import { create_service_interface, Request, register_as_service, ResponseChannel } from "@/lib/syscalls/service";
 import { getSafePortHandle } from "@/lib/System";
 import { system_cycle } from "@/servers/home/bin/kernel";
 import __META_FILENAME from "meta:filename";
@@ -9,23 +9,21 @@ export type FSEvent = {
   content: string;
 };
 
-export type SubscribeMessage = {
-  action: "subscribe",
+export type SubscribeRequest = Request<"subscribe", {
   filename: string,
   event: FSEvent["type"];
-};
+}>;
 
-export type Subscriber = SubscribeMessage & {
+export type Subscriber = SubscribeRequest["data"] & {
   send: ResponseChannel<FSEvent>;
 };
 
-export type UnsubscribeMessage = {
-  action: "unsubscribe",
+export type UnsubscribeRequest = Request<"unsubscribe", {
   filename: string,
   event: FSEvent["type"];
-};
+}>;
 
-export type FSDaemonMessage = SubscribeMessage | UnsubscribeMessage;
+export type FSDaemonRequest = SubscribeRequest | UnsubscribeRequest;
 
 export type FsDaemonData = {
   listeners: Map<string, Map<number, Subscriber>>;
@@ -34,8 +32,9 @@ export type FsDaemonData = {
 
 const [
   connect_to_fdaemon,
+  create_request_channel,
   create_response_channel
-] = create_service_interface<FSDaemonMessage, FSEvent>(__META_FILENAME);
+] = create_service_interface<FSDaemonRequest, FSEvent>(__META_FILENAME);
 export { connect_to_fdaemon };
 
 
@@ -43,7 +42,9 @@ export async function main(ns: NS) {
   const run_daemon_cycle = create_fdaemon(ns);
 
   while (true) {
-    await system_cycle(ns);
+    const cycled = await system_cycle(ns);
+    if (!cycled) continue;
+
     run_daemon_cycle();
   }
 }
@@ -104,24 +105,28 @@ function collect_unused_file_listeners(ns: NS, filename: string, data: FsDaemonD
 }
 
 function process_request_queue(ns: NS, data: FsDaemonData) {
-  const port = getSafePortHandle(ns, ns.pid)!;
+  const request_channel = create_request_channel(ns);
 
-  while (!port.empty()) {
-    const msg: Message<FSDaemonMessage> = port.read();
-    //ignore broken files
-    try { ns.read(msg.data.filename); } catch { continue; }
-
-    if (msg.data.action == "subscribe") {
-      handle_subscription(ns, data, msg as Message<SubscribeMessage>);
-    } else {
-      const fileListeners = data.listeners.get(msg.data.filename);
-      if (!fileListeners) continue;
-      fileListeners.delete(msg.sender);
+  for (const request of request_channel) {
+    switch (request.type) {
+      case "subscribe":
+        handle_subscribe_request(ns, data, request);
+        break;
+      case "unsubscribe":
+        handle_unsubscribe_request(ns, data, request);
+        break;
     }
   }
+
 }
 
-function handle_subscription(ns: NS, data: FsDaemonData, msg: Message<SubscribeMessage>) {
+function handle_unsubscribe_request(ns: NS, data: FsDaemonData, msg: UnsubscribeRequest) {
+  const fileListeners = data.listeners.get(msg.data.filename);
+  if (!fileListeners) return;
+  fileListeners.delete(msg.sender);
+}
+
+function handle_subscribe_request(ns: NS, data: FsDaemonData, msg: SubscribeRequest) {
   if (!data.listeners.has(msg.data.filename))
     data.listeners.set(msg.data.filename, new Map());
 
