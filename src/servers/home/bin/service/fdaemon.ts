@@ -1,4 +1,4 @@
-import { isFile, readDir } from "@/lib/FileSystem";
+import { isFile, read_dir as read_dir } from "@/lib/FileSystem";
 import { create_service_interface, Request, register_as_service, ResponseChannel } from "@/lib/syscalls/service";
 import { system_cycle } from "@/servers/home/bin/kernel";
 import __META_FILENAME from "meta:filename";
@@ -153,7 +153,8 @@ function handle_subscribe_request(ns: NS, data: FsDaemonData, msg: SubscribeRequ
 }
 
 function get_folder_string_representation(ns: NS, path: string) {
-  const folder = readDir(ns, path);
+  const folder = read_dir(ns, path);
+
   if (!folder) return "";
 
   return folder.map(dirent => dirent.name)

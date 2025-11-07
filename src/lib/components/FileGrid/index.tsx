@@ -1,7 +1,7 @@
 import style from './FileGrid.css' with {'type': 'css'};
 import { useContext } from 'react';
 import React from 'react';
-import { readDir, transferFile, transferFolder } from '@/lib/FileSystem';
+import { read_dir, transferFile, transferFolder } from '@/lib/FileSystem';
 import { List } from '@/lib/components/List';
 import { DropTarget } from '@/lib/components/DropTarget';
 import { FileTile } from '@/lib/components/FileTile';
@@ -9,7 +9,7 @@ import { NetscriptContext } from '@/lib/Context';
 import { useStyle } from '@/lib/hooks/useStyle';
 
 type Props = {
-  files: ReturnType<typeof readDir>;
+  files: ReturnType<typeof read_dir>;
   path: string;
 };
 

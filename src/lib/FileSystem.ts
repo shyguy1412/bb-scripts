@@ -1,4 +1,6 @@
-import { getAllServers } from "@/lib/Network";
+import { getAllServers } from '@/lib/Network';
+
+type DirEnt = { name: string, type: 'file' | 'folder'; };
 
 export const ALLOWED_FILETYPES = [
   'js', 'txt', 'json'
@@ -19,42 +21,21 @@ export function getAllCodingContracts(ns: NS) {
   return files;
 }
 
-export function readDir(ns: NS, path: string) {
-  'use ls';
-  try {
+export function read_dir(ns: NS, path: string, server = ns.self().server): DirEnt[] {
+  const files: DirEnt[] = ns.ls(server, path)
+    .map(f => ('/' + f).replace(new RegExp(`/?${path}/?([^/]*).*`), '$1'))
+    .map(name => ({
+      name,
+      type: name.includes('.') ? 'file' : 'folder'
+    }));
 
-    type Tree = { [key: string]: Tree; };
-    const [server, ...directory] = path.split('/');
-
-    const filesystemTree: Tree = ns.ls(server)
-      .reduce((prev, cur) => {
-        const path = cur.split('/');
-        let node: Tree = prev;
-        while (path.length) {
-          const curNode = path.shift()!;
-          node[curNode] ??= {};
-          node = node[curNode];
-        };
-        return prev;
-      }, {});
-
-    const folder = directory.reduce((prev, cur) => prev[cur], filesystemTree);
-    const filesWithType = Object.keys(folder)
-      .map(key => ({
-        name: key,
-        type: Object.keys(folder[key]).length ? 'folder' : 'file' as 'file' | 'folder'
-      }));
-
-    return filesWithType;
-  } catch {
-    return null;
-  }
+  return files;
 };
 
-type DirEntry = NonNullable<ReturnType<typeof readDir>>[number] & { path: string; };
+type DirEntry = NonNullable<ReturnType<typeof read_dir>>[number] & { path: string; };
 export function readDirRecursive(ns: NS, path: string): DirEntry[] {
-  const content = readDir(ns, path);
-  if (!content) throw new Error("Path does not exists: " + path);
+  const content = read_dir(ns, path);
+  if (!content) throw new Error('Path does not exists: ' + path);
   return content
     .flatMap(file => file.type == 'folder' ? readDirRecursive(ns, `${path}/${file.name}`).flat() : file as DirEntry)
     .map(f => ({ ...f, path: f.path ?? path }));

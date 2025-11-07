@@ -6,7 +6,7 @@ import __META_FILENAME from "meta:filename";
 import { getSafePortHandle } from "@/lib/System";
 
 export const CYCLE_FREQUENCY = 0;
-export const CYCLE_TIMEOUT = 1000;
+export const CYCLE_TIMEOUT = 500;
 
 export async function system_cycle(ns: NS) {
   const service_port = get_service_port(ns, META_FILENAME);

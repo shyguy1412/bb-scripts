@@ -5,7 +5,7 @@ import { List } from '@/lib/components/List';
 import { getAllServers } from '@/lib/Network';
 import React, { Dispatch, SetStateAction, createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { BreadCrumbs } from './BreadCrumbs';
-import { mkdir, readDir, readFile, writeFile } from '@/lib/FileSystem';
+import { mkdir, read_dir, readFile, writeFile } from '@/lib/FileSystem';
 import { DoubleClickFileContext } from '@/lib/components/FileTile';
 import { NetscriptContext } from '@/lib/Context';
 import { getAllCodingContracts } from '@/lib/FileSystem';
@@ -73,7 +73,7 @@ export function Dolphin() {
     return () => clearTimeout(timeout);
   });
 
-  const files = useMemo(() => path == '~home/coding-contracts' ? getAllCodingContracts(ns) : readDir(ns, path), [path]);
+  const files = useMemo(() => path == '~home/coding-contracts' ? getAllCodingContracts(ns) : read_dir(ns, path), [path]);
 
   if (files)
     return <>

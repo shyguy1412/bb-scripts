@@ -1,6 +1,6 @@
 import { ConfigContext } from '../main';
 import { CleanupContext, NetscriptContext } from '@/lib/Context';
-import { readDir, readFile } from '@/lib/FileSystem';
+import { read_dir, readFile } from '@/lib/FileSystem';
 import { FileGrid } from '@/lib/components/FileGrid';
 import { DoubleClickFileContext } from '@/lib/components/FileTile';
 import React, { useContext, useEffect, useState } from 'react';
@@ -44,7 +44,7 @@ export function Desktop() {
       }
     }}>
 
-      <FileGrid path={server} files={readDir(ns, desktop)} ></FileGrid>
+      <FileGrid path={server} files={read_dir(ns, desktop)} ></FileGrid>
     </DoubleClickFileContext.Provider>
   </div>;
 }
