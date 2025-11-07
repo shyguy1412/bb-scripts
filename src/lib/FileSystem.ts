@@ -15,7 +15,7 @@ export function getAllCodingContracts(ns: NS) {
     }
   }
   console.log(`${files.length} coding contracts found`);
-  
+
   return files;
 }
 
@@ -78,6 +78,10 @@ export function readFile(ns: NS, path: string) {
   const content = ns.read(file);
   ns.rm(file);
   return content;
+}
+
+export function isFile(path: string) {
+  return /\..?.?.?$/.test(path);
 }
 
 export function writeFile(ns: NS, content: string, path: string) {

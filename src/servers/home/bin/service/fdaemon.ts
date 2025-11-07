@@ -1,15 +1,16 @@
+import { isFile, readDir } from "@/lib/FileSystem";
 import { create_service_interface, Request, register_as_service, ResponseChannel } from "@/lib/syscalls/service";
 import { system_cycle } from "@/servers/home/bin/kernel";
 import __META_FILENAME from "meta:filename";
 
 export type FSEvent = {
   type: "change",
-  filename: string;
+  path: string;
   content: string;
 };
 
 export type SubscribeRequest = Request<"subscribe", {
-  filename: string,
+  path: string,
   event: FSEvent["type"];
 }>;
 
@@ -70,20 +71,24 @@ function fdaemon_cycle(ns: NS, data: FsDaemonData) {
     const fileListeners = data.listeners.get(filename);
     if (!fileListeners) continue;
 
-    const newContent = ns.read(filename);
+    const newContent = isFile(filename) ?
+      ns.read(filename) :
+      get_folder_string_representation(ns, filename);
 
     if (content == newContent) continue;
     data.fileCache.set(filename, newContent);
 
     const event: FSEvent = {
       type: "change",
-      filename,
+      path: filename,
       content: newContent
     };
 
     for (const [, subscriber] of fileListeners) {
       subscriber.send(event);
     }
+
+    // continue;
   }
 };
 
@@ -130,15 +135,28 @@ function handle_unsubscribe_request(ns: NS, data: FsDaemonData, msg: Unsubscribe
 }
 
 function handle_subscribe_request(ns: NS, data: FsDaemonData, msg: SubscribeRequest) {
-  if (!data.listeners.has(msg.data.filename))
-    data.listeners.set(msg.data.filename, new Map());
+  if (!data.listeners.has(msg.data.path))
+    data.listeners.set(msg.data.path, new Map());
 
-  const fileListeners = data.listeners.get(msg.data.filename)!;
+  const fileListeners = data.listeners.get(msg.data.path)!;
 
   fileListeners.set(msg.sender, {
     ...msg.data,
     send: create_response_channel(ns, msg.sender)
   });
 
-  data.fileCache.set(msg.data.filename, ns.read(msg.data.filename));
+  const content = isFile(msg.data.path) ?
+    ns.read(msg.data.path) :
+    get_folder_string_representation(ns, msg.data.path);
+
+  data.fileCache.set(msg.data.path, content);
+}
+
+function get_folder_string_representation(ns: NS, path: string) {
+  const folder = readDir(ns, path);
+  if (!folder) return "";
+
+  return folder.map(dirent => dirent.name)
+    .toSorted((a, b) => a.localeCompare(b))
+    .join();
 }

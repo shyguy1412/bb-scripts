@@ -5,7 +5,8 @@ import { create_hmr_daemon, enable_hot_reload } from "@/servers/home/bin/service
 import __META_FILENAME from "meta:filename";
 import { getSafePortHandle } from "@/lib/System";
 
-export const CYCLE_TIMEOUT = 5000;
+export const CYCLE_FREQUENCY = 0;
+export const CYCLE_TIMEOUT = 1000;
 
 export async function system_cycle(ns: NS) {
   const service_port = get_service_port(ns, META_FILENAME);
@@ -50,8 +51,10 @@ export async function main(ns: NS) {
 
     //if queue is empty for this cycle is empty
     if (port.empty() || port.peek().service == __META_FILENAME) {
+      port.read();
+      // console.log("PORT CLEARED ", port.empty());
       port.write({ service: __META_FILENAME, uuid: crypto.randomUUID() });
-      await ns.asleep(0);
+      await ns.sleep(CYCLE_FREQUENCY);
       continue;
     }
 
@@ -63,6 +66,6 @@ export async function main(ns: NS) {
 
     last_uuid = unprocessed_request.uuid;
 
-    continue;
+    // continue;
   }
 }

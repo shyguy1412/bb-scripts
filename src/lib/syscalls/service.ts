@@ -56,8 +56,10 @@ export function connect_to_service<S extends Request, R extends Response>(ns: NS
 
 export function* create_request_channel<S extends Request>(ns: NS, service_name: string): Generator<S, void, undefined> {
   const port = getSafePortHandle(ns, ns.pid)!;
-  if (port.peek().service != service_name) return;
-  while (!port.empty()) yield port.read();
+  while (!port.empty()) {
+    if (port.peek().service != service_name) return;
+    yield port.read();
+  };
 }
 
 export function create_response_channel<R>(ns: NS, service: string, port: number) {
@@ -81,6 +83,8 @@ export function write_to_service<T extends string, D>(ns: NS, service: Service, 
     data: arg
   };
 
+  if (!service.port) return false;
+
   return ns.tryWritePort(service.port, message);
 }
 
@@ -89,12 +93,14 @@ export async function read_from_service<R>(ns: NS, service: Service) {
   const servicePort = service.port;
 
   while (true) {
-    const cycled = await system_cycle(ns);
-    if (!cycled) continue;
+    const cycled = await system_cycle(ns).catch(_ => false);
 
-    const hasDisconnected = !alive(ns) || service.port != servicePort;
+    if (!cycled) {
+      await ns.sleep(0);
+      continue;
+    };
 
-    if (hasDisconnected) throw `${service.name} has disconnected`;
+    if (service.port != servicePort) throw `${service.name} has disconnected`;
 
     if (port.peek().service != service.name) continue;
 
@@ -115,13 +121,13 @@ export function get_service_port(ns: NS, service: string): number {
 }
 
 export function register_as_service(ns: NS, service?: string) {
-  const filename = service ?? ns.self().filename.replace(/.*\/([^\.]*).*/, "$1");
+  const filename = service ?? ns.self().filename.replace(/.*?\/?([^\/]*)\..*/, "$1");
   const pidFile = `/run/${filename}.txt`;
 
   const currently = +ns.read(pidFile);
 
   if (currently && currently != ns.pid && ns.isRunning(currently))
-    throw new Error("another instance is already running");
+    throw new Error("another instance of " + service + " is already running");
 
   ns.write(pidFile, ns.pid + "", 'w');
 

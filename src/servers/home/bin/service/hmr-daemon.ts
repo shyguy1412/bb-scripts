@@ -4,6 +4,8 @@ import __META_FILENAME from "meta:filename";
 
 type HMRData = Map<number, string>;
 
+const __HMR_CACHE = "/tmp/__hmr_cache.json";
+
 const [
   connect_to_hmr_daemon,
   create_request_channel
@@ -32,6 +34,14 @@ export function create_hmr_daemon(ns: NS) {
 
   const data: HMRData = new Map();
 
+  const cache = JSON.parse(ns.read(__HMR_CACHE) || "[]");
+
+  for (const [key, value] of cache) {
+    data.set(key, value);
+  }
+
+  ns.rm(__HMR_CACHE);
+
   return () => hmr_daemon_cyle(ns, data);
 }
 
@@ -49,16 +59,15 @@ function hmr_daemon_cyle(ns: NS, data: HMRData) {
 
     if (content == new_content) continue;
 
-    console.log(`HMR RELOAD: ${script.server}://${script.filename}`);
+    console.log(`HOT RELOAD (${script.pid}): ${script.server}://${script.filename}`);
 
     if (pid == ns.pid) {
       const self = ns.self();
       ns.ramOverride(self.ramUsage + 2);
+      ns.write(__HMR_CACHE, JSON.stringify(data.entries().toArray()), "w");
       ns["spawn"](self.filename, { threads: self.threads, spawnDelay: 0 }, ...self.args);
       continue;
     }
-
-    console.log("KILLING " + pid);
 
     ns.kill(pid);
     ns.exec(script.filename, script.server, script.threads, ...script.args);
@@ -73,6 +82,11 @@ function process_request_queue(ns: NS, data: HMRData) {
     const sender_script = ns.getRunningScript(request.sender);
     if (!sender_script) continue;
     const content = ns.read(sender_script.filename);
+
+    if (!request.sender) console.log({ request });
+
+    // console.log("NEW HMR LISTENER: " + request.sender);
+
     data.set(request.sender, content);
   }
 }
