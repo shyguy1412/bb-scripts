@@ -1,7 +1,7 @@
 import { PathContext } from '..';
 import { DropTarget } from '@/lib/components/DropTarget';
 import { NetscriptContext } from '@/lib/Context';
-import { transferFile } from '@/lib/FileSystem';
+// import { transferFile } from '@/lib/FileSystem';
 import { Server } from 'NetscriptDefinitions';
 import React, { useContext } from 'react';
 
@@ -19,12 +19,12 @@ export function ServerEntry({ server }: Props) {
     onClick={() => setPath(server.hostname)}
     onDrop={(e) => {
       const [sourceServer, sourceFile] = e.dataTransfer.getData('data').split(/\/(.*)/, 2);
-      transferFile(
-        ns,
-        `${sourceServer}/${sourceFile}`,
-        `${server.hostname}/${sourceFile.split('/').at(-1)}`,
-        sourceServer != server.hostname
-      );
+      // transferFile(
+      //   ns,
+      //   `${sourceServer}/${sourceFile}`,
+      //   `${server.hostname}/${sourceFile.split('/').at(-1)}`,
+      //   sourceServer != server.hostname
+      // );
     }}
   >{server.hostname}</DropTarget>;
 }

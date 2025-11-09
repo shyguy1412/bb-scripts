@@ -1,4 +1,4 @@
-import { isFile, read_dir as read_dir } from "@/lib/FileSystem";
+import { is_file, read_dir as read_dir } from "@/lib/FileSystem";
 import { create_service_interface, Request, register_as_service, ResponseChannel } from "@/lib/syscalls/service";
 import { system_cycle } from "@/servers/home/bin/kernel";
 import __META_FILENAME from "meta:filename";
@@ -71,7 +71,7 @@ function fdaemon_cycle(ns: NS, data: FsDaemonData) {
     const fileListeners = data.listeners.get(filename);
     if (!fileListeners) continue;
 
-    const newContent = isFile(filename) ?
+    const newContent = is_file(filename) ?
       ns.read(filename) :
       get_folder_string_representation(ns, filename);
 
@@ -145,7 +145,7 @@ function handle_subscribe_request(ns: NS, data: FsDaemonData, msg: SubscribeRequ
     send: create_response_channel(ns, msg.sender)
   });
 
-  const content = isFile(msg.data.path) ?
+  const content = is_file(msg.data.path) ?
     ns.read(msg.data.path) :
     get_folder_string_representation(ns, msg.data.path);
 

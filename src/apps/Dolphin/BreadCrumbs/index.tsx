@@ -3,7 +3,7 @@ import style from './BreadCrumbs.css' with {type: 'css'};
 import React, { useContext } from "react";
 import { List } from '@/lib/components/List';
 import { DropTarget } from '@/lib/components/DropTarget';
-import { transferFile } from '@/lib/FileSystem';
+// import { transferFile } from '@/lib/FileSystem';
 import { NetscriptContext } from '@/lib/Context';
 import { useStyle } from '@/lib/hooks/useStyle';
 
@@ -29,12 +29,12 @@ function Crumb({ crumb, path }: { crumb: string; path: string; }) {
       onDrop={(e) => {
         const [sourceServer, sourceFile] = e.dataTransfer.getData('data').split(/\/(.*)/, 2);
         const [targetServer] = path.split('/');
-        transferFile(
-          ns,
-          `${sourceServer}/${sourceFile}`,
-          `${path}/${sourceFile.split('/').at(-1)}`,
-          sourceServer != targetServer
-        );
+        // transferFile(
+        //   ns,
+        //   `${sourceServer}/${sourceFile}`,
+        //   `${path}/${sourceFile.split('/').at(-1)}`,
+        //   sourceServer != targetServer
+        // );
       }}
       onClick={() => {
         setPath(path);

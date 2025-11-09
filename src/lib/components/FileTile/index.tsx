@@ -1,6 +1,5 @@
 import style from './FileTile.css' with {'type': 'css'};
 import React, { MouseEvent, createContext, useContext } from 'react';
-import { deleteFile, deleteFolder, moveFile, moveFolder, transferFile } from '@/lib/FileSystem';
 import { DragTarget } from '@/lib/components/DragTarget';
 import { NetscriptContext } from '@/lib/Context';
 import { Terminal } from '@/lib/Terminal';
@@ -51,12 +50,12 @@ export function FileTile({ file, path }: Props) {
       if (type != 'folder') return;
       const [sourceServer, sourceFile] = e.dataTransfer.getData('data').split(/\/(.*)/, 2);
       const [targetServer] = path.split('/');
-      transferFile(
-        ns,
-        `${sourceServer}/${sourceFile}`,
-        `${path}/${file.name}/${sourceFile.split('/').at(-1)}`,
-        sourceServer != targetServer
-      );
+      // transferFile(
+      //   ns,
+      //   `${sourceServer}/${sourceFile}`,
+      //   `${path}/${file.name}/${sourceFile.split('/').at(-1)}`,
+      //   sourceServer != targetServer
+      // );
     }}
   >
     <Icon></Icon>
@@ -79,10 +78,10 @@ export function FileTile({ file, path }: Props) {
           const newName = (currentTarget as HTMLDivElement).textContent;
           if (newName == file.name) return;
           try {
-            if (type == 'folder')
-              moveFolder(ns, `${path}/${file.name}`, `${path}/${newName}`);
-            else
-              moveFile(ns, `${path}/${file.name}`, `${path}/${newName}`);
+            // if (type == 'folder')
+              // moveFolder(ns, `${path}/${file.name}`, `${path}/${newName}`);
+            // else
+              // moveFile(ns, `${path}/${file.name}`, `${path}/${newName}`);
           } catch (e) {
             console.log({ e });
             ns.toast((e as Error).name, 'error');
@@ -107,10 +106,10 @@ export function FileTile({ file, path }: Props) {
           style={{ cursor: 'pointer', fontSize: '0.9em' }}
           onClick={async () => {
             if (! await ns.prompt(`Are you sure you want to delete ${path}/${file.name}?`, { type: 'boolean' })) return;
-            if (type == 'folder')
-              deleteFolder(ns, `${path}/${file.name}`);
-            else
-              deleteFile(ns, `${path}/${file.name}`);
+            // if (type == 'folder')
+              // delete_folder(ns, `${path}/${file.name}`);
+            // else
+              // deleteFile(ns, `${path}/${file.name}`);
           }}></FaTrashCan> : undefined}
     </div>
   </DragTarget>;

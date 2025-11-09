@@ -1,19 +1,24 @@
 import { sleep } from '@/lib/System';
-import Style from './Konsole.css' with {type: 'css'};
+import style from './Konsole.css' with {type: 'css'};
 import { Terminal } from '@/lib/Terminal';
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { KeyboardEventHandler, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { CleanupContext, NetscriptContext } from '@/lib/Context';
+import { useStyle } from '@/lib/hooks/useStyle';
 
 export function Konsole() {
 
   const ns = useContext(NetscriptContext);
-  const terminal = new Terminal(ns);
   const addCleanup = useContext(CleanupContext);
+
   const konsoleRef = useRef<HTMLUListElement>(null);
+  const terminal = useMemo(() => new Terminal(ns), [ns]);
+
   const [prompt, setPrompt] = useState('');
   const [command, setCommand] = useState('');
   const [disabled, setDisabled] = useState(!terminal.terminalInput);
   const [suggestions, setSuggestions] = useState<string[]>([]);
+
+  useStyle(style);
 
   useEffect(() => {
     const updateTerminal = async () => {
@@ -59,10 +64,51 @@ export function Konsole() {
 
   }, []);
 
-  addCleanup(() => terminal.cleanup());
+  const onKeyDown: KeyboardEventHandler<HTMLInputElement> = useCallback(async (e) => {
+    if (disabled) return;
+    if (e.key == 'Enter') {
+      terminal
+        .exec(command)
+        .then(() => sleep(100))
+        .then(() => {
+          if (!konsoleRef.current) return;
+          konsoleRef.current.scrollTop = konsoleRef.current.scrollHeight;
+        }
+        );
+      setCommand('');
+    }
+
+    if (e.key == 'Tab') {
+      if (e.altKey || e.ctrlKey) return;
+      e.preventDefault();
+      terminal
+        .autoComplete(command)
+        .then(suggestions => {
+          if (suggestions.length == 1) {
+            setCommand(suggestions[0]);
+            setSuggestions([]);
+            return;
+          };
+
+          setSuggestions(suggestions);
+          window.addEventListener('click', () => setSuggestions([]), { once: true });
+        });
+      return;
+    }
+
+    const actions = [
+      "ArrowUp",
+      "ArrowDown"
+    ];
+
+    if (!actions.includes(e.key)) return;
+
+    e.preventDefault();
+    await terminal.inputKey(e.key);
+    setCommand(terminal.terminalInput!.value);
+  }, [terminal, disabled]);
 
   return <div className='konsole-terminal'>
-    <Style></Style>
     <ul className='konsole-terminal-content' ref={konsoleRef}></ul>
     <div className='konsole-input-wrapper'>
       {suggestions.length ?
@@ -84,49 +130,7 @@ export function Konsole() {
         spellCheck='false'
         onChange={({ currentTarget: { value } }) => setCommand(value)}
         disabled={!terminal.terminalInput}
-        onKeyDown={async (e) => {
-          if (disabled) return;
-          if (e.key == 'Enter') {
-            terminal
-              .exec(command)
-              .then(() => sleep(100))
-              .then(() => {
-                if (!konsoleRef.current) return;
-                konsoleRef.current.scrollTop = konsoleRef.current.scrollHeight;
-              }
-              );
-            setCommand('');
-          }
-
-          if (e.key == 'Tab') {
-            if (e.altKey || e.ctrlKey) return;
-            e.preventDefault();
-            terminal
-              .autoComplete(command)
-              .then(suggestions => {
-                if (suggestions.length == 1) {
-                  setCommand(suggestions[0]);
-                  setSuggestions([]);
-                  return;
-                };
-
-                setSuggestions(suggestions);
-                window.addEventListener('click', () => setSuggestions([]), { once: true });
-              });
-            return;
-          }
-
-          const actions = [
-            "ArrowUp",
-            "ArrowDown"
-          ];
-
-          if (!actions.includes(e.key)) return;
-
-          e.preventDefault();
-          await terminal.inputKey(e.key);
-          setCommand(terminal.terminalInput!.value);
-        }}
+        onKeyDown={onKeyDown}
       />
     </div>
   </div>;

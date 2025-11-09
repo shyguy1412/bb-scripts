@@ -5,7 +5,7 @@ import { create_hmr_daemon, enable_hot_reload } from "@/servers/home/bin/service
 import __META_FILENAME from "meta:filename";
 import { getSafePortHandle } from "@/lib/System";
 
-export const CYCLE_FREQUENCY = 0;
+export const CYCLE_FREQUENCY = 100;
 export const CYCLE_TIMEOUT = 500;
 
 export async function system_cycle(ns: NS) {
@@ -66,6 +66,6 @@ export async function main(ns: NS) {
 
     last_uuid = unprocessed_request.uuid;
 
-    // continue;
+    continue;
   }
 }

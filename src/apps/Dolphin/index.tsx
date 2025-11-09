@@ -5,7 +5,7 @@ import { List } from '@/lib/components/List';
 import { getAllServers } from '@/lib/Network';
 import React, { Dispatch, SetStateAction, createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { BreadCrumbs } from './BreadCrumbs';
-import { mkdir, read_dir, readFile, writeFile } from '@/lib/FileSystem';
+import { read_dir } from '@/lib/FileSystem';
 import { DoubleClickFileContext } from '@/lib/components/FileTile';
 import { NetscriptContext } from '@/lib/Context';
 import { getAllCodingContracts } from '@/lib/FileSystem';
@@ -84,7 +84,7 @@ export function Dolphin() {
             <span className='dolphin-actions'>
               <span
                 onClick={() => {
-                  mkdir(ns, `${path}/new_dir`);
+                  // mkdir(ns, `${path}/new_dir`);
                 }}
               >
                 <FaPlus style={{ marginRight: '0.2em' }}></FaPlus>
@@ -92,7 +92,7 @@ export function Dolphin() {
               </span>
               <span
                 onClick={() => {
-                  writeFile(ns, '', `${path}/new_file.js`);
+                  // writeFile(ns, '', `${path}/new_file.js`);
                 }}
               >
                 <FaPlus style={{ marginRight: '0.2em' }}></FaPlus>
@@ -118,7 +118,7 @@ export function Dolphin() {
                   setPath(`${path}/${name}`);
                   break;
                 case 'txt':
-                  ns.alert(readFile(ns, `${path}/${name}`));
+                  // ns.alert(readFile(ns, `${path}/${name}`));
                   break;
                 case 'exe':
                   ns.toast('.exe files can only be run from the terminal', 'error');
