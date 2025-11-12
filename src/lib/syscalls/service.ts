@@ -92,20 +92,15 @@ export async function read_from_service<R>(ns: NS, service: Service) {
   const port = getSafePortHandle(ns, ns.pid)!;
   const servicePort = service.port;
 
-  while (true) {
+  while (port.peek().service != service.name) {
     const cycled = await system_cycle(ns).catch(_ => false);
 
-    if (!cycled) {
-      await ns.sleep(0);
-      continue;
-    };
+    if (!cycled) throw `can not sync to kernel clock`;
 
     if (service.port != servicePort) throw `${service.name} has disconnected`;
-
-    if (port.peek().service != service.name) continue;
-
-    return port.read().data as R;
   }
+
+  return port.read().data as R;
 }
 
 export function get_service(ns: NS, service_name: string): Service {

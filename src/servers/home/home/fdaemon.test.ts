@@ -3,7 +3,6 @@ import { system_cycle } from "@/servers/home/bin/kernel";
 import { enable_hot_reload } from "@/servers/home/bin/service/hmr-daemon";
 import { get_service, register_as_service } from "@/lib/syscalls/service";
 import __META_FILENAME from "meta:filename";
-import { read_dir } from "@/lib/FileSystem";
 
 export async function main(ns: NS) {
   if (ns.args.includes("--replace")) {

@@ -1,25 +1,22 @@
 import { get_service, get_service_port, read_from_service, register_as_service } from "@/lib/syscalls/service";
-import META_FILENAME from "meta:filename";
 import { create_fdaemon } from "@/servers/home/bin/service/fdaemon";
 import { create_hmr_daemon, enable_hot_reload } from "@/servers/home/bin/service/hmr-daemon";
 import __META_FILENAME from "meta:filename";
 import { getSafePortHandle } from "@/lib/System";
 
-export const CYCLE_FREQUENCY = 100;
-export const CYCLE_TIMEOUT = 500;
+export const CYCLE_FREQUENCY = 0;
+export const CYCLE_TIMEOUT = 100;
 
 export async function system_cycle(ns: NS) {
-  const service_port = get_service_port(ns, META_FILENAME);
-  if (!service_port) throw new Error(`${META_FILENAME} is not running`);
+  const service_port = get_service_port(ns, __META_FILENAME);
+  if (!service_port) throw new Error(`${__META_FILENAME} is not running`);
 
   const timeout = new Promise((_, reject) => setTimeout(reject, CYCLE_TIMEOUT));
   const cycle = new Promise(async resolve => {
-    while (true) {
+    do {
       await ns.nextPortWrite(service_port);
-      const msg = ns.peek(service_port);
-      if (msg.service != __META_FILENAME) continue;
-      resolve(true);
-    }
+    } while (ns.peek(service_port).service != __META_FILENAME);
+    resolve(true);
   });
 
   return Promise.race([cycle, timeout])
@@ -66,6 +63,5 @@ export async function main(ns: NS) {
 
     last_uuid = unprocessed_request.uuid;
 
-    continue;
   }
 }
