@@ -1,7 +1,7 @@
-import { ALLOWED_FILETYPES } from '@/lib/FileSystem';
-
 //@ts-expect-error: untyped library
 import untar from 'js-untar';
+
+const ALLOWED_FILETYPES = [".js", ".jsx", ".ts", ".tsx", ".json", ".txt"]
 
 const API_URL = 'https://registry.npmjs.org';
 
