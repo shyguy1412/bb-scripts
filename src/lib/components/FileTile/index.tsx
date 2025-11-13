@@ -7,7 +7,7 @@ import { getConnectionPath } from '@/lib/Network';
 
 import { FaFileCode, FaPen } from 'react-icons/fa';
 import { FaFileLines, FaFolderClosed, FaTrashCan } from 'react-icons/fa6';
-import { useStyle } from '@/lib/hooks/useStyle';
+import { adoptStyle } from '@/lib/hooks/useStyle';
 
 type Props = {
   file: {
@@ -33,7 +33,7 @@ export function FileTile({ file, path }: Props) {
   const Icon = FileIcons[type] ?? FileIcons['txt'];
   const onDoubleClick = useContext(DoubleClickFileContext);
 
-  useStyle(style);
+  adoptStyle(style);
 
   return <DragTarget
     className='file-tile'

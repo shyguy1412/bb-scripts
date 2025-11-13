@@ -11,7 +11,7 @@ import { NetscriptContext } from '@/lib/Context';
 import { getAllCodingContracts } from '@/lib/FileSystem';
 import { useReload } from '@/lib/hooks/useReload';
 import { FaPlus } from 'react-icons/fa';
-import { useStyle } from '@/lib/hooks/useStyle';
+import { adoptStyle } from '@/lib/hooks/useStyle';
 import { enable_hot_reload } from '@/lib/syscalls/hot_reload';
 
 // @ts-expect-error
@@ -26,7 +26,7 @@ export function Dolphin() {
 
   useReload();
   enable_hot_reload(ns);
-  useStyle(style);
+  adoptStyle(style);
 
   const [path, setPath] = useState<string>(ns.args[0] as string ?? ns.getHostname());
 

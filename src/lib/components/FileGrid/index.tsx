@@ -6,7 +6,7 @@ import { List } from '@/lib/components/List';
 import { DropTarget } from '@/lib/components/DropTarget';
 import { FileTile } from '@/lib/components/FileTile';
 import { NetscriptContext } from '@/lib/Context';
-import { useStyle } from '@/lib/hooks/useStyle';
+import { adoptStyle } from '@/lib/hooks/useStyle';
 
 type Props = {
   files: DirEnt[];
@@ -16,7 +16,7 @@ type Props = {
 export function FileGrid({ path, files }: Props) {
   const ns = useContext(NetscriptContext);
 
-  useStyle(style);
+  adoptStyle(style);
 
   if (!files || !path) return undefined;
   return <>

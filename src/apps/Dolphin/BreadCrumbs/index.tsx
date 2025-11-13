@@ -5,13 +5,13 @@ import { List } from '@/lib/components/List';
 import { DropTarget } from '@/lib/components/DropTarget';
 // import { transferFile } from '@/lib/FileSystem';
 import { NetscriptContext } from '@/lib/Context';
-import { useStyle } from '@/lib/hooks/useStyle';
+import { adoptStyle } from '@/lib/hooks/useStyle';
 
 export function BreadCrumbs() {
 
   const [path] = useContext(PathContext);
 
-  useStyle(style);
+  adoptStyle(style);
 
   return <div className="dolphin-bread-crumbs">
     <List data={path.split('/').map((crumb, i, arr) => ({ crumb, path: arr.slice(0, i + 1).join('/') }))} li={Crumb}></List>

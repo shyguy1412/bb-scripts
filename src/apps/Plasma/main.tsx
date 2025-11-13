@@ -1,9 +1,11 @@
 import { DesktopEnviroment } from './DesktopEnviroment';
-import { CleanupContext, NetscriptContext, TerminateContext } from '@/lib/Context';
+import { NetscriptContext, TerminateContext } from '@/lib/Context';
 
 import { createPortal } from 'react-dom';
 import React, { createContext } from 'react';
 import { enable_hot_reload } from '@/lib/syscalls/hot_reload';
+import global_style from './style/global.css' with {'type': 'css'};
+import { adoptStyle } from '@/lib/BitburnerDOM';
 
 type PlasmaConfig = Partial<{
   homeapps: string[];
@@ -24,6 +26,7 @@ export const PLASMA_CONFIG_FILE = '/etc/plasma/plasmaconf.json';
 export async function Plasma(ns: NS) {
 
   enable_hot_reload(ns);
+  adoptStyle(ns, global_style);
 
   // if (ns.getHostname() != 'home') {
   //   throw new Error('Plasma can not run on servers');
@@ -53,48 +56,25 @@ export async function Plasma(ns: NS) {
     ns.write(PLASMA_CONFIG_FILE, JSON.stringify(config, null, 2), 'w');
   }
 
-  const cleanupCallbacks: (() => void)[] = [];
-  const addCleanup = (f: () => void) => cleanupCallbacks.push(f);
+  if (!config["terminal"] || !ns.fileExists(config["terminal"]!)) {
+    ns.toast("No terminal app was set!", 'error');
+  }
+
+  if (!config['explorer'] || !ns.fileExists(config['explorer']!)) {
+    ns.toast("No file explorer app was set!", 'error');
+  }
+
+
   return new Promise<void>(resolve => {
-
-    ns.atExit(() => {
-      ns.ui.clearTerminal();
-      cleanupCallbacks.forEach(c => c());
-    });
-
     const el = [...document.querySelector('#root')!.children]
       .filter(el => !el.classList.contains('react-draggable') && el.id != '#unclickable')[0];
-
-    const configWrapper = {
-      get: function <T extends keyof PlasmaConfig>(value: T): PlasmaConfig[T] {
-        return config[value];
-      },
-      set: function <T extends keyof PlasmaConfig>(key: T, value: PlasmaConfig[T]): void {
-        config[key] = value;
-        ns.write(PLASMA_CONFIG_FILE, JSON.stringify(config, null, 2), 'w');
-      }
-    };
-
-    if (!config["terminal"] || !ns.fileExists(config["terminal"]!)) {
-      ns.toast("No terminal app was set!", 'error');
-    }
-
-    if (!config['explorer'] || !ns.fileExists(config['explorer']!)) {
-      ns.toast("No file explorer app was set!", 'error');
-    }
 
     ns.tprintRaw(<>
       {createPortal(
         <NetscriptContext.Provider value={ns}>
-          <CleanupContext.Provider value={addCleanup}>
-            <TerminateContext.Provider value={resolve}>
-              <ConfigContext.Provider value={configWrapper}>
-
-                <DesktopEnviroment></DesktopEnviroment>
-
-              </ConfigContext.Provider>
-            </TerminateContext.Provider>
-          </CleanupContext.Provider>
+          <TerminateContext.Provider value={resolve}>
+            <DesktopEnviroment></DesktopEnviroment>
+          </TerminateContext.Provider>
         </NetscriptContext.Provider>
         , el)}
     </>

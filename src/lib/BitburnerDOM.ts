@@ -5,58 +5,25 @@ export function findTailRoot(span: HTMLElement) {
   return el;
 }
 
-export function watchElForDeletion(elToWatch: Element, callback: () => void) {
-  const observer = new MutationObserver(function (mutations) {
-
-    // loop through all mutations
-    mutations.forEach(function (mutation) {
-      // check for changes to the child list
-      if (mutation.type === 'childList') {
-        mutation.removedNodes.forEach(node => {
-          if (!containsRecursive(node, elToWatch)) return;
-          callback();
-          observer.disconnect();
-        });
-      }
-    });
+export function watchElForDeletion(elToWatch: Element, callback: () => void, signal?: AbortSignal) {
+  const observer = new MutationObserver(function () {
+    if (document.body.contains(elToWatch)) return;
+    callback();
+    observer.disconnect();
   });
 
-  // start observing the dom
-  observer.observe(document.body, { childList: true, subtree: true });
+  signal?.addEventListener("abort", () => observer.disconnect());
 
-  return {
-    cleanup: () => observer.disconnect()
-  };
+  observer.observe(document.body, { childList: true, subtree: true });
 };
 
-export function watchSelectorForCreation(selector: string, callback: (el: HTMLElement) => void) {
-  const observer = new MutationObserver(function (mutations) {
+export function adoptStyle(ns: NS, style: CSSStyleSheet) {
+  if (document.adoptedStyleSheets.includes(style)) return;
 
-    // loop through all mutations
-    mutations.forEach(function (mutation) {
-      const element = [...mutation.addedNodes].reduce((prev, cur) => {
-        if (cur.nodeType != cur.ELEMENT_NODE) return prev;
-        const added = (cur as HTMLElement).matches(selector) ? cur : (cur as HTMLElement).querySelector(selector);
-        return prev ?? added;
-      }, null as Node | null) as HTMLElement;
+  document.adoptedStyleSheets.push(style);
 
-      if (element) {
-        callback(element);
-        observer.disconnect();
-      }
-    });
-  });
+  ns.atExit(() =>
+    document.adoptedStyleSheets.splice(document.adoptedStyleSheets.indexOf(style, 1))
+    , crypto.randomUUID());
 
-  // start observing the dom
-  observer.observe(document.body, { childList: true, subtree: true });
-
-  return {
-    cleanup: () => observer.disconnect()
-  };
-};
-
-
-export function containsRecursive(container: Node | Element, child: Element): boolean {
-  if (!('children' in container)) return false;
-  return [...container.children].reduce((prev, cur) => prev || cur == child || containsRecursive(cur, child), false);
 }

@@ -1,9 +1,8 @@
 import { sleep } from '@/lib/System';
 import style from './Konsole.css' with {type: 'css'};
-import { Terminal } from '@/lib/Terminal';
-import React, { KeyboardEventHandler, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { KeyboardEventHandler, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { CleanupContext, NetscriptContext } from '@/lib/Context';
-import { useStyle } from '@/lib/hooks/useStyle';
+import { adoptStyle } from '@/lib/hooks/useStyle';
 
 export function Konsole() {
 
@@ -11,46 +10,30 @@ export function Konsole() {
   const addCleanup = useContext(CleanupContext);
 
   const konsoleRef = useRef<HTMLUListElement>(null);
-  const terminal = useMemo(() => new Terminal(ns), [ns]);
 
   const [prompt, setPrompt] = useState('');
   const [command, setCommand] = useState('');
-  const [disabled, setDisabled] = useState(!terminal.terminalInput);
+  // const [disabled, setDisabled] = useState(!terminal.terminalInput);
   const [suggestions, setSuggestions] = useState<string[]>([]);
 
-  useStyle(style);
+  // const terminal = useMemo(() => new Terminal(ns), [ns]);
+
+  adoptStyle(style);
 
   useEffect(() => {
     const updateTerminal = async () => {
       if (!konsoleRef.current) return;
-      konsoleRef.current.replaceChildren(...await terminal.getTerminalLines());
-      setPrompt(terminal.terminalInput!.previousSibling?.textContent ?? '');
+      // konsoleRef.current.replaceChildren(...await terminal.getTerminalLines());
+      // setPrompt(terminal.terminalInput!.previousSibling?.textContent ?? '');
     };
 
     const watchTerminalLines = () => {
       const TerminalObserver = new MutationObserver(() => {
         updateTerminal();
       });
-      TerminalObserver.observe(terminal.terminalElement!, { childList: true, subtree: true, characterData: true });
+      // TerminalObserver.observe(terminal.terminalElement!, { childList: true, subtree: true, characterData: true });
       addCleanup(() => TerminalObserver.disconnect());
     };
-
-    terminal.addEventListener('connect', () => {
-      watchTerminalLines();
-      updateTerminal().then(() => {
-        if (!konsoleRef.current) return;
-
-        konsoleRef.current.scrollTop = konsoleRef.current.scrollHeight;
-      }
-      );
-      setDisabled(false);
-    });
-
-    terminal.addEventListener('disconnect', () => {
-      if (!konsoleRef.current) return;
-      konsoleRef.current.textContent = 'Terminal is offline';
-      setDisabled(true);
-    });
 
     watchTerminalLines();
 
@@ -65,48 +48,8 @@ export function Konsole() {
   }, []);
 
   const onKeyDown: KeyboardEventHandler<HTMLInputElement> = useCallback(async (e) => {
-    if (disabled) return;
-    if (e.key == 'Enter') {
-      terminal
-        .exec(command)
-        .then(() => sleep(100))
-        .then(() => {
-          if (!konsoleRef.current) return;
-          konsoleRef.current.scrollTop = konsoleRef.current.scrollHeight;
-        }
-        );
-      setCommand('');
-    }
 
-    if (e.key == 'Tab') {
-      if (e.altKey || e.ctrlKey) return;
-      e.preventDefault();
-      terminal
-        .autoComplete(command)
-        .then(suggestions => {
-          if (suggestions.length == 1) {
-            setCommand(suggestions[0]);
-            setSuggestions([]);
-            return;
-          };
-
-          setSuggestions(suggestions);
-          window.addEventListener('click', () => setSuggestions([]), { once: true });
-        });
-      return;
-    }
-
-    const actions = [
-      "ArrowUp",
-      "ArrowDown"
-    ];
-
-    if (!actions.includes(e.key)) return;
-
-    e.preventDefault();
-    await terminal.inputKey(e.key);
-    setCommand(terminal.terminalInput!.value);
-  }, [terminal, disabled]);
+  }, []);
 
   return <div className='konsole-terminal'>
     <ul className='konsole-terminal-content' ref={konsoleRef}></ul>
@@ -125,11 +68,11 @@ export function Konsole() {
       <input
         type="text"
         className='konsole-input'
-        value={disabled ? '[disconnected]' : command}
+        // value={disabled ? '[disconnected]' : command}
         autoComplete='off'
         spellCheck='false'
         onChange={({ currentTarget: { value } }) => setCommand(value)}
-        disabled={!terminal.terminalInput}
+        // disabled={!terminal.terminalInput}
         onKeyDown={onKeyDown}
       />
     </div>

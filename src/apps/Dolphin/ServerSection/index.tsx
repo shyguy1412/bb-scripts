@@ -3,7 +3,7 @@ import { ServerEntry } from "../ServerEntry";
 import { List } from "@/lib/components/List";
 import { Server } from "NetscriptDefinitions";
 import React from "react";
-import { useStyle } from '@/lib/hooks/useStyle';
+import { adoptStyle } from '@/lib/hooks/useStyle';
 
 type Props = {
   section?: string;
@@ -11,7 +11,7 @@ type Props = {
 };
 
 export function ServerSection({ servers, section }: Props) {
-  useStyle(style);
+  adoptStyle(style);
 
   const list = <List data={servers.map(s => ({ server: s }))} li={ServerEntry}></List>;
   if (!section) return <div className='dolphin-server-section'>
