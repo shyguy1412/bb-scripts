@@ -4,13 +4,18 @@ type LsOptions = {
   withFileTypes: boolean;
 };
 
+export function list_directory(ns: NS, path: string, server: string, opts: { withFileTypes: true; }): DirEnt[];
+export function list_directory(ns: NS, path: string, server?: string, opts?: { withFileTypes: false; }): string[];
 export function list_directory(ns: NS, path: string, server = ns.self().server, opts?: LsOptions): DirEnt[] | string[] {
-  const files: DirEnt[] = ns.ls(server).filter(p => p.startsWith(path))
-    .map(f => ('/' + f).replace(new RegExp(`/?${path}/?([^/]*).*`), '$1'))
-    .map(name => ({
+  const files = ns.ls(server).filter(p => p.startsWith(path))
+    .map(f => ('/' + f).replace(new RegExp(`/?${path}/?([^/]*).*`), '$1'));
+
+  if (opts?.withFileTypes) {
+    return files.map(name => ({
       name,
       type: name.includes('.') ? 'file' : 'folder'
-    }));
+    } as DirEnt));
+  }
 
   return files;
 };

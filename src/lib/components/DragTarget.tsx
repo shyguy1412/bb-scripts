@@ -1,11 +1,13 @@
 import React from "react";
 
-type Props = {
-  group: string;
-  data: string;
-} & React.HTMLAttributes<HTMLDivElement>;
+export namespace DragTarget {
+  export type Props = {
+    group: string;
+    data: string;
+  } & React.HTMLAttributes<HTMLDivElement>;
+}
 
-export function DragTarget({ group, data, onDragStart, ...attr }: Props) {
+export function DragTarget({ group, data, onDragStart, ...attr }: DragTarget.Props) {
   return <div
     draggable={true}
     data-drag-group={group}

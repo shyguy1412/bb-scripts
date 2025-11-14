@@ -1,13 +1,16 @@
 import style from '../style/Taskbar.css' with {'type': 'css'};
 import { HomeButton } from '../components/HomeButton';
-import React, { useState, useEffect } from 'react';
-import { adoptStyle } from '@/lib/hooks/useStyle';
+import React, { useState, useEffect, useContext } from 'react';
+import { adoptStyle } from '@/lib/BitburnerDOM';
+import { NetscriptContext } from '@/lib/Context';
 
 export function Taskbar() {
 
   const [clock, setClock] = useState(Date.now());
 
-  adoptStyle(style);
+  const ns = useContext(NetscriptContext);
+
+  adoptStyle(ns, style);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -27,8 +30,8 @@ export function Taskbar() {
       </div>
 
       <span className='taskbar-date plasma-box-inline'>
-        <div>{new Date(clock).toLocaleTimeString().slice(0, -3)}</div>
-        <div>{new Date(clock).toLocaleDateString()}</div>
+        <div>{new Date(clock).toLocaleTimeString("de").slice(0, -3)}</div>
+        <div>{new Date(clock).toLocaleDateString("de")}</div>
       </span>
     </div>
   </>;

@@ -1,10 +1,12 @@
 import React from "react";
 
-type Props = {
-  accept: string | string[];
-} & React.HTMLAttributes<HTMLDivElement>;
+export namespace DropTarget {
+  export type Props = {
+    accept: string | string[];
+  } & React.HTMLAttributes<HTMLDivElement>;
+}
 
-export function DropTarget({ accept, onDragEnter, onDragOver, ...attr }: Props) {
+export function DropTarget({ accept, onDragEnter, onDragOver, ...attr }: DropTarget.Props) {
   const shouldAccept = (types: readonly string[]) => {
     const valid = typeof accept == 'string' ? [accept] : accept;
     return valid.some(v => types.includes(v));

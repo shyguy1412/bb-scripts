@@ -1,22 +1,36 @@
 import style from './FileGrid.css' with {'type': 'css'};
-import { useContext } from 'react';
+import { useContext, useMemo } from 'react';
 import React from 'react';
 import { DirEnt } from '@/lib/FileSystem';
 import { List } from '@/lib/components/List';
 import { DropTarget } from '@/lib/components/DropTarget';
 import { FileTile } from '@/lib/components/FileTile';
 import { NetscriptContext } from '@/lib/Context';
-import { adoptStyle } from '@/lib/hooks/useStyle';
+import { adoptStyle } from '@/lib/BitburnerDOM';
 
-type Props = {
-  files: DirEnt[];
-  path: string;
-};
+export namespace FileGrid {
+  export type Props = {
+    files: DirEnt[];
+    path: string;
+    onDoubleClick?: FileTile.Props["onDoubleClick"];
+  };
 
-export function FileGrid({ path, files }: Props) {
+}
+
+export function FileGrid({ path, files, onDoubleClick }: FileGrid.Props) {
   const ns = useContext(NetscriptContext);
 
-  adoptStyle(style);
+  adoptStyle(ns, style);
+
+  const fileTiles = useMemo(() =>
+    files
+      .filter(f => !f.name.startsWith('.'))
+      .map(file => ({
+        file,
+        path,
+        onDoubleClick
+      })),
+    [files, path]);
 
   if (!files || !path) return undefined;
   return <>
@@ -44,7 +58,7 @@ export function FileGrid({ path, files }: Props) {
       }}
     >
       <div className='file-grid'>
-        <List data={files.filter(f => !f.name.startsWith('.')).map(file => ({ file, path }))} li={FileTile}></List>
+        <List data={fileTiles} li={FileTile}></List>
       </div>
     </DropTarget>
   </>;

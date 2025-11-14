@@ -1,6 +1,5 @@
-import { ConfigContext, PLASMA_CONFIG_FILE } from '../main';
-import { CleanupContext, NetscriptContext, TerminateContext } from '@/lib/Context';
-import { Terminal } from '@/lib/Terminal';
+import { ConfigContext } from '../main';
+import { NetscriptContext, TerminateContext } from '@/lib/Context';
 import React, { useContext } from 'react';
 import { FaCog, FaFolderOpen, FaJs, FaPowerOff, FaTerminal } from 'react-icons/fa';
 import { FaRotate } from 'react-icons/fa6';
@@ -10,7 +9,6 @@ export function HomeMenu() {
   const terminate = useContext(TerminateContext);
   const config = useContext(ConfigContext);
   const ns = useContext(NetscriptContext);
-  const addCleanup = useContext(CleanupContext);
 
   const server = ns.self().server;
 
@@ -41,19 +39,17 @@ export function HomeMenu() {
 
 
     <span className='plasma-button plasma-box-top' onClick={() => {
-      const term = new Terminal(ns);
-      term.exec(`${server};nano ${PLASMA_CONFIG_FILE}`);
-      term.cleanup();
+      //! build app to edit settings
     }}>
       <FaCog></FaCog>
       <span className='plasma-center'>Settings</span>
     </span>
 
-    <span className='plasma-button plasma-box-top' onClick={async () => {
+    <span className='plasma-button plasma-box-top' onClick={() => {
       terminate();
-      addCleanup(() => {
+      ns.atExit(() => {
         ns.run(ns.getScriptName(), 1, "--replace");
-      });
+      }, crypto.randomUUID());
     }}>
       <FaRotate></FaRotate>
       <span className='plasma-center'>Reboot</span>
