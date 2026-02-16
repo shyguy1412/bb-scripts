@@ -1,6 +1,6 @@
-import { connect_to_fdaemon } from "@/servers/home/bin/service/fdaemon";
-import { system_cycle } from "@/servers/home/bin/kernel";
-import { enable_hot_reload } from "@/servers/home/bin/service/hmr-daemon";
+import { connect_to_fdaemon } from "@/home/bin/service/fdaemon";
+import { system_cycle } from "@/home/bin/kernel";
+import { enable_hot_reload } from "@/home/bin/service/hmr-daemon";
 import { get_service, register_as_service } from "@/lib/syscalls/service";
 import __META_FILENAME from "meta:filename";
 

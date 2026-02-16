@@ -1,5 +1,5 @@
 import { create_service_interface, register_as_service, Request } from "@/lib/syscalls/service";
-import { system_cycle } from "@/servers/home/bin/kernel";
+import { system_cycle } from "@/home/bin/kernel";
 import __META_FILENAME from "meta:filename";
 
 type HMRData = Map<number, string>;

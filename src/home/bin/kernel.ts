@@ -1,6 +1,6 @@
 import { get_service, get_service_port, read_from_service, register_as_service } from "@/lib/syscalls/service";
-import { create_fdaemon } from "@/servers/home/bin/service/fdaemon";
-import { create_hmr_daemon, enable_hot_reload } from "@/servers/home/bin/service/hmr-daemon";
+import { create_fdaemon } from "@/home/bin/service/fdaemon";
+import { create_hmr_daemon, enable_hot_reload } from "@/home/bin/service/hmr-daemon";
 import __META_FILENAME from "meta:filename";
 import { getSafePortHandle } from "@/lib/System";
 

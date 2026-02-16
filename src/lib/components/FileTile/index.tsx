@@ -68,13 +68,14 @@ export function FileTile({ file, path, onDoubleClick }: FileTile.Props) {
     <Icon></Icon>
 
     <div
-      className='file-name'
+      className='file-tile-name'
       spellCheck={false}
       onDoubleClick={() => void 0}
     >{file.name}</div>
 
-    <div className='file-action-buttons'>
-
+    <div className='file-tile-action-buttons'>
+      <EditButton></EditButton>
+      <TrashCanButton></TrashCanButton>
     </div>
   </DragTarget>;
 };
@@ -108,26 +109,26 @@ export function FileTile({ file, path, onDoubleClick }: FileTile.Props) {
 //         }, { once: true });
 //       }
 
+function EditButton() {
+  return <FaPen
+    className=''
+    onClick={async () => {
+      // const term = new Terminal(ns);
+      // const [server, filepath] = `${path}/${file.name}`.split(/\/(.*)/, 2);
+      // if (!term.terminalInput) return ns.toast('Editing can only be triggered when the terminal tab is selected', 'warning');
+      // term.exec(getConnectionPath(ns, server).reduce((prev, cur) => prev + `connect ${cur};`, ''));
+      // term.exec(`nano ${filepath}`);
+      // term.cleanup();
+    }}></FaPen>;
+}
 
-
-// {['js', 'txt'].includes(type) ?
-//   <FaPen
-//     style={{ cursor: 'pointer', fontSize: '0.9em' }}
-//     onClick={async () => {
-//       // const term = new Terminal(ns);
-//       // const [server, filepath] = `${path}/${file.name}`.split(/\/(.*)/, 2);
-//       // if (!term.terminalInput) return ns.toast('Editing can only be triggered when the terminal tab is selected', 'warning');
-//       // term.exec(getConnectionPath(ns, server).reduce((prev, cur) => prev + `connect ${cur};`, ''));
-//       // term.exec(`nano ${filepath}`);
-//       // term.cleanup();
-//     }}></FaPen> : <span></span>}
-// {['js', 'txt', 'folder'].includes(type) ?
-//   <FaTrashCan
-//     style={{ cursor: 'pointer', fontSize: '0.9em' }}
-//     onClick={async () => {
-//       if (! await ns.prompt(`Are you sure you want to delete ${path}/${file.name}?`, { type: 'boolean' })) return;
-//       // if (type == 'folder')
-//       // delete_folder(ns, `${path}/${file.name}`);
-//       // else
-//       // deleteFile(ns, `${path}/${file.name}`);
-//     }}></FaTrashCan> : undefined}
+function TrashCanButton() {
+  return <FaTrashCan
+    onClick={async () => {
+      // if (! await ns.prompt(`Are you sure you want to delete ${path}/${file.name}?`, { type: 'boolean' })) return;
+      // if (type == 'folder')
+      // delete_folder(ns, `${path}/${file.name}`);
+      // else
+      // deleteFile(ns, `${path}/${file.name}`);
+    }}></FaTrashCan>;
+}

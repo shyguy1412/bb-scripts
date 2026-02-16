@@ -1,0 +1,11 @@
+{
+  "nodeModulesDir": "manual",
+  "imports": {
+    "esbuild-bitburner-plugin": "jsr:@shyguy1412/esbuild-bitburner-plugin@0.0.0",
+  },
+  "compilerOptions": {
+    "lib": ["deno.ns", "dom", "dom.iterable", "dom.asynciterable"],
+  },
+  "patch": ["../../deno/esbuild-bitburner-plugin/"],
+  "exclude": ["./src/*"],
+}

@@ -15,7 +15,7 @@
   overflow: hidden;
 }
 
-.file-action-buttons {
+.file-tile-action-buttons {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -26,11 +26,16 @@
   margin-right: 0.5em;
 }
 
+.file-tile-action-buttons>svg {
+  cursor: 'pointer';
+  font-size: '0.9em';
+}
+
 .file-tile>svg {
   font-size: 2.5em;
 }
 
-.file-name {
+.file-tile-name {
   width: 100%;
   overflow: hidden;
   user-select: none;
@@ -41,7 +46,7 @@
   filter: brightness(150%);
 }
 
-.file-name:focus {
+.file-tile-name:focus {
   outline-offset: 0.2em;
   outline: 1px solid var(--primary);
 }

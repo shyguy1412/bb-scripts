@@ -1,5 +1,5 @@
 import { alive, getSafePortHandle } from "@/lib/System";
-import { system_cycle } from "@/servers/home/bin/kernel";
+import { system_cycle } from "@/home/bin/kernel";
 
 type Service = {
   port: number;

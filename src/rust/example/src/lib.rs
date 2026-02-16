@@ -1,9 +1,8 @@
-use bitburner_bindings::*;
-use wasm_bindgen::prelude::*;
+use bitburner_bindings::{js_sys, ns, prelude::*};
 
 #[bb_bindgen]
 pub async fn main(ns: &'static NS) -> Result<(), JsValue> {
-    // clear();
+    clear();
 
     let js_wrapper: Function = js_sys::Function::new_with_args("fn", "setTimeout(fn)").into();
     let closure = js_closure!(|_: Any| -> Result<Any, JsValue> {
@@ -44,7 +43,6 @@ fn log_message(args: Any) -> Result<Any, JsValue> {
 #[wasm_bindgen]
 extern "C" {
     // Use `js_namespace` here to bind `console.log(..)` instead of just
-    // `log(..)`
     #[wasm_bindgen(js_namespace = console)]
     fn log(s: &str);
 

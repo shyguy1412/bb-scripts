@@ -6,6 +6,7 @@ import React, { createContext } from 'react';
 import { enable_hot_reload } from '@/lib/syscalls/hot_reload';
 import global_style from './style/global.css' with {'type': 'css'};
 import { adoptStyle } from '@/lib/BitburnerDOM';
+import { DiVim } from 'react-icons/di';
 
 type PlasmaConfig = Partial<{
   homeapps: string[];
@@ -43,7 +44,7 @@ export async function Plasma(ns: NS) {
     throw new Error('Plasma can only run once');
   }
 
-  //This is awfull
+  //This is awful
   let config: PlasmaConfig = (() => { try { return JSON.parse(ns.read(PLASMA_CONFIG_FILE)); } catch { } })();
 
   if (!config) {
@@ -64,18 +65,26 @@ export async function Plasma(ns: NS) {
     ns.toast("No file explorer app was set!", 'error');
   }
 
-
   return new Promise<void>(resolve => {
     const el = [...document.querySelector('#root')!.children]
       .filter(el => !el.classList.contains('react-draggable') && el.id != '#unclickable')[0];
 
     ns.tprintRaw(<>
       {createPortal(
-        <NetscriptContext.Provider value={ns}>
-          <TerminateContext.Provider value={resolve}>
-            <DesktopEnviroment></DesktopEnviroment>
-          </TerminateContext.Provider>
-        </NetscriptContext.Provider>
+        <ConfigContext.Provider value={{
+          get(value) {
+            return config[value];
+          },
+          set(key, value) {
+            config[key] = value;
+          },
+        }}>
+          <NetscriptContext.Provider value={ns}>
+            <TerminateContext.Provider value={resolve}>
+              <DesktopEnviroment></DesktopEnviroment>
+            </TerminateContext.Provider>
+          </NetscriptContext.Provider>
+        </ConfigContext.Provider>
         , el)}
     </>
     );

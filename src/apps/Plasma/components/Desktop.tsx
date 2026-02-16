@@ -2,7 +2,7 @@ import { ConfigContext } from '../main';
 import { NetscriptContext } from '@/lib/Context';
 import { list_directory } from '@/lib/FileSystem';
 import { FileGrid } from '@/lib/components/FileGrid';
-import { connect_to_fdaemon } from '@/servers/home/bin/service/fdaemon';
+import { connect_to_fdaemon } from '@/home/bin/service/fdaemon';
 import React, { useContext, useEffect, useState } from 'react';
 
 export function Desktop() {
@@ -12,7 +12,7 @@ export function Desktop() {
   const explorerScript = config.get('explorer');
   const desktop = config.get("desktop") ?? '';
 
-  const [files, setFiles] = useState(list_directory(ns, desktop, ns.self().server, { withFileTypes: true }));
+  const [files, setFiles] = useState(list_directory(ns, desktop, { withFileTypes: true }));
 
   useEffect(() => {
     const [write, read] = connect_to_fdaemon(ns);
@@ -20,7 +20,7 @@ export function Desktop() {
       event: 'change',
       path: desktop
     });
-    read().finally(() => setFiles(list_directory(ns, desktop, ns.self().server, { withFileTypes: true })));
+    read().finally(() => setFiles(list_directory(ns, desktop, { withFileTypes: true })));
   }, [files]);
 
   const onDoubleClick: FileGrid.Props["onDoubleClick"] = (_, { type, name }) => {

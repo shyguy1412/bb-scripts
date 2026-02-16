@@ -2,31 +2,29 @@
   "name": "bb-external-editor",
   "version": "1.0.0",
   "description": "template for external editors for the game bitburner",
-  "main": "index.js",
   "scripts": {
-    "start": "node ./build.mjs",
+    "start": "deno -A --watch ./build.ts",
     "typecheck": "tsc --noEmit"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/NilsRamstoeck/bb-external-editor.git"
+    "url": "git+https://github.com/shyguy1412/bb-external-editor.git"
   },
-  "author": "Nils Ramstöck",
+  "author": "Shy",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/NilsRamstoeck/bb-external-editor/issues"
+    "url": "https://github.com/shyguy1412/bb-external-editor/issues"
   },
-  "homepage": "https://github.com/NilsRamstoeck/bb-external-editor#readme",
+  "homepage": "https://github.com/shyguy1412/bb-external-editor#readme",
   "dependencies": {
-    "@types/node": "^24.9.2",
-    "@types/react": "^19.2.2",
+    "@types/node": "^24.10.1",
+    "@types/react": "^19.2.6",
     "@types/react-dom": "^17.0.26",
     "acorn": "^8.15.0",
     "acorn-walk": "^8.3.4",
     "astring": "^1.9.0",
     "esbuild": "^0.25.12",
-    "esbuild-bitburner-plugin": "file:../../typescript/esbuild-bitburner-plugin",
-    "esbuild-wasm": "^0.25.11",
+    "esbuild-wasm": "^0.25.12",
     "geckosvg": "^0.0.5",
     "js-untar": "^2.0.0",
     "ramdodger-extension": "^1.0.1",
