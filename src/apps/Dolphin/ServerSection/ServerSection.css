@@ -1,5 +1,5 @@
 .dolphin-server-section:first-child{
-  border-bottom: 1px solid var(--welllight);
+  border-bottom: 1px solid var(--bb-theme-welllight);
 }
 
 .dolphin-server-section>summary {
@@ -7,7 +7,7 @@
   display: flex;
   padding: 0.5em;
   gap: 0.5em;
-  border-bottom: 1px solid var(--welllight);
+  border-bottom: 1px solid var(--bb-theme-welllight);
 }
 
 .dolphin-server-section>summary::before {

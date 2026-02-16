@@ -4,13 +4,13 @@
   height: 100%;
   display: grid;
   grid-template-rows: auto 45px;
-  background-color: var(--backgroundprimary);
+  background-color: var(--bb-theme-backgroundprimary);
   font-family: "Lucida Console", "Lucida Sans Unicode", "Fira Mono", Consolas, "Courier New", Courier, monospace, "Times New Roman";
 }
 
 .desktop-enviroment * {
   box-sizing: border-box;
-  color: var(--primarylight);
+  color: var(--bb-theme-primarylight);
   user-select: none;
 }
 

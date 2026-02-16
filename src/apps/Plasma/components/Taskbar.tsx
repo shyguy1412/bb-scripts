@@ -9,9 +9,8 @@ export function Taskbar() {
   const [clock, setClock] = useState(Date.now());
 
   const ns = useContext(NetscriptContext);
-
   adoptStyle(ns, style);
-
+  
   useEffect(() => {
     const interval = setInterval(() => {
       setClock(Date.now());

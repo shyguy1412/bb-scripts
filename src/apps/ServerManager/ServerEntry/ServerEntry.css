@@ -1,6 +1,6 @@
 .server-entry {
   min-width: fit-content;
-  border: 1px solid var(--welllight);
+  border: 1px solid var(--bb-theme-welllight);
   display: flex;
   flex-direction: column;
   padding: 10px;
@@ -17,8 +17,8 @@
 
   user-select: none;
 
-  border: 1px solid var(--welllight);
-  background-color: var(--backgroundprimary);
+  border: 1px solid var(--bb-theme-welllight);
+  background-color: var(--bb-theme-backgroundprimary);
   
   display: flex;
   justify-content: center;

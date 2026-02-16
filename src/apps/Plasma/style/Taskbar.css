@@ -1,6 +1,6 @@
 .taskbar {
-  background-color: var(--backgroundprimary);
-  border-block: 1px solid var(--welllight);
+  background-color: var(--bb-theme-backgroundprimary);
+  border-block: 1px solid var(--bb-theme-welllight);
   height: 45px;
   display: flex;
   position: relative;
@@ -34,7 +34,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color: var(--backgroundprimary);
+  background-color: var(--bb-theme-backgroundprimary);
 }
 
 .homemenu>* {
@@ -70,7 +70,7 @@
 }
 
 .taskbar-entry-focus{
-  background-color: var(--well);
+  background-color: var(--bb-theme-well);
 }
 
 .taskbar-entry-focus:hover{

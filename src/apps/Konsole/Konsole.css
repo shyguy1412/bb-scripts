@@ -19,8 +19,8 @@
 .konsole-input {
   width: calc(100% - 150px);
 
-  background-color: var(--backgroundprimary);
-  color: var(--primarylight);
+  background-color: var(--bb-theme-backgroundprimary);
+  color: var(--bb-theme-primarylight);
 
   border: none;
   outline: 0px;
@@ -28,9 +28,9 @@
 
 .konsole-suggestion-tooltip {
   position: absolute;
-  background: var(--backgroundprimary);
+  background: var(--bb-theme-backgroundprimary);
   padding: 0.5em;
-  border: 1px solid var(--welllight);
+  border: 1px solid var(--bb-theme-welllight);
   top: 0;
   transform: translateY(calc(-100% - 5px));
 }
@@ -41,6 +41,6 @@
   display: flex;
   align-items: center;
 
-  border-bottom: 1px solid var(--primarylight);
+  border-bottom: 1px solid var(--bb-theme-primarylight);
   margin-bottom: 0.5em;
 }

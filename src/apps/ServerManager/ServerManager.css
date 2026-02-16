@@ -14,12 +14,12 @@
   display: flex;
   justify-content: space-between;
   padding: .5em;
-  border-bottom: 1px solid var(--welllight);
+  border-bottom: 1px solid var(--bb-theme-welllight);
 }
 
 .server-manager-purchase-server input {
-  background-color: var(--well);
-  color: var(--primarylight);
+  background-color: var(--bb-theme-well);
+  color: var(--bb-theme-primarylight);
   font-size: 1.05em;
   width: 100px;
 }
@@ -34,8 +34,8 @@
 
   user-select: none;
 
-  border: 1px solid var(--welllight);
-  background-color: var(--backgroundprimary);
+  border: 1px solid var(--bb-theme-welllight);
+  background-color: var(--bb-theme-backgroundprimary);
 
   display: inline-flex;
   justify-content: center;
@@ -50,8 +50,8 @@
 
   user-select: none;
 
-  border: 1px solid var(--welllight);
-  background-color: var(--backgroundprimary);
+  border: 1px solid var(--bb-theme-welllight);
+  background-color: var(--bb-theme-backgroundprimary);
 
   display: inline-flex;
   justify-content: center;

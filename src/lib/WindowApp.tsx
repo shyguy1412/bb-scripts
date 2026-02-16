@@ -30,7 +30,7 @@ export async function createWindowApp(ns: NS, Component: React.FunctionComponent
             <TailRootContext.Provider value={root}>
               <div style={{
                 position: 'relative',
-                color: 'var(--primarylight)',
+                color: 'var(--bb-theme-primarylight)',
                 width: '100%',
                 height: '100%',
                 fontFamily: '"Lucida Console", Consolas, Courier, monospace'

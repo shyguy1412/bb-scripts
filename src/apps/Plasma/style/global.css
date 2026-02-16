@@ -17,7 +17,7 @@ body {
 }
 
 .plasma-box-glow {
-  box-shadow: 0px 0px 10px 2px var(--primary)
+  box-shadow: 0px 0px 10px 2px var(--bb-theme-primary)
 }
 
 .plasma-fill {
@@ -30,27 +30,27 @@ body {
 }
 
 .plasma-box {
-  border: 1px solid var(--welllight);
+  border: 1px solid var(--bb-theme-welllight);
 }
 
 .plasma-box-inline {
-  border-inline: 1px solid var(--welllight);
+  border-inline: 1px solid var(--bb-theme-welllight);
 }
 
 .plasma-box-block {
-  border-block: 1px solid var(--welllight);
+  border-block: 1px solid var(--bb-theme-welllight);
 }
 
 .plasma-box-top {
-  border-top: 1px solid var(--welllight);
+  border-top: 1px solid var(--bb-theme-welllight);
 }
 
 .plasma-box-bottom {
-  border-bottom: 1px solid var(--welllight);
+  border-bottom: 1px solid var(--bb-theme-welllight);
 }
 
 .plasma-box-right {
-  border-right: 1px solid var(--welllight);
+  border-right: 1px solid var(--bb-theme-welllight);
 }
 
 .plasma-button {
@@ -58,11 +58,11 @@ body {
 }
 
 .plasma-button:hover {
-  background-color: var(--well);
+  background-color: var(--bb-theme-well);
 }
 
 .plasma-button:active {
-  background-color: var(--welllight);
+  background-color: var(--bb-theme-welllight);
 }
 
 .plasma-center {

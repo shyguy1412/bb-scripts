@@ -21,7 +21,7 @@
   padding-left: 1.5em;
   padding-right: 0.5em;
   
-  border-bottom: 1px solid var(--welllight);
+  border-bottom: 1px solid var(--bb-theme-welllight);
 }
 
 .dolphin-actions{
@@ -44,7 +44,7 @@
   user-select: none;
   height: 100%;
 
-  background-color: var(--backgroundprimary);
+  background-color: var(--bb-theme-backgroundprimary);
 }
 
 .dolphin-actions > span:hover{
@@ -57,13 +57,13 @@
 
   padding: 0.5em;
 
-  border-right: 1px solid var(--welllight);
+  border-right: 1px solid var(--bb-theme-welllight);
   overflow-y: auto;
 }
 
 .dolphin-explorer-button{
   cursor: pointer;
-  background-color: var(--backgroundprimary);
+  background-color: var(--bb-theme-backgroundprimary);
   padding: 0.5em;
 }
 

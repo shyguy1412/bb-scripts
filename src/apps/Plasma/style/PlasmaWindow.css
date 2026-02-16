@@ -1,5 +1,5 @@
 .plasma-window > *{
-  background-color: var(--backgroundprimary);
+  background-color: var(--bb-theme-backgroundprimary);
 }
 
 .plasma-window>.plasma-window-titlebar {
