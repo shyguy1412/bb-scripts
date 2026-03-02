@@ -12,6 +12,8 @@ import { NetscriptContext } from '@/lib/Context';
 import { FaPlus } from 'react-icons/fa';
 import { adoptStyle } from '@/lib/BitburnerDOM';
 import { enable_hot_reload } from '@/lib/syscalls/hot_reload';
+import { connect_to_fdaemon } from '@/home/bin/service/fdaemon';
+import { alive } from '@/lib/System';
 
 // @ts-expect-error
 export const PathContext = createContext<([string, Dispatch<SetStateAction<string>>])>(null);
@@ -63,17 +65,19 @@ export function Dolphin() {
     }, [] as Parameters<typeof ServerSection>[0][]);
 
     ns.ui.setTailTitle(`Dolphin - ${path.replace(/([^\/]*)(\/?)/, '$1://')}`);
+    const [files, setFiles] = useState(() => list_directory(ns, path.split('/')[1] ?? '', { withFileTypes: true }));
 
-    const [_, reload] = useState(true); //this is just used to poll the fs since BB doesnt have fs events
     useEffect(() => {
-        if (path == '~home/coding-contracts') return;
-        const timeout = setTimeout(() => reload(!_), 500); //just swapping between true/false
-        return () => clearTimeout(timeout);
-    });
+        if (!alive(ns)) return;
+        const [write, read] = connect_to_fdaemon(ns);
+        write("subscribe", {
+            event: 'change',
+            path: path
+        });
 
-    function getAllCodingContracts(ns:NS) { return []; }
+        read().finally(() => setFiles(list_directory(ns, path, { withFileTypes: true })));
+    }, [files]);
 
-    const files = useMemo(() => path == '~home/coding-contracts' ? getAllCodingContracts(ns) : list_directory(ns, path), [path]);
 
     if (files)
         return <>
@@ -129,8 +133,8 @@ export function Dolphin() {
                             }
                         }}
                         >
-                            <FileGrid files={files} path={path}></FileGrid>
                         </DoubleClickFileContext.Provider> */}
+                        <FileGrid files={files} path={path}></FileGrid>
                     </div>
                 </div>
             </PathContext.Provider>

@@ -8,60 +8,60 @@ export const CYCLE_FREQUENCY = 0;
 export const CYCLE_TIMEOUT = 100;
 
 export async function system_cycle(ns: NS) {
-  const service_port = get_service_port(ns, __META_FILENAME);
-  if (!service_port) throw new Error(`${__META_FILENAME} is not running`);
+    const service_port = get_service_port(ns, __META_FILENAME);
+    if (!service_port) throw new Error(`${__META_FILENAME} is not running`);
 
-  const timeout = new Promise((_, reject) => setTimeout(reject, CYCLE_TIMEOUT));
-  const cycle = new Promise(async resolve => {
-    do {
-      await ns.nextPortWrite(service_port);
-    } while (ns.peek(service_port).service != __META_FILENAME);
-    resolve(true);
-  });
+    const timeout = new Promise((_, reject) => setTimeout(reject, CYCLE_TIMEOUT));
+    const cycle = new Promise(async resolve => {
+        do {
+            await ns.nextPortWrite(service_port);
+        } while (ns.peek(service_port).service != __META_FILENAME);
+        resolve(true);
+    });
 
-  return Promise.race([cycle, timeout])
-    .then(_ => true)
-    .catch(_ => false);
+    return Promise.race([cycle, timeout])
+        .then(_ => true)
+        .catch(_ => false);
 }
 
 export async function main(ns: NS) {
-  if (ns.args.includes("--replace")) {
-    const service = get_service(ns, __META_FILENAME);
-    if (service.port != 0) ns.kill(service.port);
-  }
-
-  register_as_service(ns);
-
-  const fdaemon = create_fdaemon(ns);
-  const hmr_daemon = create_hmr_daemon(ns);
-
-  enable_hot_reload(ns);
-
-  const port = getSafePortHandle(ns, ns.pid)!;
-
-  let last_uuid = "";
-
-  while (true) {
-
-    fdaemon();
-    hmr_daemon();
-
-    //if queue is empty for this cycle is empty
-    if (port.empty() || port.peek().service == __META_FILENAME) {
-      port.read();
-      // console.log("PORT CLEARED ", port.empty());
-      port.write({ service: __META_FILENAME, uuid: crypto.randomUUID() });
-      await ns.sleep(CYCLE_FREQUENCY);
-      continue;
+    if (ns.args.includes("--replace")) {
+        const service = get_service(ns, __META_FILENAME);
+        if (service.port != 0) ns.kill(service.port);
     }
 
-    const unprocessed_request = port.peek();
+    register_as_service(ns);
 
-    if (unprocessed_request.uuid == last_uuid) {
-      console.log("POP", port.read()); // pop unprocessed request
+    const fdaemon = create_fdaemon(ns);
+    const hmr_daemon = create_hmr_daemon(ns);
+
+    enable_hot_reload(ns);
+
+    const port = getSafePortHandle(ns, ns.pid)!;
+
+    let last_uuid = "";
+
+    while (true) {
+
+        fdaemon();
+        hmr_daemon();
+
+        //if queue is empty for this cycle is empty
+        if (port.empty() || port.peek().service == __META_FILENAME) {
+            port.read();
+            // console.log("PORT CLEARED ", port.empty());
+            port.write({ service: __META_FILENAME, uuid: crypto.randomUUID() });
+            await ns.sleep(CYCLE_FREQUENCY);
+            continue;
+        }
+
+        const unprocessed_request = port.peek();
+
+        if (unprocessed_request.uuid == last_uuid) {
+            console.log("POP", port.read()); // pop unprocessed request
+        }
+
+        last_uuid = unprocessed_request.uuid;
+
     }
-
-    last_uuid = unprocessed_request.uuid;
-
-  }
 }

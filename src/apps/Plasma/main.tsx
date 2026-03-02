@@ -68,7 +68,7 @@ export async function Plasma(ns: NS) {
     return new Promise<void>(resolve => {
         const el = [...document.querySelector('#root')!.children]
             .filter(el => !el.classList.contains('react-draggable') && el.id != '#unclickable')[0];
-
+        ns.ui.clearTerminal();
         ns.tprintRaw(<>
             {createPortal(
                 <ConfigContext.Provider value={{
@@ -88,6 +88,6 @@ export async function Plasma(ns: NS) {
                 , el)}
         </>
         );
-    }).then(_ => ns.ui.clearTerminal());
+    });
 
 }

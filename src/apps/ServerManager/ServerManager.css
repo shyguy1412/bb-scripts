@@ -1,67 +1,45 @@
 .server-manager {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(206px, 1fr));
-  overflow-y: auto;
+    display: flex;
+    flex-direction: column;
 }
 
-.server-manager-layout {
-  display: grid;
-  /* height: 100%; */
-  grid-auto-columns: auto;
+.server-manager > div:first-child {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5em;
 }
 
-.server-manager-purchase-server {
-  display: flex;
-  justify-content: space-between;
-  padding: .5em;
-  border-bottom: 1px solid var(--bb-theme-welllight);
+.server-manager * {
+    color: var(--bb-theme-primary);
+    background-color: var(--bb-theme-background);
 }
 
-.server-manager-purchase-server input {
-  background-color: var(--bb-theme-well);
-  color: var(--bb-theme-primarylight);
-  font-size: 1.05em;
-  width: 100px;
+.server-manager input, .server-manager button {
+    border: 1px solid currentColor;
 }
 
-.server-manager-button-list {
-  display: flex;
-  gap: 0.5em;
+.server-manager-entries {
+    display: flex;
+    border-top: 1px solid currentColor;
 }
 
-.server-manager-purchase-server-button {
-  cursor: pointer;
+.server-manager-entries > div {
+    box-sizing: border-box;
 
-  user-select: none;
+    border-left: 1px solid currentColor;
+    border-right: 1px solid currentColor;
+    border-bottom: 1px solid currentColor;
 
-  border: 1px solid var(--bb-theme-welllight);
-  background-color: var(--bb-theme-backgroundprimary);
+    display: flex;
+    flex-direction: column;
+    max-width: 50%;
 
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
+    padding: 0.5em;
 
-  width: 2.5em;
-  height: 1.5em;
+    gap: 0.5em;
 }
 
-.server-manager-auto-upgrade-button {
-  cursor: pointer;
-
-  user-select: none;
-
-  border: 1px solid var(--bb-theme-welllight);
-  background-color: var(--bb-theme-backgroundprimary);
-
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-
-  width: 3em;
-  height: 1.5em;
-}
-
-.server-manager-auto-upgrade-button:hover,
-.server-manager-purchase-server-button:hover {
-  filter: brightness(150%);
+.server-manager-entries > div > div:nth-child(3) {
+    display: flex;
+    gap: 0.5em;
 }

@@ -22,7 +22,7 @@ export function Desktop() {
             event: 'change',
             path: desktop
         });
-        read().finally(() => setFiles(list_directory(ns, desktop, { withFileTypes: true })));
+        read().then(() => setFiles(list_directory(ns, desktop, { withFileTypes: true })));
     }, [files]);
 
     const onDoubleClick: FileGrid.Props["onDoubleClick"] = (_, { type, name }) => {

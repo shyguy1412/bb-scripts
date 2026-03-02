@@ -1,33 +1,34 @@
 export type DirEnt = { name: string, type: 'file' | 'folder'; };
 
 type LsOptions = {
-  withFileTypes?: boolean;
-  server?: string;
+    withFileTypes?: boolean;
+    server?: string;
 };
 
 export function list_directory(ns: NS, path: string, opts: LsOptions & { withFileTypes: true; }): DirEnt[];
 export function list_directory(ns: NS, path: string, opts?: LsOptions & { withFileTypes: false; }): string[];
 export function list_directory(ns: NS, path: string, opts?: LsOptions): DirEnt[] | string[] {
-  const server = opts?.server ?? ns.self().server;
-  const files = ns.ls(server).filter(p => p.startsWith(path))
-    .map(f => ('/' + f).replace(new RegExp(`/?${path}/?([^/]*).*`), '$1'));
+    const server = opts?.server ?? ns.self().server;
+    const files = ns.ls(server).filter(p => p.startsWith(path))
+        .map(f => ('/' + f).replace(new RegExp(`/?${path}/?([^/]*).*`), '$1'))
+        .filter((f, i, arr) => arr.indexOf(f) == i);
 
-  if (opts?.withFileTypes) {
-    return files.map(name => ({
-      name,
-      type: name.includes('.') ? 'file' : 'folder'
-    } as DirEnt));
-  }
+    if (opts?.withFileTypes) {
+        return files.map(name => ({
+            name,
+            type: name.includes('.') ? 'file' : 'folder'
+        } as DirEnt));
+    }
 
-  return files;
+    return files;
 };
 
 export function is_file(path: string) {
-  return /\..?.?.?$/.test(path);
+    return /\..?.?.?$/.test(path);
 }
 
 export function remove_directory(ns: NS, path: string, server = ns.self().server) {
-  for (const file of ns.ls(server).filter(p => p.startsWith(path))) {
-    ns.rm(file, server);
-  }
+    for (const file of ns.ls(server).filter(p => p.startsWith(path))) {
+        ns.rm(file, server);
+    }
 }

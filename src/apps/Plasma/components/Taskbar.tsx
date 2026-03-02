@@ -6,32 +6,32 @@ import { NetscriptContext } from '@/lib/Context';
 
 export function Taskbar() {
 
-  const [clock, setClock] = useState(Date.now());
+    const [clock, setClock] = useState(Date.now());
 
-  const ns = useContext(NetscriptContext);
-  adoptStyle(ns, style);
-  
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setClock(Date.now());
-    }, 1000);
+    const ns = useContext(NetscriptContext);
 
-    return () => {
-      clearInterval(interval);
-    };
-  }, []);
+    useEffect(() => {
+        adoptStyle(ns, style);
+        const interval = setInterval(() => {
+            setClock(Date.now());
+        }, 1000);
 
-  return <>
-    <div className='taskbar'>
-      <HomeButton></HomeButton>
+        return () => {
+            clearInterval(interval);
+        };
+    }, []);
 
-      <div className='taskbar-windows'>
-      </div>
+    return <>
+        <div className='taskbar'>
+            <HomeButton></HomeButton>
 
-      <span className='taskbar-date plasma-box-inline'>
-        <div>{new Date(clock).toLocaleTimeString("de").slice(0, -3)}</div>
-        <div>{new Date(clock).toLocaleDateString("de")}</div>
-      </span>
-    </div>
-  </>;
+            <div className='taskbar-windows'>
+            </div>
+
+            <span className='taskbar-date plasma-box-inline'>
+                <div>{new Date(clock).toLocaleTimeString("de").slice(0, -3)}</div>
+                <div>{new Date(clock).toLocaleDateString("de")}</div>
+            </span>
+        </div>
+    </>;
 }

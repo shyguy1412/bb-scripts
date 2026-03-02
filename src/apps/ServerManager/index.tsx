@@ -1,75 +1,87 @@
-import Style from './ServerManager.css';
-import { ServerEntry } from './ServerEntry';
-import { List } from '@/lib/components/List';
-import { doublePurchasedServerRam, getAllServers, getPurchasedServers } from '@/lib/Network';
-import { Server } from 'NetscriptDefinitions';
-import React, { useState, useRef, useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
+import style from './ServerManager.css' with { type: 'css' };
 import { NetscriptContext } from '@/lib/Context';
+import { adoptStyle } from '@/lib/BitburnerDOM';
+import React from 'react';
+import { Server } from 'NetscriptDefinitions';
+import { enable_hot_reload } from '@/lib/syscalls/hot_reload';
+
+const SERVER_BASE_NAME = 'pserv';
 
 export function ServerManager() {
-  'use getPurchasedServerLimit';
-  'use getServer';
-  'use purchaseServer';
-  'use deleteServer';
+    const ns = useContext(NetscriptContext);
 
-  const ns = useContext(NetscriptContext);
-  const [servers, setServers] = useState<Server[]>(getPurchasedServers(ns));
-  const inputRef = useRef<HTMLInputElement>(null);
-  const defaultNewServerName = `${ns.args[0]??'grindr'}-${+(servers.at(-1)?.hostname?.split('-')?.[1] ?? 0) + 1}`;
+    adoptStyle(ns, style);
+    enable_hot_reload(ns);
 
-  return <>
-    <Style></Style>
-    <div className='server-manager-layout'>
+    const servers = ns.cloud.getServerNames().map((s) => ns.getServer(s) as Server);
 
-      <div className='server-manager-purchase-server'>
-        <span>
-          Purchase new server:
-          &nbsp;
-          <input type='text' ref={inputRef} defaultValue={defaultNewServerName} key={defaultNewServerName} />
-          &nbsp;
-        </span>
-        <span className='server-manager-button-list'>
-          <span className='server-manager-purchase-server-button'
-            onClick={() => {
-              if (!inputRef.current) throw new Error('Something went wrong, no input ref');
-              const newServer = ns.purchaseServer(inputRef.current.value, 2);
-              if (!newServer && servers.length == ns.getPurchasedServerLimit()) {
-                ns.toast('Server limit has been reached', 'error');
-                return;
-              } else if (!newServer) {
-                ns.toast('Not enough money', 'error');
-                return;
-              }
-              ns.toast(`Successfully bought server '${newServer}'`, 'success');
-              setServers(getPurchasedServers(ns));
-            }}
-          >OK</span>
-          <span className='server-manager-auto-upgrade-button'
-            onClick={() => {
+    const poll = useState(false)[1].bind(undefined, (p) => !p);
 
-              const servers = getPurchasedServers(ns);
-              servers.sort((a, b) => a.maxRam - b.maxRam);
+    useEffect(() => {
+        const interval = setInterval(() => {
+            poll();
+        }, 500);
 
-              while (doublePurchasedServerRam(ns, servers[0].hostname)) {
-                servers[0].maxRam *= 2;
-                servers.sort((a, b) => a.maxRam - b.maxRam);
-              };
-              ns.toast(`Upgraded all servers`, 'success');
-              setServers(getPurchasedServers(ns));
-            }}
-          >AUTO</span>
-        </span>
-      </div>
-      <div className='server-manager'>
-        <List li={ServerEntry} data={servers.map(s => ({
-          ns,
-          server: s,
-          remove: () => {
-            ns.deleteServer(s.hostname);
-            setServers(getPurchasedServers(ns));
-          }
-        }))}></List>
-      </div>
-    </div>
-  </>;
+        return () => clearInterval(interval);
+    }, [poll]);
+
+    const entries = servers.map((s, i) =>
+        <ServerEntry key={i} poll={poll} server={s}></ServerEntry>
+    );
+
+    const buyNewServer = (e: React.MouseEvent<HTMLButtonElement>) => {
+        const input = e.currentTarget.parentElement?.querySelector('input')!;
+        if (!ns.cloud.purchaseServer(input.value, 2)) {
+            ns.toast('Failed to buy server', 'error');
+        }
+        poll();
+    };
+
+    return (
+        <div className='server-manager'>
+            <div>
+                <span>
+                    Purchase new server:
+                    <input
+                        type='text'
+                        value={`${SERVER_BASE_NAME}-${servers.length}`}
+                    />
+                </span>
+                <button onClick={buyNewServer}>OK</button>
+            </div>
+            <div className='server-manager-entries'>
+                {entries}
+            </div>
+        </div>
+    );
+}
+
+namespace ServerEntry {
+    export type Props = {
+        server: Server;
+        poll: () => void;
+    };
+}
+
+function ServerEntry({ server, poll }: ServerEntry.Props) {
+    const ns = useContext(NetscriptContext);
+
+    const doubleRam = () => doubleServerRam(ns, server.hostname) ? (poll(), true) : false;
+    const maxoutRam = () => doubleRam() ? doubleRam() : (poll(), false);
+    const deleteServer = () => (ns.cloud.deleteServer(server.hostname), poll());
+
+    return <div>
+        <div>{server.hostname} ({server.ip})</div>
+        <div>RAM: {ns.format.ram(server.maxRam, 2)}</div>
+        <div>
+            <button onClick={doubleRam}>X2</button>
+            <button onClick={maxoutRam}>MAX</button>
+            <button onClick={deleteServer}>DELETE</button>
+        </div>
+    </div>;
+}
+
+function doubleServerRam(ns: NS, host: string) {
+    return ns.cloud.upgradeServer(host, ns.getServerMaxRam(host) * 2);
 }

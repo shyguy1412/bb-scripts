@@ -1,11 +1,38 @@
 {
-  "nodeModulesDir": "manual",
-  "imports": {
-    "esbuild-bitburner-plugin": "jsr:@shyguy1412/esbuild-bitburner-plugin@0.0.0",
-  },
-  "compilerOptions": {
-    "lib": ["deno.ns", "dom", "dom.iterable", "dom.asynciterable"],
-  },
-  "patch": ["../../deno/esbuild-bitburner-plugin/"],
-  "exclude": ["./src/*"],
+    "nodeModulesDir": "manual",
+    "imports": {
+        "esbuild-bitburner-plugin": "jsr:@shyguy1412/esbuild-bitburner-plugin@0.0.0"
+    },
+    "compilerOptions": {
+        "lib": ["deno.ns", "dom", "dom.iterable", "dom.asynciterable"]
+    },
+    "patch": ["../../deno/esbuild-bitburner-plugin/"],
+    "exclude": ["./src/*"],
+    "fmt": {
+        "indentWidth": 4,
+        "lineWidth": 90,
+        "useTabs": false,
+
+        "semiColons": true,
+        "singleQuote": true,
+        "quoteProps": "asNeeded",
+        "trailingCommas": "onlyMultiLine",
+
+        "newLineKind": "lf",
+        "proseWrap": "preserve",
+
+        "useBraces": "always",
+        "bracePosition": "sameLine",
+        "operatorPosition": "sameLine",
+        "singleBodyPosition": "nextLine",
+        "nextControlFlowPosition": "sameLine",
+
+        "spaceAround": false,
+        "spaceSurroundingProperties": true,
+
+        "typeLiteral.separatorKind": "semiColon",
+
+        "jsx.bracketPosition": "nextLine",
+        "jsx.multiLineParens": "never"
+    }
 }
