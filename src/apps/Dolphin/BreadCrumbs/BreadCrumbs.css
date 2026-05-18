@@ -1,13 +1,13 @@
 .dolphin-bread-crumbs {
-  display: flex;
-  align-items: center;
+    display: flex;
+    align-items: center;
 }
 
-.dolphin-bread-crumb-clickable{
-  display: inline;
+.dolphin-bread-crumb-clickable {
+    display: inline;
 }
 
 .dolphin-bread-crumb-clickable:hover {
-  text-decoration: underline;
-  cursor: pointer;
+    text-decoration: underline;
+    cursor: pointer;
 }

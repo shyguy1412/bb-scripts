@@ -12,7 +12,6 @@
     "npm:acorn@^8.15.0": "8.15.0",
     "npm:astring@^1.9.0": "1.9.0",
     "npm:esbuild-wasm@~0.25.12": "0.25.12",
-    "npm:esbuild@0.27.3": "0.27.3",
     "npm:esbuild@~0.25.12": "0.25.12",
     "npm:geckosvg@^0.0.5": "0.0.5",
     "npm:js-untar@2": "2.0.0",
@@ -27,7 +26,6 @@
     "@std/fs@1.0.22": {
       "integrity": "de0f277a58a867147a8a01bc1b181d0dfa80bfddba8c9cf2bacd6747bcec9308",
       "dependencies": [
-        "jsr:@std/internal",
         "jsr:@std/path"
       ]
     },
@@ -728,9 +726,12 @@
       "deprecated": true
     }
   },
+  "remote": {
+    "https://raw.githubusercontent.com/shyguy1412/shylib/refs/heads/main/types/Result.ts": "fb21faeef0afa6e0cb61e876f5c7cf85b464eb206e8805cc932656f0ebdb6d12"
+  },
   "workspace": {
     "dependencies": [
-      "jsr:@shyguy1412/esbuild-bitburner-plugin@0.0.0"
+      "jsr:@shyguy1412/esbuild-bitburner-plugin@*"
     ],
     "packageJson": {
       "dependencies": [
@@ -750,9 +751,8 @@
       ]
     },
     "links": {
-      "jsr:@shyguy1412/esbuild-bitburner-plugin@0.0.0": {
+      "jsr:@shyguy1412/esbuild-bitburner-plugin@0.0.3": {
         "dependencies": [
-          "jsr:@gnome/monads@0.0.0",
           "jsr:@std/fs@1.0.22",
           "npm:esbuild@0.27.3"
         ]

@@ -4,7 +4,7 @@ This is a file explorer. Use it to move files/folders between servers, rename fi
 
 ## Drag & Drop
 
-Files and folders can be transfered between different servers and folders. Transfering to a different server will copy your files, while transfering on the same server will move your files.  
+Files and folders can be transfered between different servers and folders. Transfering to a different server will copy your files, while transfering on the same server will move your files.\
 You can drop files onto the breadcrumbs at the top, onto the server names in the explorer, onto a folder or inside another Dolphin window.
 You can also drop files onto your desktop if you are using [Plasma](../plasma/README.md)
 

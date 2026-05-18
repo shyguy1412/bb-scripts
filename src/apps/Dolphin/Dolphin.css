@@ -1,77 +1,75 @@
 .dolphin-layout {
-  display: grid;
-  grid-template-columns: 150px auto;
-  grid-template-rows: 33px auto;
+    display: grid;
+    grid-template-columns: 150px auto;
+    grid-template-rows: 33px auto;
 
-  width: 100%;
-  height: 100%;
+    width: 100%;
+    height: 100%;
 
-  overflow: hidden;
+    overflow: hidden;
 }
 
+.dolphin-actionbar {
+    grid-column: span 2;
 
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 
-.dolphin-actionbar{
-  grid-column: span 2;
+    padding-left: 1.5em;
+    padding-right: 0.5em;
 
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  padding-left: 1.5em;
-  padding-right: 0.5em;
-  
-  border-bottom: 1px solid var(--bb-theme-welllight);
+    border-bottom: 1px solid var(--bb-theme-welllight);
 }
 
-.dolphin-actions{
-  display: flex;
-  justify-items: right;
-  align-items: center;
+.dolphin-actions {
+    display: flex;
+    justify-items: right;
+    align-items: center;
 
-  height: 100%;
+    height: 100%;
 
-  gap: 0.5em;
+    gap: 0.5em;
 }
 
-.dolphin-actions > span{
-  display: flex;
-  align-items: center;
+.dolphin-actions > span {
+    display: flex;
+    align-items: center;
 
-  padding-inline: 0.1em;
+    padding-inline: 0.1em;
 
-  cursor: pointer;
-  user-select: none;
-  height: 100%;
+    cursor: pointer;
+    user-select: none;
+    height: 100%;
 
-  background-color: var(--bb-theme-backgroundprimary);
+    background-color: var(--bb-theme-backgroundprimary);
 }
 
-.dolphin-actions > span:hover{
-  filter: brightness(150%);
+.dolphin-actions > span:hover {
+    filter: brightness(150%);
 }
 
 .dolphin-explorer {
-  display: flex;
-  flex-direction: column;
+    display: flex;
+    flex-direction: column;
 
-  padding: 0.5em;
+    padding: 0.5em;
 
-  border-right: 1px solid var(--bb-theme-welllight);
-  overflow-y: auto;
+    border-right: 1px solid var(--bb-theme-welllight);
+    overflow-y: auto;
 }
 
-.dolphin-explorer-button{
-  cursor: pointer;
-  background-color: var(--bb-theme-backgroundprimary);
-  padding: 0.5em;
+.dolphin-explorer-button {
+    cursor: pointer;
+    background-color: var(--bb-theme-backgroundprimary);
+    padding: 0.5em;
 }
 
-.dolphin-explorer-button:hover{
-  filter: brightness(150%);
+.dolphin-explorer-button:hover {
+    filter: brightness(150%);
 }
 
-.dolphin-content{
-  max-height: 100%;
-  overflow: hidden;
+.dolphin-content {
+    max-height: 100%;
+    overflow: hidden;
 }

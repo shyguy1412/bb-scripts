@@ -6,25 +6,30 @@ import { Server } from 'NetscriptDefinitions';
 import React, { useContext } from 'react';
 
 type Props = {
-  server: Server;
+    server: Server;
 };
 
 export function ServerEntry({ server }: Props) {
-  const ns = useContext(NetscriptContext);
-  const [, setPath] = useContext(PathContext) ?? [];
+    const ns = useContext(NetscriptContext);
+    const [, setPath] = useContext(PathContext) ?? [];
 
-  return <DropTarget
-    accept='file'
-    className='dolphin-explorer-button'
-    onClick={() => setPath(server.hostname)}
-    onDrop={(e) => {
-      const [sourceServer, sourceFile] = e.dataTransfer.getData('data').split(/\/(.*)/, 2);
-      // transferFile(
-      //   ns,
-      //   `${sourceServer}/${sourceFile}`,
-      //   `${server.hostname}/${sourceFile.split('/').at(-1)}`,
-      //   sourceServer != server.hostname
-      // );
-    }}
-  >{server.hostname}</DropTarget>;
+    return <DropTarget
+        accept='file'
+        className='dolphin-explorer-button'
+        onClick={() => setPath(server.hostname)}
+        onDrop={(e) => {
+            const [sourceServer, sourceFile] = e.dataTransfer.getData('data').split(
+                /\/(.*)/,
+                2,
+            );
+            // transferFile(
+            //   ns,
+            //   `${sourceServer}/${sourceFile}`,
+            //   `${server.hostname}/${sourceFile.split('/').at(-1)}`,
+            //   sourceServer != server.hostname
+            // );
+        }}
+    >
+        {server.hostname}
+    </DropTarget>;
 }

@@ -1,26 +1,27 @@
-import OperatorSymbols from "OperatorSymbols";
+import OperatorSymbols from 'OperatorSymbols';
 
 console[OperatorSymbols['<<']] = (_, right) => {
-  process.stdout.write(right);
-  return console;
+    process.stdout.write(right);
+    return console;
 };
 
 String.prototype[OperatorSymbols['!']] = (v: string) => v.toLocaleUpperCase();
 String.prototype[OperatorSymbols['||']] = (l: string, r: string) => {
-  const interleave = ([x, ...xs]: string[], ys = []) =>
-    x === undefined
-      ? ys                             // base: no x
-      : [x, ...interleave(ys, xs)];  // inductive: some x
+    const interleave = ([x, ...xs]: string[], ys = []) =>
+        x === undefined ?
+            ys // base: no x
+             :
+            [x, ...interleave(ys, xs)]; // inductive: some x
 
-  return interleave([...l], [...r]).join('');
+    return interleave([...l], [...r]).join('');
 };
 String.prototype[OperatorSymbols['||=']] = String.prototype[OperatorSymbols['||']];
 String.prototype[OperatorSymbols['++']] = (v, pre) => {
-  return v.toLocaleUpperCase();
+    return v.toLocaleUpperCase();
 };
 
 String.prototype[OperatorSymbols['--']] = (v, pre) => {
-  return v.toLocaleLowerCase();
+    return v.toLocaleLowerCase();
 };
 
 console << 'Hello World' << '\n' << ':)' << '\n';

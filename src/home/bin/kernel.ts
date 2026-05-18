@@ -1,18 +1,24 @@
-import { get_service, get_service_port, read_from_service, register_as_service } from "@/lib/syscalls/service";
-import { create_fdaemon } from "@/home/bin/service/fdaemon";
-import { create_hmr_daemon, enable_hot_reload } from "@/home/bin/service/hmr-daemon";
-import __META_FILENAME from "meta:filename";
-import { getSafePortHandle } from "@/lib/System";
+import {
+    get_service,
+    get_service_port,
+    register_as_service,
+} from '@/lib/syscalls/service';
+import { create_fdaemon } from '@/home/bin/service/fdaemon';
+import { create_hmr_daemon, enable_hot_reload } from '@/home/bin/service/hmr-daemon';
+import __META_FILENAME from 'meta:filename';
+import { getSafePortHandle } from '@/lib/System';
 
 export const CYCLE_FREQUENCY = 0;
 export const CYCLE_TIMEOUT = 100;
 
 export async function system_cycle(ns: NS) {
     const service_port = get_service_port(ns, __META_FILENAME);
-    if (!service_port) throw new Error(`${__META_FILENAME} is not running`);
+    if (!service_port) {
+        throw new Error(`${__META_FILENAME} is not running`);
+    }
 
     const timeout = new Promise((_, reject) => setTimeout(reject, CYCLE_TIMEOUT));
-    const cycle = new Promise(async resolve => {
+    const cycle = new Promise(async (resolve) => {
         do {
             await ns.nextPortWrite(service_port);
         } while (ns.peek(service_port).service != __META_FILENAME);
@@ -20,14 +26,16 @@ export async function system_cycle(ns: NS) {
     });
 
     return Promise.race([cycle, timeout])
-        .then(_ => true)
-        .catch(_ => false);
+        .then((_) => true)
+        .catch((_) => false);
 }
 
 export async function main(ns: NS) {
-    if (ns.args.includes("--replace")) {
+    if (ns.args.includes('--replace')) {
         const service = get_service(ns, __META_FILENAME);
-        if (service.port != 0) ns.kill(service.port);
+        if (service.port != 0) {
+            ns.kill(service.port);
+        }
     }
 
     register_as_service(ns);
@@ -39,10 +47,9 @@ export async function main(ns: NS) {
 
     const port = getSafePortHandle(ns, ns.pid)!;
 
-    let last_uuid = "";
+    let last_uuid = '';
 
     while (true) {
-
         fdaemon();
         hmr_daemon();
 
@@ -58,10 +65,9 @@ export async function main(ns: NS) {
         const unprocessed_request = port.peek();
 
         if (unprocessed_request.uuid == last_uuid) {
-            console.log("POP", port.read()); // pop unprocessed request
+            console.log('POP', port.read()); // pop unprocessed request
         }
 
         last_uuid = unprocessed_request.uuid;
-
     }
 }

@@ -1,5 +1,5 @@
 import { findTailRoot, watchElForDeletion } from '@/lib/BitburnerDOM';
-import { NetscriptContext, TerminateContext, TailRootContext } from '@/lib/Context';
+import { NetscriptContext, TailRootContext, TerminateContext } from '@/lib/Context';
 import React from 'react';
 import { createPortal } from 'react-dom';
 
@@ -22,34 +22,38 @@ export async function createWindowApp(ns: NS, Component: React.FunctionComponent
 
     // root.style.flexDirection = 'unset';
 
-    return new Promise<void>(resolve => {
+    return new Promise<void>((resolve) => {
         watchElForDeletion(root, () => resolve(), controller.signal);
-        ns.printRaw(<>
-            {createPortal(
-                <NetscriptContext.Provider value={ns}>
-                    <TerminateContext.Provider value={resolve}>
-                        <TailRootContext.Provider value={root}>
-                            <div style={{
-                                position: 'relative',
-                                color: 'var(--bb-theme-primarylight)',
-                                width: '100%',
-                                height: '100%',
-                                fontFamily: '"Lucida Console", Consolas, Courier, monospace'
-                            }}>
-                                <Component></Component>
-                            </div>
-                        </TailRootContext.Provider>
-                    </TerminateContext.Provider>
-                </NetscriptContext.Provider>
-                , root
-            )}
-        </>);
+        ns.printRaw(
+            <>
+                {createPortal(
+                    <NetscriptContext.Provider value={ns}>
+                        <TerminateContext.Provider value={resolve}>
+                            <TailRootContext.Provider value={root}>
+                                <div
+                                    style={{
+                                        position: 'relative',
+                                        color: 'var(--bb-theme-primarylight)',
+                                        width: '100%',
+                                        height: '100%',
+                                        fontFamily:
+                                            '"Lucida Console", Consolas, Courier, monospace',
+                                    }}
+                                >
+                                    <Component></Component>
+                                </div>
+                            </TailRootContext.Provider>
+                        </TerminateContext.Provider>
+                    </NetscriptContext.Provider>,
+                    root,
+                )}
+            </>,
+        );
         ns.ui.renderTail();
     });
 }
 
-export const mainWrapper = (Component: React.FunctionComponent) =>
-    (ns: NS) => createWindowApp(ns, Component).catch(console.error);
-
+export const mainWrapper = (Component: React.FunctionComponent) => (ns: NS) =>
+    createWindowApp(ns, Component).catch(console.error);
 
 export { NetscriptContext, TerminateContext } from '@/lib/Context';

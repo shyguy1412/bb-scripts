@@ -1,4 +1,4 @@
-import { createContext } from "react";
+import { createContext } from 'react';
 
 //@ts-expect-error
 export const NetscriptContext = createContext<NS>(null);

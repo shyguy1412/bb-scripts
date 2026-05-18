@@ -1,6 +1,6 @@
 import { PathContext } from '..';
-import style from './BreadCrumbs.css' with {type: 'css'};
-import React, { useContext } from "react";
+import style from './BreadCrumbs.css' with { type: 'css' };
+import React, { useContext } from 'react';
 import { List } from '@/lib/components/List';
 import { DropTarget } from '@/lib/components/DropTarget';
 // import { transferFile } from '@/lib/FileSystem';
@@ -8,18 +8,24 @@ import { NetscriptContext } from '@/lib/Context';
 import { adoptStyle } from '@/lib/BitburnerDOM';
 
 export function BreadCrumbs() {
-
     const [path] = useContext(PathContext);
     const ns = useContext(NetscriptContext);
 
     adoptStyle(ns, style);
 
-    return <div className="dolphin-bread-crumbs">
-        <List data={path.split('/').map((crumb, i, arr) => ({ crumb, path: arr.slice(0, i + 1).join('/') }))} li={Crumb}></List>
+    return <div className='dolphin-bread-crumbs'>
+        <List
+            data={path.split('/').map((crumb, i, arr) => ({
+                crumb,
+                path: arr.slice(0, i + 1).join('/'),
+            }))}
+            li={Crumb}
+        >
+        </List>
     </div>;
 }
 
-function Crumb({ crumb, path }: { crumb: string; path: string; }) {
+function Crumb({ crumb, path }: { crumb: string; path: string }) {
     const [, setPath] = useContext(PathContext);
     const ns = useContext(NetscriptContext);
 
@@ -28,7 +34,10 @@ function Crumb({ crumb, path }: { crumb: string; path: string; }) {
             className='dolphin-bread-crumb-clickable'
             accept='file'
             onDrop={(e) => {
-                const [sourceServer, sourceFile] = e.dataTransfer.getData('data').split(/\/(.*)/, 2);
+                const [sourceServer, sourceFile] = e.dataTransfer.getData('data').split(
+                    /\/(.*)/,
+                    2,
+                );
                 const [targetServer] = path.split('/');
                 // transferFile(
                 //   ns,
@@ -40,7 +49,9 @@ function Crumb({ crumb, path }: { crumb: string; path: string; }) {
             onClick={() => {
                 setPath(path);
             }}
-        >{crumb}</DropTarget>
+        >
+            {crumb}
+        </DropTarget>
         /
     </span>;
 }

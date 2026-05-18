@@ -1,6 +1,6 @@
 # WindowApp
 
-A window app is a tail window that contains a react app. It provides context for common things too.  
+A window app is a tail window that contains a react app. It provides context for common things too.\
 WindowApp.mount will return a promise that resolves when the tail window is closed. This can be used to cleanly exit a script after tail was closed
 
 ## How to use
@@ -9,13 +9,13 @@ WindowApp.mount will return a promise that resolves when the tail window is clos
 import { createWindowApp } from 'WindowApp';
 
 export async function main(ns) {
-  const WindowApp = createWindowApp(ns);
+    const WindowApp = createWindowApp(ns);
 
-  ns.atExit(() => { //this will cleanup the window and run all registered cleanups in the cleanup context
-    WindowApp.cleanup();
-  });
+    ns.atExit(() => { //this will cleanup the window and run all registered cleanups in the cleanup context
+        WindowApp.cleanup();
+    });
 
-  return WindowApp.mount(<MyApp></MyApp>); //this will mount the MyApp component in the tail window. 
+    return WindowApp.mount(<MyApp></MyApp>); //this will mount the MyApp component in the tail window.
 }
 ```
 
@@ -26,12 +26,11 @@ export async function main(ns) {
 Use this to get the ns instance of your app
 
 ```jsx
-import {NetscriptContext} from 'WindowApp';
-function MyApp(){
+import { NetscriptContext } from 'WindowApp';
+function MyApp() {
+    const ns = useContext(NetscriptContext);
 
-  const ns = useContext(NetscriptContext);
-
-  return <div>My App</div>
+    return <div>My App</div>;
 }
 ```
 
@@ -40,15 +39,14 @@ function MyApp(){
 Use this to add callbacks to be executed when the script dies
 
 ```jsx
-import {CleanupContext} from 'WindowApp';
+import { CleanupContext } from 'WindowApp';
 
-function MyApp(){
+function MyApp() {
+    const addCleanup = useContext(CleanupContext);
 
-  const addCleanup = useContext(CleanupContext);
+    addCleanup(() => {/* add stuff here */});
 
-  addCleanup(() => {/* add stuff here */});
-
-  return <div>My App</div>
+    return <div>My App</div>;
 }
 ```
 
@@ -57,14 +55,13 @@ function MyApp(){
 Use this to cleanly exit the script. Unlike ns.exit, this will not stop immediate execution.
 
 ```jsx
-import {TerminateContext} from 'WindowApp';
+import { TerminateContext } from 'WindowApp';
 
-function MyApp(){
+function MyApp() {
+    const terminate = useContext(TerminateContext);
 
-  const terminate = useContext(TerminateContext);
+    terminate(); //Script will exit after the current task is done.
 
-  terminate(); //Script will exit after the current task is done.
-
-  return <div>My App</div>
+    return <div>My App</div>;
 }
 ```

@@ -13,12 +13,12 @@ This works the same way as it would with regular npm `npm <i/ci/install> <packag
 To import a package you will need to use the require function npm exports.
 
 ```js
-import {require} from '/npm.js';
+import { require } from '/npm.js';
 
 const jquery = await require('jquery');
 
-export async function main(ns){
-  const chalk = await require('chalk');
+export async function main(ns) {
+    const chalk = await require('chalk');
 }
 ```
 
@@ -29,11 +29,11 @@ Require implements most of the node module resolution so it should behave very s
 npm.js also exports functions to interact with the npm registry and install packages programatically.
 
 ```js
-import {getPackageInfo, installPackage} from '/npm.js';
+import { getPackageInfo, installPackage } from '/npm.js';
 
-export async function main(ns){
-  const packageInfo = await getPackageInfo('axios', '1.7.4');
-  await installPackage(ns, packageInfo);
+export async function main(ns) {
+    const packageInfo = await getPackageInfo('axios', '1.7.4');
+    await installPackage(ns, packageInfo);
 }
 ```
 

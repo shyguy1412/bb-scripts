@@ -1,34 +1,34 @@
 {
-  "name": "bb-external-editor",
-  "version": "1.0.0",
-  "description": "template for external editors for the game bitburner",
-  "scripts": {
-    "start": "deno -A --watch ./build.ts",
-    "typecheck": "tsc --noEmit"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/shyguy1412/bb-external-editor.git"
-  },
-  "author": "Shy",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/shyguy1412/bb-external-editor/issues"
-  },
-  "homepage": "https://github.com/shyguy1412/bb-external-editor#readme",
-  "dependencies": {
-    "@types/node": "^24.10.1",
-    "@types/react": "^19.2.6",
-    "@types/react-dom": "^17.0.26",
-    "acorn": "^8.15.0",
-    "acorn-walk": "^8.3.4",
-    "astring": "^1.9.0",
-    "esbuild": "^0.25.12",
-    "esbuild-wasm": "^0.25.12",
-    "geckosvg": "^0.0.5",
-    "js-untar": "^2.0.0",
-    "ramdodger-extension": "^1.0.1",
-    "react-icons": "^5.5.0",
-    "typescript": "^5.9.3"
-  }
+    "name": "bb-external-editor",
+    "version": "1.0.0",
+    "description": "template for external editors for the game bitburner",
+    "scripts": {
+        "start": "deno -A --watch ./build.ts",
+        "typecheck": "tsc --noEmit"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/shyguy1412/bb-external-editor.git"
+    },
+    "author": "Shy",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/shyguy1412/bb-external-editor/issues"
+    },
+    "homepage": "https://github.com/shyguy1412/bb-external-editor#readme",
+    "dependencies": {
+        "@types/node": "^24.10.1",
+        "@types/react": "^19.2.6",
+        "@types/react-dom": "^17.0.26",
+        "acorn": "^8.15.0",
+        "acorn-walk": "^8.3.4",
+        "astring": "^1.9.0",
+        "esbuild": "^0.25.12",
+        "esbuild-wasm": "^0.25.12",
+        "geckosvg": "^0.0.5",
+        "js-untar": "^2.0.0",
+        "ramdodger-extension": "^1.0.1",
+        "react-icons": "^5.5.0",
+        "typescript": "^5.9.3"
+    }
 }

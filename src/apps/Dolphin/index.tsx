@@ -1,9 +1,17 @@
 import { FileGrid } from '@/lib/components/FileGrid';
-import style from './Dolphin.css' with {type: "css"};
+import style from './Dolphin.css' with { type: 'css' };
 import { ServerSection } from './ServerSection';
 import { List } from '@/lib/components/List';
 import { get_all_servers } from '@/lib/Network';
-import React, { Dispatch, SetStateAction, createContext, useContext, useEffect, useMemo, useState } from 'react';
+import React, {
+    createContext,
+    Dispatch,
+    SetStateAction,
+    useContext,
+    useEffect,
+    useMemo,
+    useState,
+} from 'react';
 import { BreadCrumbs } from './BreadCrumbs';
 import { list_directory } from '@/lib/FileSystem';
 import { NetscriptContext } from '@/lib/Context';
@@ -16,7 +24,9 @@ import { connect_to_fdaemon } from '@/home/bin/service/fdaemon';
 import { alive } from '@/lib/System';
 
 // @ts-expect-error
-export const PathContext = createContext<([string, Dispatch<SetStateAction<string>>])>(null);
+export const PathContext = createContext<([string, Dispatch<SetStateAction<string>>])>(
+    null,
+);
 
 export function Dolphin() {
     'use exec';
@@ -41,23 +51,29 @@ export function Dolphin() {
 
         if (server.purchasedByPlayer) {
             const label = 'purchased';
-            const section = prev.find(s => s.section == label);
-            if (section) section.servers.push(server);
-            else prev.push({
-                section: label,
-                servers: [server],
-            });
+            const section = prev.find((s) => s.section == label);
+            if (section) {
+                section.servers.push(server);
+            } else {
+                prev.push({
+                    section: label,
+                    servers: [server],
+                });
+            }
             return prev;
         }
 
         if (!server.purchasedByPlayer) {
             const label = 'other';
-            const section = prev.find(s => s.section == label);
-            if (section) section.servers.push(server);
-            else prev.push({
-                section: label,
-                servers: [server],
-            });
+            const section = prev.find((s) => s.section == label);
+            if (section) {
+                section.servers.push(server);
+            } else {
+                prev.push({
+                    section: label,
+                    servers: [server],
+                });
+            }
             return prev;
         }
 
@@ -65,21 +81,24 @@ export function Dolphin() {
     }, [] as Parameters<typeof ServerSection>[0][]);
 
     ns.ui.setTailTitle(`Dolphin - ${path.replace(/([^\/]*)(\/?)/, '$1://')}`);
-    const [files, setFiles] = useState(() => list_directory(ns, path.split('/')[1] ?? '', { withFileTypes: true }));
+    const [files, setFiles] = useState(() =>
+        list_directory(ns, path.split('/')[1] ?? '', { withFileTypes: true })
+    );
 
     useEffect(() => {
-        if (!alive(ns)) return;
+        if (!alive(ns)) {
+            return;
+        }
         const [write, read] = connect_to_fdaemon(ns);
-        write("subscribe", {
+        write('subscribe', {
             event: 'change',
-            path: path
+            path: path,
         });
 
         read().finally(() => setFiles(list_directory(ns, path, { withFileTypes: true })));
     }, [files]);
 
-
-    if (files)
+    if (files) {
         return <>
             <PathContext.Provider value={[path, setPath]}>
                 <div className='dolphin-layout'>
@@ -105,14 +124,18 @@ export function Dolphin() {
                         </span>
                     </div>
                     <div className='dolphin-explorer'>
-                        <List data={sections.map(s => ({ ...s }))} li={ServerSection} ></List>
+                        <List data={sections.map((s) => ({ ...s }))} li={ServerSection}>
+                        </List>
                         <div
                             className='dolphin-explorer-button'
                             onClick={() => (setPath('~home/coding-contracts'))}
-                        >Coding Contracs</div>
+                        >
+                            Coding Contracs
+                        </div>
                     </div>
                     <div className='dolphin-content'>
-                        {/* <DoubleClickFileContext.Provider value={(e, { type, name }) => {
+                        {
+                            /* <DoubleClickFileContext.Provider value={(e, { type, name }) => {
                             switch (type) {
                                 case 'js':
                                     const [server, script] = `${path}/${name}`.split(/\/(.*)/, 2);
@@ -133,14 +156,16 @@ export function Dolphin() {
                             }
                         }}
                         >
-                        </DoubleClickFileContext.Provider> */}
+                        </DoubleClickFileContext.Provider> */
+                        }
                         <FileGrid files={files} path={path}></FileGrid>
                     </div>
                 </div>
             </PathContext.Provider>
         </>;
+    }
 
-    ns.toast("Current folder was deleted, moving to home", "warning");
+    ns.toast('Current folder was deleted, moving to home', 'warning');
 
     return setPath('home') as undefined;
 }

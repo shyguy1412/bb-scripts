@@ -11,21 +11,25 @@ export function Desktop() {
     const config = useContext(ConfigContext);
     const server = ns.self().server;
     const explorerScript = config.get('explorer');
-    const desktop = config.get("desktop") ?? '';
+    const desktop = config.get('desktop') ?? '';
 
-    const [files, setFiles] = useState(list_directory(ns, desktop, { withFileTypes: true }));
+    const [files, setFiles] = useState(
+        list_directory(ns, desktop, { withFileTypes: true }),
+    );
 
     useEffect(() => {
-        if (!alive(ns)) return;
+        if (!alive(ns)) {
+            return;
+        }
         const [write, read] = connect_to_fdaemon(ns);
-        write("subscribe", {
+        write('subscribe', {
             event: 'change',
-            path: desktop
+            path: desktop,
         });
         read().then(() => setFiles(list_directory(ns, desktop, { withFileTypes: true })));
     }, [files]);
 
-    const onDoubleClick: FileGrid.Props["onDoubleClick"] = (_, { type, name }) => {
+    const onDoubleClick: FileGrid.Props['onDoubleClick'] = (_, { type, name }) => {
         switch (type) {
             case 'js':
                 ns.run(name);
@@ -46,6 +50,6 @@ export function Desktop() {
     };
 
     return <div className='plasma-desktop'>
-        <FileGrid path={server} files={files} onDoubleClick={onDoubleClick} ></FileGrid>
+        <FileGrid path={server} files={files} onDoubleClick={onDoubleClick}></FileGrid>
     </div>;
 }

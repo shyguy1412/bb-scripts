@@ -1,17 +1,17 @@
 .file-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, 15em);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, 15em);
 
-  max-height: 100%;
-  height: fit-content;
+    max-height: 100%;
+    height: fit-content;
 
-  gap: 0.5em;
+    gap: 0.5em;
 
-  overflow-x: hidden;
-  overflow-y: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 .file-grid-drop-target {
-  height: 100%;
-  overflow: hidden;
+    height: 100%;
+    overflow: hidden;
 }

@@ -1,5 +1,5 @@
-import style from './FileTile.css' with {'type': 'css'};
-import React, { MouseEvent, createContext, useContext } from 'react';
+import style from './FileTile.css' with { type: 'css' };
+import React, { createContext, MouseEvent, useContext } from 'react';
 import { DragTarget } from '@/lib/components/DragTarget';
 import { NetscriptContext } from '@/lib/Context';
 
@@ -10,76 +10,87 @@ import { adoptStyle } from '@/lib/BitburnerDOM';
 // export const DoubleClickFileContext = createContext<(() => { });
 
 const FileIcon = {
-  'js': () => <FaFileCode></FaFileCode>,
-  'exe': () => <FaFileCode></FaFileCode>,
-  'txt': () => <FaFileLines></FaFileLines>,
-  'msg': () => <FaFileLines></FaFileLines>,
-  'folder': () => <FaFolderClosed></FaFolderClosed>,
+    js: () => <FaFileCode></FaFileCode>,
+    exe: () => <FaFileCode></FaFileCode>,
+    txt: () => <FaFileLines></FaFileLines>,
+    msg: () => <FaFileLines></FaFileLines>,
+    folder: () => <FaFolderClosed></FaFolderClosed>,
 } as const;
 type FileIcon = keyof typeof FileIcon;
 
 export namespace FileTile {
-  export type File = {
-    path: string; name: string; type: FileIcon;
-  };
-
-  export type Props = {
-    file: {
-      name: string,
-      type: 'file' | 'folder';
+    export type File = {
+        path: string;
+        name: string;
+        type: FileIcon;
     };
-    path: string;
-    onDoubleClick?: (e: MouseEvent<HTMLDivElement>, file: File) => void;
-  };
+
+    export type Props = {
+        file: {
+            name: string;
+            type: 'file' | 'folder';
+        };
+        path: string;
+        onDoubleClick?: (e: MouseEvent<HTMLDivElement>, file: File) => void;
+    };
 }
 
 export function FileTile({ file, path, onDoubleClick }: FileTile.Props) {
-  const ns = useContext(NetscriptContext);
-  const type = (file.type == 'file' ? file.name.split('.').at(-1) : 'folder') as FileIcon;
-  const Icon = FileIcon[type] ?? FileIcon['txt'];
+    const ns = useContext(NetscriptContext);
+    const type =
+        (file.type == 'file' ? file.name.split('.').at(-1) : 'folder') as FileIcon;
+    const Icon = FileIcon[type] ?? FileIcon['txt'];
 
-  adoptStyle(ns, style);
+    adoptStyle(ns, style);
 
-  const preventDragDefault: React.DragEventHandler<HTMLDivElement> = (e) => {
-    if (e.dataTransfer.types.includes('file') && type == 'folder') e.preventDefault();
-  };
+    const preventDragDefault: React.DragEventHandler<HTMLDivElement> = (e) => {
+        if (e.dataTransfer.types.includes('file') && type == 'folder') {
+            e.preventDefault();
+        }
+    };
 
-  const onDrop: React.DragEventHandler<HTMLDivElement> = (e) => {
-    if (type != 'folder') return;
-    const [sourceServer, sourceFile] = e.dataTransfer.getData('data').split(/\/(.*)/, 2);
-    const [targetServer] = path.split('/');
-    // transferFile(
-    //   ns,
-    //   `${sourceServer}/${sourceFile}`,
-    //   `${path}/${file.name}/${sourceFile.split('/').at(-1)}`,
-    //   sourceServer != targetServer
-    // );
-  };
+    const onDrop: React.DragEventHandler<HTMLDivElement> = (e) => {
+        if (type != 'folder') {
+            return;
+        }
+        const [sourceServer, sourceFile] = e.dataTransfer.getData('data').split(
+            /\/(.*)/,
+            2,
+        );
+        const [targetServer] = path.split('/');
+        // transferFile(
+        //   ns,
+        //   `${sourceServer}/${sourceFile}`,
+        //   `${path}/${file.name}/${sourceFile.split('/').at(-1)}`,
+        //   sourceServer != targetServer
+        // );
+    };
 
-  return <DragTarget
-    className='file-tile'
-    group={`${type != 'folder' ? 'file' : 'folder'}`}
-    data={`${path}/${file.name}`}
-    onDoubleClick={(e) => onDoubleClick?.(e, { name: file.name, path, type })}
-    onDragEnter={preventDragDefault}
-    onDragOver={preventDragDefault}
-    onDrop={onDrop}
-  >
-    <Icon></Icon>
+    return <DragTarget
+        className='file-tile'
+        group={`${type != 'folder' ? 'file' : 'folder'}`}
+        data={`${path}/${file.name}`}
+        onDoubleClick={(e) => onDoubleClick?.(e, { name: file.name, path, type })}
+        onDragEnter={preventDragDefault}
+        onDragOver={preventDragDefault}
+        onDrop={onDrop}
+    >
+        <Icon></Icon>
 
-    <div
-      className='file-tile-name'
-      spellCheck={false}
-      onDoubleClick={() => void 0}
-    >{file.name}</div>
+        <div
+            className='file-tile-name'
+            spellCheck={false}
+            onDoubleClick={() => void 0}
+        >
+            {file.name}
+        </div>
 
-    <div className='file-tile-action-buttons'>
-      <EditButton></EditButton>
-      <TrashCanButton></TrashCanButton>
-    </div>
-  </DragTarget>;
-};
-
+        <div className='file-tile-action-buttons'>
+            <EditButton></EditButton>
+            <TrashCanButton></TrashCanButton>
+        </div>
+    </DragTarget>;
+}
 
 // (e) => {
 //         e.stopPropagation();
@@ -110,25 +121,29 @@ export function FileTile({ file, path, onDoubleClick }: FileTile.Props) {
 //       }
 
 function EditButton() {
-  return <FaPen
-    className=''
-    onClick={async () => {
-      // const term = new Terminal(ns);
-      // const [server, filepath] = `${path}/${file.name}`.split(/\/(.*)/, 2);
-      // if (!term.terminalInput) return ns.toast('Editing can only be triggered when the terminal tab is selected', 'warning');
-      // term.exec(getConnectionPath(ns, server).reduce((prev, cur) => prev + `connect ${cur};`, ''));
-      // term.exec(`nano ${filepath}`);
-      // term.cleanup();
-    }}></FaPen>;
+    return <FaPen
+        className=''
+        onClick={async () => {
+            // const term = new Terminal(ns);
+            // const [server, filepath] = `${path}/${file.name}`.split(/\/(.*)/, 2);
+            // if (!term.terminalInput) return ns.toast('Editing can only be triggered when the terminal tab is selected', 'warning');
+            // term.exec(getConnectionPath(ns, server).reduce((prev, cur) => prev + `connect ${cur};`, ''));
+            // term.exec(`nano ${filepath}`);
+            // term.cleanup();
+        }}
+    >
+    </FaPen>;
 }
 
 function TrashCanButton() {
-  return <FaTrashCan
-    onClick={async () => {
-      // if (! await ns.prompt(`Are you sure you want to delete ${path}/${file.name}?`, { type: 'boolean' })) return;
-      // if (type == 'folder')
-      // delete_folder(ns, `${path}/${file.name}`);
-      // else
-      // deleteFile(ns, `${path}/${file.name}`);
-    }}></FaTrashCan>;
+    return <FaTrashCan
+        onClick={async () => {
+            // if (! await ns.prompt(`Are you sure you want to delete ${path}/${file.name}?`, { type: 'boolean' })) return;
+            // if (type == 'folder')
+            // delete_folder(ns, `${path}/${file.name}`);
+            // else
+            // deleteFile(ns, `${path}/${file.name}`);
+        }}
+    >
+    </FaTrashCan>;
 }
