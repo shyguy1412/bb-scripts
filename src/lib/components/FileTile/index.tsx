@@ -53,7 +53,7 @@ export function FileTile({ file, path, onDoubleClick }: FileTile.Props) {
         if (type != 'folder') {
             return;
         }
-        const [sourceServer, sourceFile] = e.dataTransfer.getData('data').split(
+        const [sourceServer, sourceFile] = e.dataTransfer['getData']('data').split(
             /\/(.*)/,
             2,
         );

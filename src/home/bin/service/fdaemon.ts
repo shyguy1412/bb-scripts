@@ -1,4 +1,4 @@
-import { is_file, list_directory } from '@/lib/FileSystem';
+import { is_file, list_directory } from '@/lib/fs';
 import {
     create_service_interface,
     register_as_service,

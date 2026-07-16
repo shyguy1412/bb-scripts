@@ -96,11 +96,9 @@ export function write_to_service<T extends string, D>(
         data: arg,
     };
 
-    if (!service.port) {
+    if (!service.port || +ns.read(`${service.name}.txt`) == service.port) {
         return false;
     }
-
-    ns.read(`${service.name}.txt`);
 
     return ns.tryWritePort(service.port, message);
 }
@@ -143,11 +141,11 @@ export function register_as_service(ns: NS, service?: string) {
 
     const currently = +ns.read(pidFile);
 
-    if (currently && currently != ns.pid && ns.isRunning(currently)) {
+    if (currently && currently != ns.pid) {
         throw new Error('another instance of ' + service + ' is already running');
     }
 
     ns.write(pidFile, ns.pid + '', 'w');
 
-    ns.atExit(() => ns.rm(pidFile), '__syscall_register_service');
+    ns.atExit(() => ns.write(pidFile, '', 'w'), '__syscall_register_service');
 }

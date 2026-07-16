@@ -1,7 +1,7 @@
 import style from './FileGrid.css' with { type: 'css' };
 import { useContext, useMemo } from 'react';
 import React from 'react';
-import { DirEnt } from '@/lib/FileSystem';
+import { DirEnt } from '@/lib/fs';
 import { List } from '@/lib/components/List';
 import { DropTarget } from '@/lib/components/DropTarget';
 import { FileTile } from '@/lib/components/FileTile';

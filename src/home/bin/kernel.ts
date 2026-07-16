@@ -34,13 +34,14 @@ export async function main(ns: NS) {
     if (ns.args.includes('--replace')) {
         const service = get_service(ns, __META_FILENAME);
         if (service.port != 0) {
-            ns.kill(service.port);
+            ns.ramOverride(ns.ramOverride() + ns.getFunctionRamCost('kill'));
+            ns['kill'](service.port);
         }
     }
 
     register_as_service(ns);
 
-    const fdaemon = create_fdaemon(ns);
+    const fdaemon = 0; //create_fdaemon(ns);
     const hmr_daemon = create_hmr_daemon(ns);
 
     enable_hot_reload(ns);

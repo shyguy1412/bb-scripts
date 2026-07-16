@@ -1,6 +1,6 @@
 import { ConfigContext } from '../main';
 import { NetscriptContext } from '@/lib/Context';
-import { list_directory } from '@/lib/FileSystem';
+import { list_directory } from '@/lib/fs';
 import { FileGrid } from '@/lib/components/FileGrid';
 import { connect_to_fdaemon } from '@/home/bin/service/fdaemon';
 import React, { useContext, useEffect, useState } from 'react';

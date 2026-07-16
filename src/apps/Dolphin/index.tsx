@@ -13,7 +13,7 @@ import React, {
     useState,
 } from 'react';
 import { BreadCrumbs } from './BreadCrumbs';
-import { list_directory } from '@/lib/FileSystem';
+import { list_directory } from '@/lib/fs';
 import { NetscriptContext } from '@/lib/Context';
 // import { getAllCodingContracts } from '@/lib/FileSystem';
 // import { useReload } from '@/lib/hooks/useReload';

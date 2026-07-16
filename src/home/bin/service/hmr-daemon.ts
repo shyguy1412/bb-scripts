@@ -19,7 +19,9 @@ export { connect_to_hmr_daemon };
 
 export function enable_hot_reload(ns: NS) {
     const [write] = connect_to_hmr_daemon(ns);
-    console.log(write('', ''));
+    if (!write('', '')) {
+        throw new Error('kernel is not running');
+    }
 }
 
 const cli = createCommand().option('--server', 'Run as server');
@@ -51,7 +53,7 @@ export function create_hmr_daemon(ns: NS) {
         data.set(key, value);
     }
 
-    ns.rm(__HMR_CACHE);
+    ns.write(__HMR_CACHE, '', 'w');
 
     return () => hmr_daemon_cyle(ns, data);
 }
@@ -60,7 +62,7 @@ function hmr_daemon_cyle(ns: NS, data: HMRData) {
     process_request_queue(ns, data);
 
     for (const [pid, content] of data) {
-        const script = ns.getRunningScript(pid);
+        const script = ns.isRunning(pid);
         if (!script) {
             data.delete(pid);
             continue;
@@ -72,7 +74,7 @@ function hmr_daemon_cyle(ns: NS, data: HMRData) {
             continue;
         }
 
-        console.log(`HOT RELOAD (${script.pid}): ${script.server}://${script.filename}`);
+        console.log(`HOT RELOAD (${pid}): ${script.server}://${script.filename}`);
 
         if (pid == ns.pid) {
             const self = ns.self();

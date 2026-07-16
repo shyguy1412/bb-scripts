@@ -48,7 +48,7 @@ export async function Plasma(ns: NS) {
     if (!config) {
         config = {
             explorer: '/bin/dolphin.js',
-            terminal: '/bin/Konsole2.js',
+            terminal: '/bin/Konsole.js',
             homeapps: [],
             desktop: 'home',
         };
