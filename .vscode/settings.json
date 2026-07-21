@@ -1,0 +1,7 @@
+{
+    "discord.enabled": true,
+    "deno.enable": true,
+    "deno.disablePaths": ["./src"],
+    "deno.config": "./deno.jsonc",
+    "editor.formatOnSave": true
+}

@@ -1,7 +1,7 @@
 # Shyguys Bitburner scripts
 
 This repo uses the [bb-external-editor](https://github.com/shyguy1412/bb-external-editor) template!
-Also check out my [plugin](https://github.com/NilsRamstoeck/esbuild-bitburner-plugin) that powers all this
+Also check out my [plugin](https://github.com/shyguy1412/esbuild-bitburner-plugin) that powers all this
 
 Transpiled and stand-alone versions of my scripts are available under releases.
 
@@ -9,14 +9,4 @@ Notice: Most my scripts dodge ram by offloading ram heavy operations to a worker
 
 ## Currently Maintained Scripts
 
-- [Dolphin](./doc/Dolphin.md) A simple file explorer with drag/drop support
-- [Konsole](./doc/Konsole.md) Clones the terminal into a tail window (for use with Plasma)
-- [Plasma](./doc/Plasma.md) A KDE Plasma inspired Desktop Enviroment
-- [WindowApp](./doc/WindowApp.md) A library for making UI apps with react utilizing the tail windows.
-- [ServerManager](./doc/ServerManager.md) UI tool to buy, upgrade and delete servers
-- [ServerViewer](./doc/ServerViewer.md) View stats of servers on the network.
-- [Batcher](./doc/Batcher.md) My batcher. Works with and without Formulas API.
-- [RootGainer](./doc/RootGainer.md) Runs in the background until every server in the network is rooted.
-- [npm.js](./doc/npm.md) A crude tool to download and import npm packages inside bitburner.
-- [FapUI](./doc/FapUI.md) Fast and Practical UI. A simple UI framework to quickly get started with custom UI
-- [Commander.js](./doc/Commander.md) A port of [Commander.js](https://www.npmjs.com/package/commander) for Bitburner with some added autocomplete support
+None! (maybe again in the future)
