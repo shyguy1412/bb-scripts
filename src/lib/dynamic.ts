@@ -27,8 +27,13 @@ export function createDynamicContext(ns: NS) {
     const functionMap: Set<Path<NS>> = new Set();
 
     return <F extends Path<NS>>(
-        name: F,
-        args: Parameters<AsFunction<GetByPath<NS, F>>>,
+        ...[name, args]: Parameters<AsFunction<GetByPath<NS, F>>> extends [] ? [
+                name: F,
+            ] :
+            [
+                name: F,
+                args: Parameters<AsFunction<GetByPath<NS, F>>>,
+            ]
     ) => {
         if (!functionMap.has(name)) {
             ns.ramOverride(ns.ramOverride() + ns.getFunctionRamCost(name));
@@ -40,7 +45,7 @@ export function createDynamicContext(ns: NS) {
             func = func[segment];
         }
 
-        return func(...args) as ReturnType<
+        return func(...(args ?? [])) as ReturnType<
             AsFunction<GetByPath<NS, F>>
         >;
     };

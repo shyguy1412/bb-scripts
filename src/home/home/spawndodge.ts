@@ -1,22 +1,26 @@
-import { createDynamicContext } from '@/lib/dynamic';
-import { createStageContext } from '@/lib/stage';
+import { Hooks, useReactBurner } from '@/lib/stage';
 
 export async function main(ns: NS) {
-    const dynamic = createDynamicContext(ns);
-    const stage = createStageContext(ns, () => console.clear());
+    const hooks = useReactBurner(ns);
 
-    const servers = stage(() => {
-        const servers = dynamic('scan', ['home']);
+    const [servers, setServers, serversId] = hooks.useState([] as string[]);
 
-        for (const server of servers) {
-            const newServers = dynamic('scan', [server]).slice(1);
+    hooks.useEffect(() => hooks.useDynamic('tprint', [servers]), [
+        serversId,
+    ]);
 
-            servers.push(...newServers.filter((s) => !servers.includes(s)));
-        }
-        return servers;
-    });
+    hooks.useEffect(() => setServers(getAllServers(hooks)), []);
 
-    dynamic('tprint', [servers]);
+    hooks.useDynamic('tprint', [hooks.useDynamic('self').dynamicRamUsage]);
+}
 
-    // return new Promise(() => {});
+function getAllServers(hooks: Hooks): string[] {
+    const servers = hooks.useDynamic('scan', ['home']);
+
+    for (const server of servers) {
+        const newServers = hooks.useDynamic('scan', [server]).slice(1);
+
+        servers.push(...newServers.filter((s) => !servers.includes(s)));
+    }
+    return servers;
 }

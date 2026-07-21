@@ -1,3 +1,26 @@
+import * as hooks from './hooks';
+
+export type Hooks = {
+    [K in keyof typeof hooks]: ReturnType<typeof hooks[K]>;
+};
+
+export const ID_SYMBOL = Symbol();
+export const STATE_SYMBOL = Symbol();
+
+export function useReactBurner(ns: NS): Hooks {
+    const parent = ns.self().parent;
+
+    const global = parent ? ns.readPort(parent) : {
+        cur: 0,
+        states: [],
+    };
+
+    ns.writePort(ns.pid, global);
+
+    const boundHooks = Object.entries(hooks).map(([k, v]) => [k, v(ns)] as const);
+    return Object.fromEntries(boundHooks) as Hooks;
+}
+
 export function createStageContext(ns: NS, init?: () => void) {
     const parent = ns.self().parent;
 
