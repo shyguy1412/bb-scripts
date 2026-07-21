@@ -6,7 +6,7 @@ import {
 import { create_fdaemon } from '@/home/bin/service/fdaemon';
 import { create_hmr_daemon, enable_hot_reload } from '@/home/bin/service/hmr-daemon';
 import __META_FILENAME from 'meta:filename';
-import { getSafePortHandle } from '@/lib/System';
+import { getSafePortHandle } from '@/lib/os';
 
 export const CYCLE_FREQUENCY = 0;
 export const CYCLE_TIMEOUT = 100;
@@ -41,7 +41,7 @@ export async function main(ns: NS) {
 
     register_as_service(ns);
 
-    const fdaemon = 0; //create_fdaemon(ns);
+    const fdaemon = create_fdaemon(ns);
     const hmr_daemon = create_hmr_daemon(ns);
 
     enable_hot_reload(ns);

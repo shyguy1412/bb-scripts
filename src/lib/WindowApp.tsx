@@ -1,5 +1,4 @@
 import { findTailRoot, watchElForDeletion } from '@/lib/BitburnerDOM';
-import { NetscriptContext, TailRootContext, TerminateContext } from '@/lib/Context';
 import React from 'react';
 import { createPortal } from 'react-dom';
 
@@ -26,7 +25,8 @@ export async function createWindowApp(ns: NS, Component: React.FunctionComponent
         watchElForDeletion(root, () => resolve(), controller.signal);
         ns.printRaw(
             <>
-                {createPortal(
+                {
+                    /* {createPortal(
                     <NetscriptContext.Provider value={ns}>
                         <TerminateContext.Provider value={resolve}>
                             <TailRootContext.Provider value={root}>
@@ -46,7 +46,8 @@ export async function createWindowApp(ns: NS, Component: React.FunctionComponent
                         </TerminateContext.Provider>
                     </NetscriptContext.Provider>,
                     root,
-                )}
+                )} */
+                }
             </>,
         );
         ns.ui.renderTail();
@@ -55,5 +56,3 @@ export async function createWindowApp(ns: NS, Component: React.FunctionComponent
 
 export const mainWrapper = (Component: React.FunctionComponent) => (ns: NS) =>
     createWindowApp(ns, Component).catch(console.error);
-
-export { NetscriptContext, TerminateContext } from '@/lib/Context';

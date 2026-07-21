@@ -1,4 +1,4 @@
-import { alive, getSafePortHandle } from '@/lib/System';
+import { alive, getSafePortHandle } from '@/lib/os';
 import { system_cycle } from '@/home/bin/kernel';
 
 type Service = {

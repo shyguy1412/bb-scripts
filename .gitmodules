@@ -1,4 +1,0 @@
-[submodule "src/rust/bindings"]
-	path = src/rust/bindings
-	url = ../bitburner-rust-bindings
-	branch = master

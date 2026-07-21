@@ -4,7 +4,7 @@ import {
     FapElement,
     recursivePrepareContent,
 } from '@/lib/FapUI';
-import { sleep } from '@/lib/System';
+import { sleep } from '@/lib/os';
 import React, {
     Children,
     createContext,
