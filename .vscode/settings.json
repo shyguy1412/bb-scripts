@@ -3,7 +3,7 @@
     "deno.enable": true,
     "deno.disablePaths": ["./src"],
     "deno.config": "./deno.jsonc",
-    "editor.formatOnSave": true,
-    "js/ts.tsdk.path": "node_modules/typescript/lib",
-    "js/ts.tsdk.promptToUseWorkspaceVersion": true
+    "editor.formatOnSave": true
+    // "js/ts.tsdk.path": "node_modules/typescript/lib",
+    // "js/ts.tsdk.promptToUseWorkspaceVersion": true
 }

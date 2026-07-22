@@ -9,7 +9,7 @@ type StringKeys<T> = {
     [K in keyof T]: K extends string ? K : never;
 }[keyof T];
 
-type Path<T> = {
+export type Path<T> = {
     [K in StringKeys<T>]: K extends keyof NamespaceOf<T> ? `${K}.${Path<T[K]>}` :
         K;
 }[StringKeys<T>];
@@ -23,18 +23,20 @@ type GetByPath<T, P extends Path<T>> = P extends keyof T ? T[P] :
 
 type AsFunction<T> = T extends (...args: any) => any ? T : never;
 
-export function createDynamicContext(ns: NS) {
+export type DynamicArguments<F extends Path<NS>> =
+    Parameters<AsFunction<GetByPath<NS, F>>> extends undefined[] ? [
+            name: F,
+            args?: Parameters<AsFunction<GetByPath<NS, F>>>,
+        ] :
+        [
+            name: F,
+            args: Parameters<AsFunction<GetByPath<NS, F>>>,
+        ];
+
+export function createDynamicContext(ns: NS): DynamicNS {
     const functionMap: Set<Path<NS>> = new Set();
 
-    return <F extends Path<NS>>(
-        ...[name, args]: Parameters<AsFunction<GetByPath<NS, F>>> extends [] ? [
-                name: F,
-            ] :
-            [
-                name: F,
-                args: Parameters<AsFunction<GetByPath<NS, F>>>,
-            ]
-    ) => {
+    return (...[name, args]) => {
         if (!functionMap.has(name)) {
             ns.ramOverride(ns.ramOverride() + ns.getFunctionRamCost(name));
             functionMap.add(name);
@@ -45,10 +47,10 @@ export function createDynamicContext(ns: NS) {
             func = func[segment];
         }
 
-        return func(...(args ?? [])) as ReturnType<
-            AsFunction<GetByPath<NS, F>>
-        >;
+        return func(...(args ?? []));
     };
 }
 
-export type DynamicNS = ReturnType<typeof createDynamicContext>;
+export type DynamicNS = <F extends Path<NS>>(...args: DynamicArguments<F>) => ReturnType<
+    AsFunction<GetByPath<NS, F>>
+>;

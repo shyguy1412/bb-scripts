@@ -88,6 +88,7 @@ export const useLoop = (ns: NS) => (delay = 0) => {
 
 type PollState<T> = {
     poll: PollReady<T> | PollPending;
+    attempts: number;
     dependencies: undefined | string[];
 };
 type PollReady<T> = { ready: true; value: T };
@@ -98,10 +99,11 @@ export const usePoll = (ns: NS) =>
     cb: () => T | undefined,
     dependencies: string[],
     interval = 100,
+    attempts?: number,
 ) => {
     const hookState: HookState<PollState<T>> = useHookState<PollState<T>>(
         ns,
-        () => ({ poll: { ready: false }, dependencies: undefined }),
+        () => ({ attempts: 0, poll: { ready: false }, dependencies: undefined }),
     );
 
     if (
@@ -115,12 +117,20 @@ export const usePoll = (ns: NS) =>
     hookState.state.dependencies = dependencies;
     hookState.patch();
 
-    console.log({ poll: hookState });
-
     let result = cb();
+    hookState.state.attempts++;
+
+    if (attempts && attempts < hookState.state.attempts) {
+        throw new Error('Poll ran out of attempts');
+    }
+
     if (result) {
         hookState.state.poll = { ready: true, value: result };
+        hookState.state.attempts = 0;
+        hookState.patch();
+        return result;
     }
+    console.log('poll delay: ' + interval);
     hookState.commit(interval);
 };
 
@@ -163,7 +173,7 @@ function useGlobalState<T>(
     ns.writePort(ns.pid, global);
     if (commit) {
         ns.ramOverride(ns.ramOverride() + 2);
-        ns['spawn'](ns.self().filename, { spawnDelay: delay });
+        ns['spawn'](ns.self().filename, { spawnDelay: delay, temporary: true });
         ns.exit();
     }
     return r;
