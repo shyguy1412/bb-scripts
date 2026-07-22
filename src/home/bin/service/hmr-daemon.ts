@@ -1,11 +1,6 @@
-import {
-    create_service_interface,
-    register_as_service,
-    Request,
-} from '@/lib/syscalls/service';
+import { create_service_interface, register_as_service, Request } from '@/lib/service';
 import { system_cycle } from '@/home/bin/kernel';
 import __META_FILENAME from 'meta:filename';
-import { createCommand } from '@/lib/Commander';
 
 type HMRData = Map<number, string>;
 
@@ -23,8 +18,6 @@ export function enable_hot_reload(ns: NS) {
         throw new Error('kernel is not running');
     }
 }
-
-const cli = createCommand().option('--server', 'Run as server');
 
 export async function main(ns: NS) {
     if (ns.args[0] == '--') {
@@ -62,7 +55,7 @@ function hmr_daemon_cyle(ns: NS, data: HMRData) {
     process_request_queue(ns, data);
 
     for (const [pid, content] of data) {
-        const script = ns.isRunning(pid);
+        const script = ns.getRunningScript(pid);
         if (!script) {
             data.delete(pid);
             continue;

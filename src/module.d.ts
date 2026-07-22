@@ -1,7 +1,7 @@
-declare module '*.css' {
-    const content: CSSStyleSheet;
-    export default content;
-}
+// declare module '*.css' {
+//     const content: CSSStyleSheet;
+//     export default content;
+// }
 
 declare module 'meta:filename' {
     const content: string;

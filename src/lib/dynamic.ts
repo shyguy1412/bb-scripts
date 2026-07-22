@@ -50,3 +50,5 @@ export function createDynamicContext(ns: NS) {
         >;
     };
 }
+
+export type DynamicNS = ReturnType<typeof createDynamicContext>;

@@ -1,10 +1,10 @@
-import { is_file, list_directory } from '@/lib/fs';
+import { is_file, list_directory } from '@/lib/std/fs';
 import {
     create_service_interface,
     register_as_service,
     Request,
     ResponseChannel,
-} from '@/lib/syscalls/service';
+} from '@/lib/service';
 import { system_cycle } from '@/home/bin/kernel';
 import __META_FILENAME from 'meta:filename';
 

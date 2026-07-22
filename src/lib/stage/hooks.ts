@@ -1,4 +1,6 @@
 import { createDynamicContext } from '@/lib/dynamic';
+import { Result } from '@/lib/result';
+import { create_service_interface, register_as_service, Request } from '@/lib/service';
 import { Dispatch } from 'react';
 
 type UseStateState<T> = {
@@ -19,8 +21,6 @@ export const useState =
         }
 
         return [state.value, (value) => {
-            console.log('SET STATE');
-
             state.value = value;
             state.id = crypto.randomUUID();
             commit();
@@ -64,16 +64,14 @@ export const useEffect = (ns: NS) =>
 };
 
 export const useComputed =
-    (ns: NS) => <T>(compute: () => T, dependencies?: string[]): T => {
-        const _useEffect = useEffect(ns);
-
+    (ns: NS) => <T>(compute: () => T, dependencies: string[]): T => {
         const hookState: HookState<T | undefined> = useHookState<T | undefined>(
             ns,
             () => undefined,
         );
 
         let computed = hookState.state;
-        _useEffect(() => {
+        useEffect(ns)(() => {
             hookState.state = compute();
             hookState.commit();
         }, dependencies);
@@ -88,15 +86,65 @@ export const useLoop = (ns: NS) => (delay = 0) => {
     useGlobalState(ns, () => {}, true, delay);
 };
 
+type PollState<T> = {
+    poll: PollReady<T> | PollPending;
+    dependencies: undefined | string[];
+};
+type PollReady<T> = { ready: true; value: T };
+type PollPending = { ready: false };
+
+export const usePoll = (ns: NS) =>
+<T, E>(
+    cb: () => T | undefined,
+    dependencies: string[],
+    interval = 100,
+) => {
+    const hookState: HookState<PollState<T>> = useHookState<PollState<T>>(
+        ns,
+        () => ({ poll: { ready: false }, dependencies: undefined }),
+    );
+
+    if (
+        hookState.state.poll.ready &&
+        hookState.state.dependencies &&
+        hookState.state.dependencies.length == dependencies?.length &&
+        dependencies.every((id, i) => hookState.state.dependencies![i] == id)
+    ) {
+        return hookState.state.poll.value;
+    }
+    hookState.state.dependencies = dependencies;
+    hookState.patch();
+
+    console.log({ poll: hookState });
+
+    let result = cb();
+    if (result) {
+        hookState.state.poll = { ready: true, value: result };
+    }
+    hookState.commit(interval);
+};
+
+export const useSignal = (ns: NS) => () => {
+    const [flag, setFlag, signal] = useState(ns)(false);
+
+    return [signal, () => setFlag(!flag)] as const;
+};
+
 type HookState<T> = {
     state: T;
     patch(): void;
-    commit(): never;
+    commit(delay?: number): never;
 };
 
-type GlobalState = {
+export type GlobalState = {
+    rootPid: number;
     cur: number;
     states: any[];
+};
+
+export const useRootPid = (ns: NS) => <T>(cb: (port: number) => T): T => {
+    const rootPid = useGlobalState(ns, (global) => global.rootPid);
+    return cb(rootPid);
 };
 
 function useGlobalState<T>(
@@ -129,13 +177,18 @@ function useHookState<T>(ns: NS, init: () => T): HookState<T> {
         return [global.cur, global.states[global.cur++] as T];
     });
 
-    const updateState = (commit = false) =>
-        useGlobalState(ns, (global) => global.states[id] = hookState.state, commit);
+    const updateState = (commit = false, delay = 0) =>
+        useGlobalState(
+            ns,
+            (global) => global.states[id] = hookState.state,
+            commit,
+            delay,
+        );
 
     const hookState: HookState<T> = {
         state,
         patch: () => updateState(),
-        commit: () => updateState(true) as never,
+        commit: (delay: number) => updateState(true, delay) as never,
     };
 
     return hookState;

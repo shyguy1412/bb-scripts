@@ -1,18 +1,18 @@
 import { BuildOptions, context, Plugin } from 'esbuild';
-import { BitburnerPlugin, PluginExtension } from 'esbuild-bitburner-plugin';
+import { BitburnerPlugin } from 'esbuild-bitburner-plugin';
 
 const CustomImportAttributes: Plugin = {
     name: 'CustomImportAttributes',
     setup(pluginBuild) {
-        pluginBuild.onLoad({ filter: /.*/ }, (opts) => {
-            if (opts.with.type == 'css') {
-                return {
-                    contents:
-                        `import css from '${opts.path}' with {type: 'text'};const sheet = new CSSStyleSheet();await sheet.replace(css);export default sheet;`,
-                    loader: 'js',
-                };
-            }
-        });
+        // pluginBuild.onLoad({ filter: /.*/ }, (opts) => {
+        //     if (opts.with.type == 'css') {
+        //         return {
+        //             contents:
+        //                 `import css from '${opts.path}' with {type: 'text'};const sheet = new CSSStyleSheet();await sheet.replace(css);export default sheet;`,
+        //             loader: 'js',
+        //         };
+        //     }
+        // });
 
         pluginBuild.onLoad({ filter: /.*/ }, async (opts) => {
             if (opts.with.type == 'text') {
@@ -59,18 +59,18 @@ const MetaImports: Plugin = {
     },
 };
 
-const ClearChunksExtension: PluginExtension = {
-    async afterBuild(rfa) {
-        const files = (await rfa.getFileNames('home')).map((r) => r.result).unwrapOr(
-            [],
-        ) as string[];
-        const chunks = files.filter((f) => f.startsWith('usr/lib/chunks'));
-        // const bin = files.filter((f) => f.startsWith("bin"));
-        await Promise.all(
-            chunks.map((c) => rfa.deleteFile({ filename: c, server: 'home' })),
-        );
-    },
-};
+// const ClearChunksExtension: PluginExtension = {
+//     async afterBuild(rfa) {
+//         const files = (await rfa.getFileNames('home')).map((r) => r.result).unwrapOr(
+//             [],
+//         ) as string[];
+//         const chunks = files.filter((f) => f.startsWith('usr/lib/chunks'));
+//         // const bin = files.filter((f) => f.startsWith("bin"));
+//         await Promise.all(
+//             chunks.map((c) => rfa.deleteFile({ filename: c, server: 'home' })),
+//         );
+//     },
+// };
 
 export const config: BuildOptions = {
     entryPoints: [
@@ -93,7 +93,7 @@ export const config: BuildOptions = {
             port: 12525,
             types: 'NetscriptDefinitions.d.ts',
             mirror: { mirror: ['home'] },
-            extensions: [ClearChunksExtension],
+            // extensions: [ClearChunksExtension],
         }),
     ],
     bundle: true,

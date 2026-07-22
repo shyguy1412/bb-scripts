@@ -1,12 +1,7 @@
-import {
-    get_service,
-    get_service_port,
-    register_as_service,
-} from '@/lib/syscalls/service';
+import { get_service, get_service_port, register_as_service } from '@/lib/service';
 import { create_fdaemon } from '@/home/bin/service/fdaemon';
 import { create_hmr_daemon, enable_hot_reload } from '@/home/bin/service/hmr-daemon';
 import __META_FILENAME from 'meta:filename';
-import { getSafePortHandle } from '@/lib/os';
 
 export const CYCLE_FREQUENCY = 0;
 export const CYCLE_TIMEOUT = 100;
@@ -46,11 +41,10 @@ export async function main(ns: NS) {
 
     enable_hot_reload(ns);
 
-    const port = getSafePortHandle(ns, ns.pid)!;
-
     let last_uuid = '';
 
     while (true) {
+        const port = ns.getPortHandle(ns.pid)!;
         fdaemon();
         hmr_daemon();
 
